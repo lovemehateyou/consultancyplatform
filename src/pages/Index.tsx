@@ -1,11 +1,20 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import ProfileHeader from "@/components/ProfileHeader";
+import AboutSection from "@/components/AboutSection";
+import SkillsInterests from "@/components/SkillsInterests";
+import RecentActivity from "@/components/RecentActivity";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-background py-8 px-4">
+      <div className="max-w-3xl mx-auto space-y-6">
+        <ProfileHeader />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <AboutSection />
+          <SkillsInterests />
+        </div>
+        
+        <RecentActivity />
       </div>
     </div>
   );
