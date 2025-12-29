@@ -9,6 +9,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Profile", path: "/" },
   { label: "Registration", path: "/registration" },
+  { label: "Dashboard", path: "/dashboard" },
 ];
 
 const Navbar = () => {
