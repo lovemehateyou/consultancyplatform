@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -43,12 +44,17 @@ const consultants: Consultant[] = [
 ];
 
 const ConsultantsTable = () => {
+  const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedConsultant, setSelectedConsultant] = useState<string>("");
 
   const handleBookClick = (name: string) => {
     setSelectedConsultant(name);
     setDialogOpen(true);
+  };
+
+  const handleViewProfile = (id: string) => {
+    navigate(`/consultant/${id}`);
   };
 
   const getInitials = (name: string) => {
@@ -97,7 +103,10 @@ const ConsultantsTable = () => {
                   <Checkbox />
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-3">
+                  <div 
+                    className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => handleViewProfile(consultant.id)}
+                  >
                     <Avatar className="w-10 h-10">
                       <AvatarImage src={consultant.avatar} />
                       <AvatarFallback className="bg-primary/10 text-primary text-sm">
@@ -105,7 +114,7 @@ const ConsultantsTable = () => {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium text-foreground">{consultant.name}</p>
+                      <p className="font-medium text-foreground hover:text-primary">{consultant.name}</p>
                       <p className="text-sm text-muted-foreground">{consultant.username}</p>
                     </div>
                   </div>
