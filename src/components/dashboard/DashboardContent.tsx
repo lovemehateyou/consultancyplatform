@@ -1,24 +1,37 @@
+import { useState } from "react";
 import KPICards from "./KPICards";
 import ProgressWheel from "./ProgressWheel";
 import TasksTable, { Task } from "./TasksTable";
 
-const sampleTasks: Task[] = [
+const initialTasks: Task[] = [
   { id: "1", name: "Task 1", status: "Active", role: "Law Consultant", email: "olivia@untitledui.com" },
-  { id: "2", name: "Task 2", status: "Completed", role: "Finance Consultant", email: "phoenix@untitledui.com" },
+  { id: "2", name: "Task 2", status: "Active", role: "Finance Consultant", email: "phoenix@untitledui.com" },
   { id: "3", name: "Task 3", status: "Active", role: "Frontend Developer", email: "lana@untitledui.com" },
-  { id: "4", name: "Task 4", status: "Completed", role: "Backend Developer", email: "demi@untitledui.com" },
-  { id: "5", name: "Task 5", status: "Completed", role: "Fullstack Developer", email: "candice@untitledui.com" },
+  { id: "4", name: "Task 4", status: "Active", role: "Backend Developer", email: "demi@untitledui.com" },
+  { id: "5", name: "Task 5", status: "Active", role: "Fullstack Developer", email: "candice@untitledui.com" },
 ];
 
 const DashboardContent = () => {
-  const totalTasks = sampleTasks.length;
-  const completedTasks = sampleTasks.filter(t => t.status === "Completed").length;
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter(t => t.status === "Completed").length;
   const tasksLeft = totalTasks - completedTasks;
   const currentProgress = Math.round((completedTasks / totalTasks) * 100);
   const progressLeft = 100 - currentProgress;
 
   const handleBookCall = (taskId: string) => {
     console.log("Book call for task:", taskId);
+  };
+
+  const handleCompleteTask = (taskId: string) => {
+    setTasks(prevTasks => 
+      prevTasks.map(task => 
+        task.id === taskId 
+          ? { ...task, status: "Completed" as const }
+          : task
+      )
+    );
   };
 
   return (
@@ -43,8 +56,9 @@ const DashboardContent = () => {
         />
         
         <TasksTable 
-          tasks={sampleTasks}
+          tasks={tasks}
           onBookCall={handleBookCall}
+          onCompleteTask={handleCompleteTask}
         />
       </div>
     </div>
