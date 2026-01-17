@@ -1,4 +1,4 @@
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import DashboardLayout from "@/components/Userdashboard/DashboardLayout";
 import ConsultancyContent from "@/components/userSide/liveConsultancy/ConsultancyContent";
 
 const Consultancy = () => {

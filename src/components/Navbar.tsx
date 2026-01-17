@@ -11,10 +11,10 @@ const Navbar = () => {
 
   const navItems = [
     { name: 'Home', href: '#home' },
-    { name: 'What We Do', href: '#what-we-do' },
-    { name: 'Why Us', href: '#why-us' },
-    { name: 'How It Works', href: '#how-it-works' },
-    { name: 'Contact', href: '#contact' },
+    { name: 'What We Do', href: '#wedo' },
+    { name: 'Why Us', href: '#why' },
+    { name: 'How It Works', href: '#how' },
+    { name: 'Contact us', href: '#support' },
   ];
 
   const scrollToSection = (href: string) => {

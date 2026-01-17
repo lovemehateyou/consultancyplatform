@@ -8,7 +8,7 @@ interface Whatwedo {
 
 const WhatWeDo: React.FC<Whatwedo> = ({ title, description }) => {
   return (
-    <section className="w-full py-10 px-6 md:px-12 bg-white">
+    <section className="w-full py-10 px-6 md:px-12 bg-white" id='wedo'>
       {/* 2. Container: Stacks on mobile (flex-col), side-by-side on medium screens (md:flex-row) */}
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-8 md:gap-16">
         
