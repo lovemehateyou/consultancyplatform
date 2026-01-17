@@ -22,6 +22,8 @@ import AccountSelection from "./components/accountSelection";
 import CHistory from "./pages/consultantPages/consultantHistory";
 import CLibrary from "./pages/consultantPages/consultantLibrary";
 import CProfile from "./pages/consultantPages/consultancyManagement";
+import ConsultantOverview from "./pages/consultantPages/consultantOverview";
+import ConsultantWorkSchedule from "./pages/consultantPages/consultantWorkSchedule";
 
 const queryClient = new QueryClient();
 
@@ -44,10 +46,11 @@ const App = () => (
           <Route path="/consultant/:id" element={<ConsultantProfile />} />
           <Route path="/history" element={<History />} />
           {/* Adding the consultant routes */}
-          {/* <Route path="/consultantdashboard" element={<Dashboard />} /> */}
+          <Route path="/consultantdashboard" element={<ConsultantOverview />} />
           <Route path="/consultanthistory" element={<CHistory />} />
           <Route path="/consultantlibrary" element={<CLibrary />} />
           <Route path="/consultantprofile" element={<CProfile />} />
+          <Route path="/consultantworkschedule" element={<ConsultantWorkSchedule />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
