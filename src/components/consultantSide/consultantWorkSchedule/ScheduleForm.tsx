@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -8,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import TimePicker from "./TimePicker";
 
 interface ScheduleFormProps {
   onAddSchedule: (day: string, startTime: string, endTime: string) => void;
@@ -38,12 +38,12 @@ const ScheduleForm = ({ onAddSchedule }: ScheduleFormProps) => {
   };
 
   return (
-    <div className="flex items-center gap-4 mb-6">
+    <div className="flex flex-wrap items-center gap-4 mb-6">
       <Select value={selectedDay} onValueChange={setSelectedDay}>
         <SelectTrigger className="w-[200px] bg-background">
           <SelectValue placeholder="Day Of The Week" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-background z-50">
           {daysOfWeek.map((day) => (
             <SelectItem key={day} value={day}>
               {day}
@@ -52,21 +52,15 @@ const ScheduleForm = ({ onAddSchedule }: ScheduleFormProps) => {
         </SelectContent>
       </Select>
 
-      <Input
-        type="text"
-        placeholder="Start Time"
-        value={startTime}
-        onChange={(e) => setStartTime(e.target.value)}
-        className="w-[180px] bg-background"
-      />
+      <div className="flex flex-col gap-1">
+        <span className="text-xs text-muted-foreground">Start Time</span>
+        <TimePicker value={startTime} onChange={setStartTime} />
+      </div>
 
-      <Input
-        type="text"
-        placeholder="End Time"
-        value={endTime}
-        onChange={(e) => setEndTime(e.target.value)}
-        className="w-[180px] bg-background"
-      />
+      <div className="flex flex-col gap-1">
+        <span className="text-xs text-muted-foreground">End Time</span>
+        <TimePicker value={endTime} onChange={setEndTime} />
+      </div>
 
       <Button
         onClick={handleAddDate}

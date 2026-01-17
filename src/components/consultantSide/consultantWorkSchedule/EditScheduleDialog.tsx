@@ -5,9 +5,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { ScheduleItem } from "./ScheduleTable";
+import TimePicker from "./TimePicker";
 
 interface EditScheduleDialogProps {
   open: boolean;
@@ -15,6 +22,16 @@ interface EditScheduleDialogProps {
   schedule: ScheduleItem | null;
   onSave: (id: string, day: string, startTime: string, endTime: string) => void;
 }
+
+const daysOfWeek = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
 
 const EditScheduleDialog = ({
   open,
@@ -52,34 +69,30 @@ const EditScheduleDialog = ({
             <label className="text-sm font-medium text-foreground">
               Day Of The Week
             </label>
-            <Input
-              value={day}
-              onChange={(e) => setDay(e.target.value)}
-              placeholder="Value"
-              className="bg-background border-border"
-            />
+            <Select value={day} onValueChange={setDay}>
+              <SelectTrigger className="w-full bg-background">
+                <SelectValue placeholder="Select day" />
+              </SelectTrigger>
+              <SelectContent className="bg-background z-50">
+                {daysOfWeek.map((d) => (
+                  <SelectItem key={d} value={d}>
+                    {d}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
               Start Time
             </label>
-            <Input
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              placeholder="Value"
-              className="bg-background border-border"
-            />
+            <TimePicker value={startTime} onChange={setStartTime} />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
               End Time
             </label>
-            <Input
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              placeholder="Value"
-              className="bg-background border-border"
-            />
+            <TimePicker value={endTime} onChange={setEndTime} />
           </div>
           <Button
             onClick={handleSave}
