@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ScheduleForm from "./ScheduleForm";
 import ScheduleTable, { ScheduleItem } from "./ScheduleTable";
+import EditScheduleDialog from "./EditScheduleDialog";
 
 const initialSchedules: ScheduleItem[] = [
   { id: "1", name: "Monday", startTime: "2:30 AM", endTime: "4:00 AM" },
@@ -11,6 +12,8 @@ const initialSchedules: ScheduleItem[] = [
 
 const WorkScheduleContent = () => {
   const [schedules, setSchedules] = useState<ScheduleItem[]>(initialSchedules);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingSchedule, setEditingSchedule] = useState<ScheduleItem | null>(null);
 
   const handleAddSchedule = (day: string, startTime: string, endTime: string) => {
     const newSchedule: ScheduleItem = {
@@ -23,8 +26,21 @@ const WorkScheduleContent = () => {
   };
 
   const handleEdit = (id: string) => {
-    // Edit functionality - could open a modal or inline edit
-    console.log("Edit schedule:", id);
+    const schedule = schedules.find((s) => s.id === id);
+    if (schedule) {
+      setEditingSchedule(schedule);
+      setEditDialogOpen(true);
+    }
+  };
+
+  const handleSaveEdit = (id: string, day: string, startTime: string, endTime: string) => {
+    setSchedules(
+      schedules.map((schedule) =>
+        schedule.id === id
+          ? { ...schedule, name: day, startTime, endTime }
+          : schedule
+      )
+    );
   };
 
   const handleDelete = (id: string) => {
@@ -41,6 +57,13 @@ const WorkScheduleContent = () => {
         schedules={schedules}
         onEdit={handleEdit}
         onDelete={handleDelete}
+      />
+
+      <EditScheduleDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        schedule={editingSchedule}
+        onSave={handleSaveEdit}
       />
     </main>
   );
