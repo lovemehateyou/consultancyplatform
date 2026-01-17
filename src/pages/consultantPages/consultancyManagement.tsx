@@ -1,5 +1,5 @@
-import DashboardLayout from "@/components/Userdashboard/DashboardLayout";
-import ProfileContent from "@/components/userSide/userManagement/ProfileContent";
+import DashboardLayout from "@/components/Consultantdashboard/DashboardLayout";
+import ProfileContent from "@/components/consultantSide/consultantManagement/ProfileContent";
 
 const Profile = () => {
   return (

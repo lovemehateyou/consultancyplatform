@@ -1,11 +1,32 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-const ProfileCard = () => {
+interface ProfileCardProps {
+  name: string;
+  phone: string;
+  email: string;
+  title: string;
+  about: string;
+  cvFileName?: string;
+  cvFileUrl: string | null;
+}
+
+const withFallback = (value: string, fallback: string) =>
+  value?.trim().length ? value : fallback;
+
+const ProfileCard = ({
+  name,
+  phone,
+  email,
+  title,
+  about,
+  cvFileName,
+  cvFileUrl,
+}: ProfileCardProps) => {
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center w-full max-w-sm">
       <Avatar className="w-32 h-32 border-4 border-primary/20">
         <AvatarFallback className="bg-primary/10 text-primary text-3xl font-semibold">
-          AD
+          {withFallback(name, "Anonymous").substring(0, 2).toUpperCase()}
         </AvatarFallback>
       </Avatar>
       
@@ -24,10 +45,29 @@ const ProfileCard = () => {
         </div>
       </div>
       
-      <div className="mt-8 space-y-2 text-sm text-foreground">
-        <p>Users User name</p>
-        <p>Users phone number</p>
-        <p>Users Email</p>
+      <div className="mt-8 w-full space-y-2 text-sm text-foreground">
+        <p>{withFallback(name, "User name not set")}</p>
+        <p>{withFallback(phone, "Phone number not set")}</p>
+        <p>{withFallback(email, "Email not set")}</p>
+        <p>{withFallback(title, "Professional title not set")}</p>
+        <p className="text-muted-foreground">{withFallback(about, "Write something about yourself")}</p>
+      </div>
+
+      <div className="mt-6 w-full border border-dashed border-border rounded-lg p-4">
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">Curriculum Vitae</p>
+        {cvFileName ? (
+          <a
+            href={cvFileUrl ?? undefined}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-flex text-sm text-primary hover:underline"
+            download={cvFileName}
+          >
+            {cvFileUrl ? "View / Download CV" : "CV ready to upload"} ({cvFileName})
+          </a>
+        ) : (
+          <p className="mt-2 text-sm text-muted-foreground">No CV uploaded yet.</p>
+        )}
       </div>
     </div>
   );
