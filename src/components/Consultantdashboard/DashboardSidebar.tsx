@@ -18,10 +18,10 @@ interface SidebarItem {
 
 const sidebarItems: SidebarItem[] = [
   { label: "Dashboard", path: "/Userdashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
-  { label: "Library Management", path: "/library", icon: <BookOpen className="w-5 h-5" /> },
-  { label: "User Profile", path: "/profile", icon: <User className="w-5 h-5" /> },
-  { label: "Live Consultancy", path: "/consultancy", icon: <MessageSquare className="w-5 h-5" /> },
-  { label: "History", path: "/history", icon: <History className="w-5 h-5" /> },
+  { label: "Library Management", path: "/consultantlibrary", icon: <BookOpen className="w-5 h-5" /> },
+  { label: "User Profile", path: "/consultantprofile", icon: <User className="w-5 h-5" /> },
+  { label: "Work Schedule", path: "/consultancy", icon: <MessageSquare className="w-5 h-5" /> },
+  { label: "History", path: "/consultanthistory", icon: <History className="w-5 h-5" /> },
 ];
 
 const DashboardSidebar = () => {
