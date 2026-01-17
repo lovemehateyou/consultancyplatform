@@ -22,6 +22,7 @@ import AccountSelection from "./components/accountSelection";
 import CHistory from "./pages/consultantPages/consultantHistory";
 import CLibrary from "./pages/consultantPages/consultantLibrary";
 import CProfile from "./pages/consultantPages/consultancyManagement";
+import ConsultantOverview from "./pages/consultantPages/consultantOverview";
 
 const queryClient = new QueryClient();
 
@@ -44,7 +45,7 @@ const App = () => (
           <Route path="/consultant/:id" element={<ConsultantProfile />} />
           <Route path="/history" element={<History />} />
           {/* Adding the consultant routes */}
-          {/* <Route path="/consultantdashboard" element={<Dashboard />} /> */}
+          <Route path="/consultantdashboard" element={<ConsultantOverview />} />
           <Route path="/consultanthistory" element={<CHistory />} />
           <Route path="/consultantlibrary" element={<CLibrary />} />
           <Route path="/consultantprofile" element={<CProfile />} />
