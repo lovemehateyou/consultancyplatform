@@ -1,0 +1,123 @@
+import { Checkbox } from "@/components/ui/checkbox";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+interface HistoryEntry {
+  id: string;
+  name: string;
+  username: string;
+  avatar?: string;
+  date: string;
+  status: "Upcoming" | "Passed";
+  stage: "Approved" | "Pending" | "Rejected";
+}
+
+const historyData: HistoryEntry[] = [
+  {
+    id: "1",
+    name: "Olivia Rhye",
+    username: "@olivia",
+    date: "03/15/2025",
+    status: "Upcoming",
+    stage: "Approved",
+  },
+  {
+    id: "2",
+    name: "Phoenix Baker",
+    username: "@phoenix",
+    date: "03/15/2025",
+    status: "Upcoming",
+    stage: "Approved",
+  },
+  {
+    id: "3",
+    name: "Lana Steiner",
+    username: "@lana",
+    date: "03/15/2025",
+    status: "Upcoming",
+    stage: "Approved",
+  },
+  {
+    id: "4",
+    name: "Demi Wilkinson",
+    username: "@demi",
+    date: "03/15/2025",
+    status: "Passed",
+    stage: "Approved",
+  },
+  {
+    id: "5",
+    name: "Candice Wu",
+    username: "@candice",
+    date: "03/15/2025",
+    status: "Passed",
+    stage: "Approved",
+  },
+];
+
+const HistoryTable = () => {
+  return (
+    <div className="bg-card rounded-lg border border-border">
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead className="w-12">
+              <Checkbox />
+            </TableHead>
+            <TableHead className="text-muted-foreground font-medium">Name</TableHead>
+            <TableHead className="text-muted-foreground font-medium">Date</TableHead>
+            <TableHead className="text-muted-foreground font-medium">Status</TableHead>
+            <TableHead className="text-muted-foreground font-medium">Stage</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {historyData.map((entry) => (
+            <TableRow key={entry.id} className="hover:bg-muted/50">
+              <TableCell>
+                <Checkbox />
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={entry.avatar} />
+                    <AvatarFallback className="bg-muted text-muted-foreground text-sm">
+                      {entry.name.split(" ").map(n => n[0]).join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium text-foreground">{entry.name}</p>
+                    <p className="text-sm text-muted-foreground">{entry.username}</p>
+                  </div>
+                </div>
+              </TableCell>
+              <TableCell className="text-muted-foreground">{entry.date}</TableCell>
+              <TableCell>
+                <span
+                  className={
+                    entry.status === "Upcoming"
+                      ? "text-blue-500 font-medium"
+                      : "text-red-500 font-medium"
+                  }
+                >
+                  {entry.status}
+                </span>
+              </TableCell>
+              <TableCell>
+                <span className="text-emerald-500 font-medium">{entry.stage}</span>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+};
+
+export default HistoryTable;

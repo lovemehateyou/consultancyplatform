@@ -17,7 +17,7 @@ interface SidebarItem {
 }
 
 const sidebarItems: SidebarItem[] = [
-  { label: "Dashboard", path: "/dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
+  { label: "Dashboard", path: "/Userdashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
   { label: "Library Management", path: "/library", icon: <BookOpen className="w-5 h-5" /> },
   { label: "User Profile", path: "/profile", icon: <User className="w-5 h-5" /> },
   { label: "Live Consultancy", path: "/consultancy", icon: <MessageSquare className="w-5 h-5" /> },
@@ -28,9 +28,13 @@ const DashboardSidebar = () => {
   const location = useLocation();
 
   return (
-    <aside className="w-[200px] min-h-screen bg-card border-r border-border flex flex-col">
+    <aside className="w-[250px] min-h-screen bg-card border-r border-border flex flex-col">
       <div className="p-4">
-        <h1 className="text-lg font-bold text-foreground">Event Platform</h1>
+        <h1 className="text-lg font-bold text-foreground">
+          <Link to="/">
+          Digital Consultancy Platform
+          </Link>
+        </h1>
       </div>
       
       <nav className="flex-1 px-3 py-4 space-y-1">
@@ -41,8 +45,8 @@ const DashboardSidebar = () => {
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
               location.pathname === item.path
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                ? "bg-blue-600 text-white"
+                : "text-muted-foreground hover:bg-blue-600 hover:text-white"
             )}
           >
             {item.icon}

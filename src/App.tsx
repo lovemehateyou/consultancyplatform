@@ -3,16 +3,18 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import Registration from "./pages/Registration";
-import Dashboard from "./pages/Dashboard";
-import Library from "./pages/Library";
-import Profile from "./pages/Profile";
-import Consultancy from "./pages/Consultancy";
-import ConsultantProfile from "./pages/ConsultantProfile";
-import History from "./pages/History";
+import Index from "./pages/Home";
+import ConsultancyRegistration from "./pages/consultantRegistration";
+import UserRegistrationForm from "./components/UserRegistrationForm";
+import LoginForm from "./components/LoginForm";
+import Dashboard from "./pages/userPages/userDashboard";
+import Library from "./pages/userPages/userLibrary";
+import Profile from "./pages/userPages/userManagement";
+import Consultancy from "./pages/userPages/LiveConsultancy";
+import ConsultantProfile from "./pages/userPages/ConsultantProfile";
+import History from "./pages/userPages/userHistory";
 import NotFound from "./pages/NotFound";
-
+import AccountSelection from "./components/accountSelection";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -23,8 +25,11 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/registration" element={<Registration />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/accountselection" element={<AccountSelection />} />
+          <Route path="/consultancyregistration" element={<ConsultancyRegistration />} />
+          <Route path="/userregistration" element={<UserRegistrationForm />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/Userdashboard" element={<Dashboard />} />
           <Route path="/library" element={<Library />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/consultancy" element={<Consultancy />} />

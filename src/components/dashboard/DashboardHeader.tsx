@@ -1,13 +1,18 @@
 import { Search, Bell, PanelLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface DashboardHeaderProps {
   onToggleSidebar?: () => void;
+  avatarUrl?: string | null;
+  avatarFallback?: string;
 }
 
-const DashboardHeader = ({ onToggleSidebar }: DashboardHeaderProps) => {
+const DashboardHeader = ({ onToggleSidebar, avatarUrl, avatarFallback = "AD" }: DashboardHeaderProps) => {
+  const mockAvatarUrl = avatarUrl ?? null; // TODO: replace with backend-provided avatar URL
+  const fallbackInitials = avatarFallback.slice(0, 2).toUpperCase();
+
   return (
     <header className="w-full h-16 bg-card border-b border-border flex items-center justify-between px-6">
       <Button variant="ghost" size="icon" onClick={onToggleSidebar}>
@@ -29,9 +34,13 @@ const DashboardHeader = ({ onToggleSidebar }: DashboardHeaderProps) => {
         </Button>
         
         <Avatar className="w-9 h-9 border border-border">
-          <AvatarFallback className="bg-muted text-foreground text-sm font-medium">
-            AD
-          </AvatarFallback>
+          {mockAvatarUrl ? (
+            <AvatarImage src={mockAvatarUrl} alt="User avatar" className="object-cover" />
+          ) : (
+            <AvatarFallback className="bg-muted text-foreground text-sm font-medium">
+              {fallbackInitials}
+            </AvatarFallback>
+          )}
         </Avatar>
       </div>
     </header>
