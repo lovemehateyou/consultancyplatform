@@ -11,9 +11,10 @@ interface LibraryFiltersProps {
   onCategoryChange: (value: string) => void;
   onDateChange: (value: string) => void;
   onAccessChange: (value: string) => void;
+  onUploadClick: () => void;
 }
 
-const LibraryFilters = ({ filters, onCategoryChange, onDateChange, onAccessChange }: LibraryFiltersProps) => {
+const LibraryFilters = ({ filters, onCategoryChange, onDateChange, onAccessChange, onUploadClick }: LibraryFiltersProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <Select value={filters.category} onValueChange={onCategoryChange}>
@@ -47,7 +48,10 @@ const LibraryFilters = ({ filters, onCategoryChange, onDateChange, onAccessChang
         </SelectContent>
       </Select>
 
-      <Button className="bg-blue-600 hover:bg-blue-700 text-primary-foreground rounded-lg px-6">
+      <Button 
+        onClick={onUploadClick}
+        className="bg-blue-600 hover:bg-blue-700 text-primary-foreground rounded-lg px-6"
+      >
         Upload Material
       </Button>
 

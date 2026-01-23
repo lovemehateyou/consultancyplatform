@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import LibraryFilters from "./libraryUploadFilters";
 import DocumentCard from "./DocumentCard";
+import UploadMaterialDialog, { MaterialFormData } from "./UploadMaterialDialog";
 
 type DocumentCategory = "design" | "accessibility" | "tech";
 
@@ -19,7 +20,7 @@ const CATEGORY_LABELS: Record<DocumentCategory, string> = {
   tech: "Tech",
 };
 
-const documents: DocumentItem[] = [
+const initialDocuments: DocumentItem[] = [
   {
     id: 1,
     title: "Most popular design systems to learn from in 2022",
@@ -47,11 +48,13 @@ const documents: DocumentItem[] = [
 ];
 
 const LibraryContent = () => {
+  const [documents, setDocuments] = useState<DocumentItem[]>(initialDocuments);
   const [filters, setFilters] = useState({
     category: "all",
     date: "",
     access: "all",
   });
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
   const filteredDocuments = useMemo(() => {
     return documents.filter((doc) => {
@@ -73,10 +76,24 @@ const LibraryContent = () => {
 
       return true;
     });
-  }, [filters]);
+  }, [filters, documents]);
 
   const handleFilterChange = (key: keyof typeof filters, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleUploadMaterial = (data: MaterialFormData) => {
+    // Create a new document from the form data
+    const newDoc: DocumentItem = {
+      id: documents.length + 1,
+      title: data.title,
+      category: "tech", // Default category, could be added to form
+      imageUrl: data.image ? URL.createObjectURL(data.image) : "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop",
+      date: new Date().toISOString().split("T")[0],
+      isPaid: false,
+    };
+    setDocuments((prev) => [newDoc, ...prev]);
+    console.log("Material uploaded:", data);
   };
 
   return (
@@ -91,6 +108,7 @@ const LibraryContent = () => {
           onCategoryChange={(value) => handleFilterChange("category", value)}
           onDateChange={(value) => handleFilterChange("date", value)}
           onAccessChange={(value) => handleFilterChange("access", value)}
+          onUploadClick={() => setUploadDialogOpen(true)}
         />
 
         {filteredDocuments.length ? (
@@ -112,6 +130,12 @@ const LibraryContent = () => {
           </div>
         )}
       </div>
+
+      <UploadMaterialDialog
+        open={uploadDialogOpen}
+        onOpenChange={setUploadDialogOpen}
+        onSave={handleUploadMaterial}
+      />
     </div>
   );
 };
