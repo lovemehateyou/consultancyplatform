@@ -1,22 +1,49 @@
 import { useState } from "react";
 import OverviewKPICards from "./OverviewKPICards";
-import PendingRequestsTable from "./PendingRequestsTable";
-
-interface PendingRequest {
-  id: string;
-  name: string;
-  username: string;
-  avatar?: string;
-  date: string;
-}
+import PendingRequestsTable, { PendingRequest } from "./PendingRequestsTable";
 
 const OverviewContent = () => {
   const [requests, setRequests] = useState<PendingRequest[]>([
-    { id: "1", name: "Olivia Rhye", username: "olivia", date: "03/15/2025" },
-    { id: "2", name: "Phoenix Baker", username: "phoenix", date: "03/15/2025" },
-    { id: "3", name: "Lana Steiner", username: "lana", date: "03/15/2025" },
-    { id: "4", name: "Demi Wilkinson", username: "demi", date: "03/15/2025" },
-    { id: "5", name: "Candice Wu", username: "candice", date: "03/15/2025" },
+    { 
+      id: "1", 
+      name: "Olivia Rhye", 
+      username: "olivia", 
+      date: "03/15/2025",
+      phone: "+251 911 234 567",
+      email: "olivia.rhye@example.com",
+    },
+    { 
+      id: "2", 
+      name: "Phoenix Baker", 
+      username: "phoenix", 
+      date: "03/15/2025",
+      phone: "+251 922 345 678",
+      email: "phoenix.baker@example.com",
+    },
+    { 
+      id: "3", 
+      name: "Lana Steiner", 
+      username: "lana", 
+      date: "03/15/2025",
+      phone: "+251 933 456 789",
+      email: "lana.steiner@example.com",
+    },
+    { 
+      id: "4", 
+      name: "Demi Wilkinson", 
+      username: "demi", 
+      date: "03/15/2025",
+      phone: "+251 944 567 890",
+      email: "demi.wilkinson@example.com",
+    },
+    { 
+      id: "5", 
+      name: "Candice Wu", 
+      username: "candice", 
+      date: "03/15/2025",
+      phone: "+251 955 678 901",
+      email: "candice.wu@example.com",
+    },
   ]);
 
   const [approvedCount, setApprovedCount] = useState(2);
@@ -24,7 +51,6 @@ const OverviewContent = () => {
 
   const handleViewDetails = (id: string) => {
     console.log("View details for:", id);
-    // TODO: Implement view details modal/navigation
   };
 
   const handleApprove = (id: string) => {
