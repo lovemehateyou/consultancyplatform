@@ -27,6 +27,8 @@ import ConsultantWorkSchedule from "./pages/consultantPages/consultantWorkSchedu
 
 // Admin side pages
 import AdminOverview from "./pages/Admin/adminOverview";
+import UserManagement from "./pages/Admin/userManagement"
+import UploadLibrary from "./pages/Admin/adminUploadLibrary"
 
 const queryClient = new QueryClient();
 
@@ -56,6 +58,8 @@ const App = () => (
           <Route path="/consultantworkschedule" element={<ConsultantWorkSchedule />} />
           {/* Admin routes */}
           <Route path="/admin/overview" element={<AdminOverview />} />
+          <Route path="/admin/usermanagement" element={<UserManagement />} />
+          <Route path="/admin/uploadlibrary" element={<UploadLibrary />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
