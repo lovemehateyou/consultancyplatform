@@ -19,7 +19,7 @@ interface SidebarItem {
 
 const sidebarItems: SidebarItem[] = [
   { label: "Dashboard", path: "/admin/overview", icon: <LayoutDashboard className="w-5 h-5" /> },
-  { label: "Task Management", path: "/admin/taskManagement", icon: <Book className="w-5 h-5" /> },
+  { label: "Task Management", path: "/admin/taskmanagement", icon: <Book className="w-5 h-5" /> },
   { label: "Upload Materials", path: "/admin/uploadlibrary", icon: <Upload className="w-5 h-5" /> },
   { label: "User Management", path: "/admin/usermanagement", icon: <Users className="w-5 h-5" /> },
   { label: "Consultancy Management", path: "/admin/consultancy", icon: <MessageSquare className="w-5 h-5" /> },
