@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import LibraryFilters from "./LibraryFilters";
 import DocumentCard from "./DocumentCard";
+import DocumentDetailDialog from "./DocumentDetailDialog";
 
 type DocumentCategory = "design" | "accessibility" | "tech";
 
@@ -11,6 +12,9 @@ interface DocumentItem {
   imageUrl: string;
   date: string;
   isPaid: boolean;
+  description: string;
+  governmentLink: string;
+  documentUrl: string;
 }
 
 const CATEGORY_LABELS: Record<DocumentCategory, string> = {
@@ -27,6 +31,9 @@ const documents: DocumentItem[] = [
     imageUrl: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=300&fit=crop",
     date: "2024-05-12",
     isPaid: true,
+    description: "A comprehensive guide covering the most influential design systems used by top companies. Learn best practices for creating scalable and consistent user interfaces that enhance user experience across platforms.",
+    governmentLink: "https://www.gov.et/design-standards",
+    documentUrl: "https://example.com/documents/design-systems.pdf",
   },
   {
     id: 2,
@@ -35,6 +42,9 @@ const documents: DocumentItem[] = [
     imageUrl: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&h=300&fit=crop",
     date: "2024-06-08",
     isPaid: false,
+    description: "This document outlines the essential accessibility guidelines and requirements for digital services. Understanding these principles will help you create inclusive experiences for all users regardless of their abilities.",
+    governmentLink: "https://www.gov.et/accessibility",
+    documentUrl: "https://example.com/documents/accessibility-guide.pdf",
   },
   {
     id: 3,
@@ -43,6 +53,9 @@ const documents: DocumentItem[] = [
     imageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop",
     date: "2024-04-21",
     isPaid: false,
+    description: "Discover the top 15 tools recommended for building modern, efficient websites. From development frameworks to deployment platforms, this guide covers everything you need to establish your online presence.",
+    governmentLink: "https://www.gov.et/digital-business",
+    documentUrl: "https://example.com/documents/website-tools.pdf",
   },
 ];
 
@@ -52,6 +65,8 @@ const LibraryContent = () => {
     date: "",
     access: "all",
   });
+  const [selectedDocument, setSelectedDocument] = useState<DocumentItem | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const filteredDocuments = useMemo(() => {
     return documents.filter((doc) => {
@@ -79,13 +94,16 @@ const LibraryContent = () => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
+  const handleDocumentClick = (doc: DocumentItem) => {
+    setSelectedDocument(doc);
+    setDialogOpen(true);
+  };
+
   return (
     <div className="flex-1 p-6 overflow-auto">
       <h1 className="text-2xl font-bold text-foreground mb-6">Library Management</h1>
       
       <div className="space-y-6">
-        {/* <LibraryKPICards /> */}
-
         <LibraryFilters
           filters={filters}
           onCategoryChange={(value) => handleFilterChange("category", value)}
@@ -103,6 +121,7 @@ const LibraryContent = () => {
                 imageUrl={doc.imageUrl}
                 date={doc.date}
                 isPaid={doc.isPaid}
+                onClick={() => handleDocumentClick(doc)}
               />
             ))}
           </div>
@@ -112,6 +131,23 @@ const LibraryContent = () => {
           </div>
         )}
       </div>
+
+      <DocumentDetailDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        document={
+          selectedDocument
+            ? {
+                title: selectedDocument.title,
+                category: CATEGORY_LABELS[selectedDocument.category],
+                imageUrl: selectedDocument.imageUrl,
+                description: selectedDocument.description,
+                governmentLink: selectedDocument.governmentLink,
+                documentUrl: selectedDocument.documentUrl,
+              }
+            : null
+        }
+      />
     </div>
   );
 };
