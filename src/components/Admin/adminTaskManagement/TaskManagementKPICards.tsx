@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+/* import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HelpCircle } from "lucide-react";
 
@@ -58,3 +58,4 @@ const TaskManagementKPICards = ({ totalTasks, activeTasks, consultantTypes }: Ta
 };
 
 export default TaskManagementKPICards;
+ */

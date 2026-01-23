@@ -21,7 +21,7 @@ interface TasksTableProps {
 
 const TasksTable = ({ tasks, onView, onEdit, onDelete }: TasksTableProps) => {
   return (
-    <div className="bg-card border border-border rounded-lg overflow-hidden">
+    <div className="bg-card border border-border rounded-lg min-w-0 ">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>

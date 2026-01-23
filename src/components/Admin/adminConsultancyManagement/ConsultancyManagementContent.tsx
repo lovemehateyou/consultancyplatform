@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import ConsultancyManagementKPICards from "./ConsultancyManagementKPICards";
-import ConsultancyManagementTable from "./ConsultancyManagementTable";
+/* import ConsultancyManagementKPICards from "./ConsultancyManagementKPICards";
+ */import ConsultancyManagementTable from "./ConsultancyManagementTable";
 
 interface ConsultancyRequest {
   id: string;
@@ -91,11 +91,11 @@ const ConsultancyManagementContent = () => {
       </h1>
 
       <div className="space-y-6">
-        <ConsultancyManagementKPICards
+        {/* <ConsultancyManagementKPICards
           totalRequests={requests.length}
           approvedRequests={approvedCount}
           rejectedRequests={rejectedCount}
-        />
+        /> */}
 
         <ConsultancyManagementTable
           requests={requests}

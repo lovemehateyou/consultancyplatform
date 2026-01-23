@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+/* import { Card, CardContent } from "@/components/ui/card";
 import { HelpCircle } from "lucide-react";
 
 interface KPICardsProps {
@@ -45,3 +45,4 @@ const ConsultancyManagementKPICards = ({
 };
 
 export default ConsultancyManagementKPICards;
+ */

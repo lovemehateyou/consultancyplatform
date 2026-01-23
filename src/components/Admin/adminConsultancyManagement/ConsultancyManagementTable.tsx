@@ -51,13 +51,7 @@ const ConsultancyManagementTable = ({
       <Table>
         <TableHeader>
           <TableRow className="border-border hover:bg-transparent">
-            <TableHead className="w-12">
-              <Checkbox />
-            </TableHead>
             <TableHead className="text-muted-foreground font-medium">Clients</TableHead>
-            <TableHead className="w-12">
-              <Checkbox />
-            </TableHead>
             <TableHead className="text-muted-foreground font-medium">Consultants</TableHead>
             <TableHead className="text-muted-foreground font-medium">Date</TableHead>
             <TableHead className="text-muted-foreground font-medium">Status</TableHead>
@@ -68,9 +62,7 @@ const ConsultancyManagementTable = ({
         <TableBody>
           {requests.map((request) => (
             <TableRow key={request.id} className="border-border">
-              <TableCell>
-                <Checkbox />
-              </TableCell>
+            
               <TableCell>
                 <div className="flex items-center gap-3">
                   <Avatar className="w-10 h-10">
@@ -87,9 +79,6 @@ const ConsultancyManagementTable = ({
                     <p className="text-sm text-muted-foreground">@{request.client.username}</p>
                   </div>
                 </div>
-              </TableCell>
-              <TableCell>
-                <Checkbox />
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-3">

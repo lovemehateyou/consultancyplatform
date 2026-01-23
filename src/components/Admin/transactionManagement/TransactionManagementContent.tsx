@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import TransactionManagementKPICards from "./TransactionManagementKPICards";
+/* import TransactionManagementKPICards from "./TransactionManagementKPICards";
+ */
 import TransactionManagementFilters from "./TransactionManagementFilters";
 import TransactionManagementTable, { Transaction } from "./TransactionManagementTable";
 
@@ -134,12 +135,12 @@ const TransactionManagementContent = () => {
         Transaction Management
       </h1>
 
-      <TransactionManagementKPICards
+      {/* <TransactionManagementKPICards
         totalRequests={kpiCounts.total}
         approvedRequests={kpiCounts.approved}
         rejectedRequests={kpiCounts.rejected}
       />
-
+ */}
       <TransactionManagementFilters
         activeTab={activeTab}
         onTabChange={setActiveTab}

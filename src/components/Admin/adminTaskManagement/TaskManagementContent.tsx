@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
-import TaskManagementKPICards from "./TaskManagementKPICards";
+/* import TaskManagementKPICards from "./TaskManagementKPICards"; */
 import TasksTable from "./TasksTable";
 import TaskFormDialog, { type Task } from "./TaskFormDialog";
 import TaskViewDialog from "./TaskViewDialog";
@@ -132,11 +132,11 @@ const TaskManagementContent = () => {
         </Button>
       </div>
 
-      <TaskManagementKPICards
+      {/* <TaskManagementKPICards
         totalTasks={tasks.length}
         activeTasks={tasks.length}
         consultantTypes={uniqueConsultantTypes.size}
-      />
+      /> */}
 
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1 max-w-md">
@@ -152,12 +152,14 @@ const TaskManagementContent = () => {
 
       <div>
         <h2 className="text-xl font-semibold text-foreground mb-4">All Tasks</h2>
-        <TasksTable
-          tasks={filteredTasks}
-          onView={handleViewTask}
-          onEdit={handleEditTask}
-          onDelete={handleDeleteClick}
-        />
+        <div className="overflow-x-auto rounded-lg border border-border bg-card">
+          <TasksTable
+            tasks={filteredTasks}
+            onView={handleViewTask}
+            onEdit={handleEditTask}
+            onDelete={handleDeleteClick}
+          />
+        </div>
       </div>
 
       <TaskFormDialog

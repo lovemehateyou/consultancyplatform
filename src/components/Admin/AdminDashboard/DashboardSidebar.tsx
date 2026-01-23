@@ -30,7 +30,7 @@ const AdminDashboardSidebar = () => {
   const location = useLocation();
 
   return (
-    <aside className="w-[250px] min-h-screen bg-card border-r border-border flex flex-col">
+    <aside className="w-[250px] flex-shrink-0 min-h-screen bg-card border-r border-border flex flex-col">
       <div className="p-4">
         <h1 className="text-lg font-bold text-foreground">
           <Link to="/">
