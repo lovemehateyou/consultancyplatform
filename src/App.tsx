@@ -25,6 +25,9 @@ import CProfile from "./pages/consultantPages/consultancyManagement";
 import ConsultantOverview from "./pages/consultantPages/consultantOverview";
 import ConsultantWorkSchedule from "./pages/consultantPages/consultantWorkSchedule";
 
+// Admin side pages
+import AdminOverview from "./pages/Admin/adminOverview";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -51,6 +54,8 @@ const App = () => (
           <Route path="/consultantlibrary" element={<CLibrary />} />
           <Route path="/consultantprofile" element={<CProfile />} />
           <Route path="/consultantworkschedule" element={<ConsultantWorkSchedule />} />
+          {/* Admin routes */}
+          <Route path="/admin/overview" element={<AdminOverview />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
