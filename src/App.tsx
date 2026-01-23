@@ -30,6 +30,7 @@ import AdminOverview from "./pages/Admin/adminOverview";
 import UserManagement from "./pages/Admin/userManagement";
 import UploadLibrary from "./pages/Admin/adminUploadLibrary";
 import TaskManagement from "./pages/Admin/taskManagement";
+import AdminConsultancyManagement from "./pages/Admin/adminConsultancyManagement";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,7 @@ const App = () => (
           <Route path="/admin/usermanagement" element={<UserManagement />} />
           <Route path="/admin/uploadlibrary" element={<UploadLibrary />} />
           <Route path="/admin/taskmanagement" element={<TaskManagement />} />
+          <Route path="/admin/consultancy" element={<AdminConsultancyManagement />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
