@@ -14,6 +14,7 @@ interface RegistrationData {
   userName: string;
   phoneNumber: string;
   email: string;
+  Profession:string;
   password: string;
   nationalIdFile: File | null;
   cvFile: File | null;
@@ -29,6 +30,7 @@ const RegistrationForm = ({
     userName: "",
     phoneNumber: "",
     email: "",
+    Profession:"",
     password: "",
     nationalIdFile: null,
     cvFile: null,
@@ -61,7 +63,7 @@ const RegistrationForm = ({
           {/* Text Inputs Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
-              placeholder="User Name"
+              placeholder="Full Name"
               value={formData.userName}
               onChange={(e) => setFormData(prev => ({ ...prev, userName: e.target.value }))}
               className="h-12 text-center border-border"
@@ -87,6 +89,13 @@ const RegistrationForm = ({
               onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
               className="h-12 text-center border-border"
             />
+             <Input
+              placeholder="Professional Title"
+              value={formData.Profession}
+              onChange={(e) => setFormData(prev => ({ ...prev, Profession: e.target.value }))}
+              className="h-12 text-center border-border"
+            />
+
           </div>
 
           {/* File Upload Grid */}
@@ -129,7 +138,7 @@ const RegistrationForm = ({
               <a href="#" className="text-blue-500 hover:underline">
                 Terms & Conditions
               </a>{" "}
-              of Clarity
+              of Meri
             </label>
           </div>
 

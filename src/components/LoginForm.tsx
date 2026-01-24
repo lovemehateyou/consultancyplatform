@@ -18,7 +18,7 @@ interface RegistrationData {
 const LoginForm = ({ 
   onSubmit, 
   title = "Create Free Consultant Account",
-  subtitle = "Clarity gives you the blocks and components you need to create a truly professional website."
+  subtitle = "Meri gives you the blocks and components you need to create a truly professional Business."
 }: RegistrationFormProps) => {
   const [formData, setFormData] = useState<RegistrationData>({
     email: "",

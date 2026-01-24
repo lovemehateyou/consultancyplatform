@@ -72,7 +72,7 @@ const userRegistrationForm = ({
           {/* Text Inputs Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input
-              placeholder="User Name"
+              placeholder="Full Name"
               value={formData.userName}
               onChange={(e) => setFormData(prev => ({ ...prev, userName: e.target.value }))}
               className="h-12 text-left border-2 border-black"
@@ -126,7 +126,7 @@ const userRegistrationForm = ({
               value={formData.Business}
               onChange={(e) => setFormData(prev => ({ ...prev, Business: e.target.value }))}
             >
-              <option value="" disabled>Select Business Form </option>
+              <option value="" disabled>Select Business Area </option>
               <option value="Sole Proprietorship">Sales</option>
               <option value="Partnership">Legal Work</option>
               <option value="Corporation">Services</option>
@@ -180,7 +180,7 @@ const userRegistrationForm = ({
               <a href="#" className="text-blue-500 hover:underline">
                 Terms & Conditions
               </a>{" "}
-              of Clarity
+              of Meri
             </label>
           </div>
 

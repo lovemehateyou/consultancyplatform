@@ -45,9 +45,12 @@ const TasksTable = ({ tasks, onCompleteTask }: TasksTableProps) => {
       `Complete assigned requirements and deliverables`,
       `Coordinate with team members via ${task.email}`,
       `Submit progress report by deadline`,
-      `Schedule follow-up meeting if needed`
+      `Schedule follow-up meeting if needed`,
     ];
   };
+
+
+
 
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden">

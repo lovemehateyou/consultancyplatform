@@ -1,4 +1,4 @@
-import { CheckCircle } from "lucide-react";
+/* import { CheckCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 const kpiData = [
@@ -26,3 +26,4 @@ const ProfileKPICards = () => {
 };
 
 export default ProfileKPICards;
+ */

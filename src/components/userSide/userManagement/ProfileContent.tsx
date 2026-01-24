@@ -8,6 +8,7 @@ interface ProfileState {
   name: string;
   phone: string;
   email: string;
+  businessName: string;
   avatarUrl?: string;
 }
 
@@ -15,6 +16,7 @@ const initialProfile: ProfileState = {
   name: "Adewale Doe",
   phone: "+234 800 000 0000",
   email: "user@example.com",
+  businessName: "Doe Consulting",
 };
 
 const ProfileContent = () => {
@@ -47,6 +49,7 @@ const ProfileContent = () => {
     payload.append("name", values.name);
     payload.append("phone", values.phone);
     payload.append("email", values.email);
+    payload.append("businessName", values.businessName);
     if (avatarFile) payload.append("avatar", avatarFile);
 
     try {
@@ -56,6 +59,7 @@ const ProfileContent = () => {
         name: values.name,
         phone: values.phone,
         email: values.email,
+        businessName: values.businessName,
       }));
       setAvatarFile(null);
     } finally {

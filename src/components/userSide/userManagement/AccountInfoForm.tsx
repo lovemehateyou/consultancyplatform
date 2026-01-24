@@ -7,6 +7,7 @@ export interface ProfileInfoValues {
   name: string;
   phone: string;
   email: string;
+  businessName: string;
 }
 
 export interface PasswordChangeValues {
@@ -113,6 +114,19 @@ const AccountInfoForm = ({
               className="mt-1 bg-muted border-border" 
               placeholder="e.g. user@example.com"
               value={profileValues.email}
+              onChange={handleProfileChange}
+              disabled={isProfileSaving}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="businessName" className="text-sm text-foreground">Business Name</Label>
+            <Input
+              id="businessName"
+              name="Business Name"
+              className="mt-1 bg-muted border-border"
+              placeholder="e.g. Acme Corp"
+              value={profileValues.businessName}
               onChange={handleProfileChange}
               disabled={isProfileSaving}
             />

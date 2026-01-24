@@ -42,9 +42,9 @@ const DocumentDetailDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] p-0 overflow-x-hidden overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] h-full p-0 overflow-y-auto">
         {/* Banner Image */}
-        <div className="aspect-[16/9] w-full overflow-hidden">
+        <div className="aspect-[16/9] w-full">
           <img
             src={document.imageUrl}
             alt={document.title}

@@ -60,7 +60,7 @@ const Navbar = () => {
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             {false ? (
-              <Link to={"#"}>
+              <Link to={"#"} >
                 <Button variant="outline" className="flex items-center space-x-2">
                   <User className="h-4 w-4" />
                   <span>{"help"}</span>
@@ -68,10 +68,10 @@ const Navbar = () => {
               </Link>
             ) : (
               <>
-                <Link to="/login">
+                <Link to="/login" target="_blank">
                   <Button variant="outline">Sign In</Button>
                 </Link>
-                <Link to="/accountselection">
+                <Link to="/accountselection" target="_blank">
                   <Button className="bg-blue-600 hover:bg-blue-700">Get Started</Button>
                 </Link>
               </>

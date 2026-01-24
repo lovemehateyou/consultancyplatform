@@ -4,9 +4,10 @@ interface DocumentCardProps {
   imageUrl: string;
   date: string;
   isPaid: boolean;
+  onClick?: () => void;
 }
 
-const DocumentCard = ({ title, category, imageUrl, date, isPaid }: DocumentCardProps) => {
+const DocumentCard = ({ title, category, imageUrl, date, isPaid, onClick }: DocumentCardProps) => {
   const formattedDate = new Date(date).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -14,7 +15,19 @@ const DocumentCard = ({ title, category, imageUrl, date, isPaid }: DocumentCardP
   });
 
   return (
-    <div className="group cursor-pointer">
+    <div
+      className="group cursor-pointer focus:outline-none"
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={(event) => {
+        if (!onClick) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onClick();
+        }
+      }}
+    >
       <div className="aspect-[4/3] rounded-lg overflow-hidden mb-4 bg-muted">
         <img 
           src={imageUrl} 

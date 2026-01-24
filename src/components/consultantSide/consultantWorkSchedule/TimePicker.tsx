@@ -73,7 +73,7 @@ const TimePicker = ({ value, onChange, placeholder = "Select time" }: TimePicker
 
       <Select value={parsed.period} onValueChange={(v) => handleChange("period", v)}>
         <SelectTrigger className="w-[80px] bg-background">
-          <SelectValue placeholder="AM/PM" />
+          <SelectValue placeholder="AM" />
         </SelectTrigger>
         <SelectContent className="bg-background z-50">
           {periods.map((period) => (
