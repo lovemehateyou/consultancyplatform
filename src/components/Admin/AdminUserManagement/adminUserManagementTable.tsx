@@ -31,9 +31,9 @@ interface Consultant {
 
 const consultants: Consultant[] = [
   { id: "1", name: "Olivia Rhye", username: "@olivia", status: "Active", role: "Consultant", email: "olivia@untitledui.com" },
-  { id: "2", name: "Phoenix Baker", username: "@phoenix", status: "Active", role: "Consultant", email: "phoenix@untitledui.com" },
+  { id: "2", name: "Phoenix Baker", username: "@phoenix", status: "Inactive", role: "Consultant", email: "phoenix@untitledui.com" },
   { id: "3", name: "Lana Steiner", username: "@lana", status: "Active", role: "User", email: "lana@untitledui.com" },
-  { id: "4", name: "Demi Wilkinson", username: "@demi", status: "Active", role: "User", email: "demi@untitledui.com" },
+  { id: "4", name: "Demi Wilkinson", username: "@demi", status: "Inactive", role: "User", email: "demi@untitledui.com" },
   { id: "5", name: "Candice Wu", username: "@candice", status: "Active", role: "Consultant", email: "candice@untitledui.com" },
   { id: "6", name: "Natali Craig", username: "@natali", status: "Active", role: "User", email: "natali@untitledui.com" },
 ];
@@ -108,17 +108,33 @@ const ConsultantsTable = () => {
                 </TableCell>
                 <TableCell>
                   <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                    <span className="text-green-600">Active</span>
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        consultant.status === "Active" ? "bg-green-500" : "bg-amber-500"
+                      }`}
+                    ></span>
+                    <span
+                      className={
+                        consultant.status === "Active"
+                          ? "text-green-600"
+                          : "text-amber-600"
+                      }
+                    >
+                      {consultant.status}
+                    </span>
                   </span>
                 </TableCell>
                 <TableCell className="text-foreground">{consultant.role}</TableCell>
                 <TableCell className="text-foreground">{consultant.email}</TableCell>
                 <TableCell>
-                  <Button 
-                    className="bg-blue-600 hover:bg-blue-700 text-primary-foreground rounded-lg px-6"
+                  <Button
+                    className={`rounded-lg px-6 ${
+                      consultant.status === "Active"
+                        ? "bg-blue-600 hover:bg-blue-700"
+                        : "bg-emerald-600 hover:bg-emerald-700"
+                    }`}
                   >
-                    Suspend
+                    {consultant.status === "Active" ? "Suspend" : "Approve"}
                   </Button>
                 </TableCell>
               </TableRow>

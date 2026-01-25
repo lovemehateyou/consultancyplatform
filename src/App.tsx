@@ -43,8 +43,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/accountselection" element={<AccountSelection />} />
-          <Route path="/consultancyregistration" element={<ConsultancyRegistration />} />
+          {/* <Route path="/accountselection" element={<AccountSelection />} />
+          <Route path="/consultancyregistration" element={<ConsultancyRegistration />} /> */}
           <Route path="/userregistration" element={<UserRegistrationForm />} />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/Userdashboard" element={<Dashboard />} />

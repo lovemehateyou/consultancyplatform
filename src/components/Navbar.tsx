@@ -71,7 +71,7 @@ const Navbar = () => {
                 <Link to="/login" target="_blank">
                   <Button variant="outline">Sign In</Button>
                 </Link>
-                <Link to="/accountselection" target="_blank">
+                <Link to="/userregistration" target="_blank">
                   <Button className="bg-blue-600 hover:bg-blue-700">Get Started</Button>
                 </Link>
               </>
