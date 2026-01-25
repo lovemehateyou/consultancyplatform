@@ -28,10 +28,6 @@ const AdminDashboardHeader = ({ onToggleSidebar, avatarUrl, avatarFallback = "AD
           />
         </div>
         
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="w-5 h-5 text-muted-foreground" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
-        </Button>
         
         <Avatar className="w-9 h-9 border border-border">
           {mockAvatarUrl ? (
