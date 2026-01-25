@@ -27,6 +27,7 @@ export interface Task {
   businessTypes: string[];
   businessAreas: string[];
   governmentLinks: string[];
+  order: number;
 }
 
 interface TaskFormDialogProps {
@@ -76,6 +77,7 @@ const TaskFormDialog = ({ open, onOpenChange, task, onSave, mode }: TaskFormDial
   const [selectedBusinessTypes, setSelectedBusinessTypes] = useState<string[]>([]);
   const [selectedBusinessAreas, setSelectedBusinessAreas] = useState<string[]>([]);
   const [governmentLinks, setGovernmentLinks] = useState<string[]>([""]);
+  const [order, setOrder] = useState(1);
 
   useEffect(() => {
     if (task && mode === "edit") {
@@ -85,6 +87,7 @@ const TaskFormDialog = ({ open, onOpenChange, task, onSave, mode }: TaskFormDial
       setSelectedBusinessTypes(task.businessTypes);
       setSelectedBusinessAreas(task.businessAreas);
       setGovernmentLinks(task.governmentLinks.length > 0 ? task.governmentLinks : [""]);
+      setOrder(task.order ?? 1);
     } else {
       setName("");
       setConsultantType("");
@@ -92,6 +95,7 @@ const TaskFormDialog = ({ open, onOpenChange, task, onSave, mode }: TaskFormDial
       setSelectedBusinessTypes([]);
       setSelectedBusinessAreas([]);
       setGovernmentLinks([""]);
+      setOrder(1);
     }
   }, [task, mode, open]);
 
@@ -130,6 +134,7 @@ const TaskFormDialog = ({ open, onOpenChange, task, onSave, mode }: TaskFormDial
       businessTypes: selectedBusinessTypes,
       businessAreas: selectedBusinessAreas,
       governmentLinks: filteredLinks,
+      order,
     });
     onOpenChange(false);
   };
@@ -179,6 +184,18 @@ const TaskFormDialog = ({ open, onOpenChange, task, onSave, mode }: TaskFormDial
               className="min-h-[120px]"
               value={details}
               onChange={(e) => setDetails(e.target.value)}
+            />
+          </div>
+
+          {/* Completion Order */}
+          <div className="space-y-2">
+            <Label htmlFor="order">Completion Order</Label>
+            <Input
+              id="order"
+              type="number"
+              min={1}
+              value={order}
+              onChange={(e) => setOrder(Math.max(1, Number(e.target.value) || 1))}
             />
           </div>
 

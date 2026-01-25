@@ -26,6 +26,7 @@ const initialTasks: Task[] = [
     businessTypes: ["PLC (Private Limited Company)", "Sole Proprietorship", "Partnership"],
     businessAreas: ["Sales", "Services", "Manufacturing", "Retail"],
     governmentLinks: ["https://www.irs.gov/businesses", "https://example.gov/tin-application"],
+    order: 1,
   },
   {
     id: "2",
@@ -35,6 +36,7 @@ const initialTasks: Task[] = [
     businessTypes: ["PLC (Private Limited Company)", "LLC (Limited Liability Company)", "Corporation"],
     businessAreas: ["Sales", "Retail", "Manufacturing"],
     governmentLinks: ["https://example.gov/vat-registration"],
+    order: 2,
   },
   {
     id: "3",
@@ -44,6 +46,7 @@ const initialTasks: Task[] = [
     businessTypes: ["PLC (Private Limited Company)", "Sole Proprietorship", "Franchise"],
     businessAreas: ["Services", "Retail", "Food & Beverage"],
     governmentLinks: ["https://example.gov/business-license"],
+    order: 3,
   },
   {
     id: "4",
@@ -53,12 +56,15 @@ const initialTasks: Task[] = [
     businessTypes: ["PLC (Private Limited Company)", "Corporation", "Non-Profit Organization"],
     businessAreas: ["Healthcare", "Education", "Technology"],
     governmentLinks: ["https://example.gov/social-security"],
+    order: 4,
   },
 ];
 
 const TaskManagementContent = () => {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [searchQuery, setSearchQuery] = useState("");
+  const [businessTypeFilter, setBusinessTypeFilter] = useState("all");
+  const [businessAreaFilter, setBusinessAreaFilter] = useState("all");
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -66,12 +72,20 @@ const TaskManagementContent = () => {
   const [formMode, setFormMode] = useState<"add" | "edit">("add");
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
-  const filteredTasks = tasks.filter((task) =>
-    task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    task.consultantType.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTasks = tasks.filter((task) => {
+    const matchesSearch =
+      task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.consultantType.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesBusinessType =
+      businessTypeFilter === "all" || task.businessTypes.includes(businessTypeFilter);
+    const matchesBusinessArea =
+      businessAreaFilter === "all" || task.businessAreas.includes(businessAreaFilter);
+    return matchesSearch && matchesBusinessType && matchesBusinessArea;
+  }).sort((a, b) => a.order - b.order);
 
   const uniqueConsultantTypes = new Set(tasks.map((t) => t.consultantType).filter(Boolean));
+  const businessTypeOptions = Array.from(new Set(tasks.flatMap((task) => task.businessTypes)));
+  const businessAreaOptions = Array.from(new Set(tasks.flatMap((task) => task.businessAreas)));
 
   const handleAddTask = () => {
     setSelectedTask(null);
@@ -138,7 +152,7 @@ const TaskManagementContent = () => {
         consultantTypes={uniqueConsultantTypes.size}
       /> */}
 
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col lg:flex-row gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -148,6 +162,42 @@ const TaskManagementContent = () => {
             className="pl-10"
           />
         </div>
+        <div className="flex flex-col sm:flex-row flex-1 gap-4">
+          <select
+            value={businessTypeFilter}
+            onChange={(e) => setBusinessTypeFilter(e.target.value)}
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+          >
+            <option value="all">All business types</option>
+            {businessTypeOptions.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+          <select
+            value={businessAreaFilter}
+            onChange={(e) => setBusinessAreaFilter(e.target.value)}
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+          >
+            <option value="all">All business areas</option>
+            {businessAreaOptions.map((area) => (
+              <option key={area} value={area}>
+                {area}
+              </option>
+            ))}
+          </select>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => {
+            setBusinessTypeFilter("all");
+            setBusinessAreaFilter("all");
+          }}
+          className="whitespace-nowrap"
+        >
+          Clear filters
+        </Button>
       </div>
 
       <div>
