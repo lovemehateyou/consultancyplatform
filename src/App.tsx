@@ -16,6 +16,7 @@ import Profile from "./pages/userPages/userManagement";
 import Consultancy from "./pages/userPages/LiveConsultancy";
 import ConsultantProfile from "./pages/userPages/ConsultantProfile";
 import History from "./pages/userPages/userHistory";
+import UserNotifications from "./pages/userPages/userNotifications";
 import AccountSelection from "./components/accountSelection";
 
 // Consultancy side pages
@@ -24,6 +25,7 @@ import CLibrary from "./pages/consultantPages/consultantLibrary";
 import CProfile from "./pages/consultantPages/consultancyManagement";
 import ConsultantOverview from "./pages/consultantPages/consultantOverview";
 import ConsultantWorkSchedule from "./pages/consultantPages/consultantWorkSchedule";
+import ConsultantNotifications from "./pages/consultantPages/consultantNotifications";
 
 // Admin side pages
 import AdminOverview from "./pages/Admin/adminOverview";
@@ -53,12 +55,14 @@ const App = () => (
           <Route path="/consultancy" element={<Consultancy />} />
           <Route path="/consultant/:id" element={<ConsultantProfile />} />
           <Route path="/history" element={<History />} />
+          <Route path="/notifications" element={<UserNotifications />} />
           {/* Adding the consultant routes */}
           <Route path="/consultantdashboard" element={<ConsultantOverview />} />
           <Route path="/consultanthistory" element={<CHistory />} />
           <Route path="/consultantlibrary" element={<CLibrary />} />
           <Route path="/consultantprofile" element={<CProfile />} />
           <Route path="/consultantworkschedule" element={<ConsultantWorkSchedule />} />
+          <Route path="/consultantnotifications" element={<ConsultantNotifications />} />
           {/* Admin routes */}
           <Route path="/admin/overview" element={<AdminOverview />} />
           <Route path="/admin/usermanagement" element={<UserManagement />} />
