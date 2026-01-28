@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/authContext";
 
 interface RegistrationFormProps {
   onSubmit?: (data: RegistrationData) => void;
@@ -15,22 +18,85 @@ interface RegistrationData {
   password: string;
 }
 
+type UserRole = "user" | "consultant" | "admin";
+
+const ROLE_REDIRECTS: Record<UserRole, string> = {
+  user: "/userDashboard",
+  consultant: "/consultantDashboard",
+  admin: "/adminDashboard",
+};
+
+const extractRoleFromCookie = (): UserRole | null => {
+  if (typeof document === "undefined") return null;
+  const cookieSegment = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("userInfo="));
+  if (!cookieSegment) return null;
+
+  let value = cookieSegment.split("=")[1];
+  if (!value) return null;
+
+  try {
+    value = decodeURIComponent(value);
+    if (value.startsWith("j:")) {
+      value = value.slice(2);
+    }
+    const parsed = JSON.parse(value);
+    return parsed?.role ?? null;
+  } catch (error) {
+    console.error("Failed to parse userInfo cookie", error);
+    return null;
+  }
+};
+
 const LoginForm = ({ 
   onSubmit, 
-  title = "Create Free Consultant Account",
+  title = "Log in to your Account",
   subtitle = "Meri gives you the blocks and components you need to create a truly professional Business."
 }: RegistrationFormProps) => {
   const [formData, setFormData] = useState<RegistrationData>({
     email: "",
     password: "",
   });
+  const { login, user, loading, error, clearError } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit?.(formData);
+    try {
+      await login(formData);
+      onSubmit?.(formData);
+
+      const resolvedRole = user?.role ?? extractRoleFromCookie();
+      const destination = (resolvedRole && ROLE_REDIRECTS[resolvedRole]) || "/";
+
+      toast({
+        title: "Welcome back",
+        description: "You have been logged in successfully.",
+      });
+
+      navigate(destination, { replace: true });
+    } catch (submissionError) {
+      const message =
+        submissionError instanceof Error
+          ? submissionError.message
+          : "Unable to log you in. Please try again.";
+      toast({
+        title: "Login failed",
+        description: message,
+        variant: "destructive",
+      });
+    }
   };
 
-
+  const handleInputChange = (field: keyof RegistrationData) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (error) {
+        clearError();
+      }
+      setFormData((prev) => ({ ...prev, [field]: event.target.value }));
+    };
   return (
     <div className=" flex flex-col w-full h-[100vh] justify-center my-auto max-w-3xl mx-auto ">
       <div className="text-center mb-8">
@@ -50,31 +116,39 @@ const LoginForm = ({
               placeholder="Email Address"
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              onChange={handleInputChange("email")}
               className="h-12 text-center border-border"
+              disabled={loading}
             />
             <Input
               placeholder="Password"
               type="password"
               value={formData.password}
-              onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+              onChange={handleInputChange("password")}
               className="h-12 text-center border-border"
+              disabled={loading}
             />
           </div>
 
-        
+          {error && (
+            <p className="text-center text-sm text-red-600" role="alert">
+              {error}
+            </p>
+          )}
+
           {/* Submit Button */}
           <Button
             type="submit"
             className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+            disabled={loading}
           >
-            Log In
+            {loading ? "Signing you in..." : "Log In"}
           </Button>
 
           {/* Login Link */}
           <p className="text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <a href="#" className="text-blue-500 hover:underline">
+            <a href="/userregistration" className="text-blue-500 hover:underline">
               Sign up
             </a>
           </p>

@@ -1,13 +1,52 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X, User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-/* import { useAuth } from '@/contexts/AuthContext'; */
-import Logo from '../assets/Logo.png';
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { Menu, X, LayoutDashboard } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/authContext";
+import Logo from "@/assets/Logo.png";
+
+type UserRole = "user" | "consultant" | "admin";
+
+const ROLE_ROUTES: Record<UserRole, string> = {
+  user: "/userDashboard",
+  consultant: "/consultantDashboard",
+  admin: "/adminDashboard",
+};
+
+const getRoleFromCookie = (): UserRole | null => {
+  if (typeof document === "undefined") return null;
+  const cookieChunk = document.cookie
+    .split("; ")
+    .find((segment) => segment.startsWith("userInfo="));
+  if (!cookieChunk) return null;
+
+  const [, rawValue = ""] = cookieChunk.split("=");
+  if (!rawValue) return null;
+
+  try {
+    let decoded = decodeURIComponent(rawValue);
+    if (decoded.startsWith("j:")) {
+      decoded = decoded.slice(2);
+    }
+    const parsed = JSON.parse(decoded);
+    return parsed?.role ?? null;
+  } catch (error) {
+    console.error("Failed to parse userInfo cookie", error);
+    return null;
+  }
+};
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  /* const { user } = useAuth(); */
+  const { user } = useAuth();
+
+  const { dashboardHref, isAuthenticated } = useMemo(() => {
+    const resolvedRole = (user?.role as UserRole | undefined) ?? getRoleFromCookie();
+    if (!resolvedRole) {
+      return { dashboardHref: null, isAuthenticated: false };
+    }
+    return { dashboardHref: ROLE_ROUTES[resolvedRole], isAuthenticated: true };
+  }, [user?.role]);
 
   const navItems = [
     { name: 'Home', href: '#home' },
@@ -24,16 +63,6 @@ const Navbar = () => {
     }
     setIsMenuOpen(false);
   };
-
- /*  const getDashboardLink = () => {
-    if (!user) return '/login';
-    return user.role === 'client' ? '/dashboard' : '/restaurants';
-  };
-
-  const getDashboardText = () => {
-    if (!user) return 'Dashboard';
-    return user.role === 'client' ? 'Dashboard' : 'Restaurants';
-  }; */
 
   return (
     <nav className="bg-white/95 backdrop-blur-sm border-b border-black/10">
@@ -59,19 +88,19 @@ const Navbar = () => {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            {false ? (
-              <Link to={"#"} >
-                <Button variant="outline" className="flex items-center space-x-2">
-                  <User className="h-4 w-4" />
-                  <span>{"help"}</span>
+            {isAuthenticated && dashboardHref ? (
+              <Link to={dashboardHref}>
+                <Button className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700">
+                  <LayoutDashboard className="h-4 w-4" />
+                  <span>Go to Dashboard</span>
                 </Button>
               </Link>
             ) : (
               <>
-                <Link to="/login" target="_blank">
+                <Link to="/login">
                   <Button variant="outline">Sign In</Button>
                 </Link>
-                <Link to="/userregistration" target="_blank">
+                <Link to="/userregistration">
                   <Button className="bg-blue-600 hover:bg-blue-700">Get Started</Button>
                 </Link>
               </>
@@ -103,9 +132,9 @@ const Navbar = () => {
               </a>
             ))}
             <div className="pt-4 space-y-2">
-              {false ? (
-                <Link to={"#"} className="block">
-                  <Button variant="outline" className="w-full">{"help me"}</Button>
+              {isAuthenticated && dashboardHref ? (
+                <Link to={dashboardHref} className="block">
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700">Go to Dashboard</Button>
                 </Link>
               ) : (
                 <>
