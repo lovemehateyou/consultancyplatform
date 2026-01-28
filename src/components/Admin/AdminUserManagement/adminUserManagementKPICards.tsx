@@ -1,52 +1,60 @@
-/* import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HelpCircle } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface KPICardProps {
   title: string;
-  value: string | number;
-  tooltip?: string;
+  value: number;
+  tooltip: string;
 }
 
 const KPICard = ({ title, value, tooltip }: KPICardProps) => (
   <Card className="bg-card border-border">
-    <CardContent className="p-4">
-      <div className="flex items-center gap-1 mb-2">
+    <CardContent className="p-6">
+      <div className="flex items-center gap-2 mb-2">
         <span className="text-sm text-muted-foreground">{title}</span>
-        {tooltip && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{tooltip}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <HelpCircle className="w-4 h-4 text-muted-foreground" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{tooltip}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
-      <p className="text-2xl font-bold text-foreground">{value}</p>
+      <p className="text-3xl font-bold text-foreground">{value}</p>
     </CardContent>
   </Card>
 );
 
-const ConsultancyKPICards = () => {
+interface TaskManagementKPICardsProps {
+  totalTasks: number;
+  activeTasks: number;
+  consultantTypes: number;
+}
+
+const UsermanagementKPICards = ({ totalTasks, activeTasks, consultantTypes }: TaskManagementKPICardsProps) => {
   return (
-    <div className="grid grid-cols-5 gap-4">
-      <KPICard title="Total Tasks" value={5} tooltip="Total number of tasks" />
-      <KPICard title="Total Tasks Completed" value={2} tooltip="Tasks you've completed" />
-      <KPICard title="Total Tasks Left" value={3} tooltip="Remaining tasks" />
-      <KPICard title="Current Progress" value="40%" tooltip="Your current progress" />
-      <KPICard title="Total Progress Left" value="60%" tooltip="Remaining progress" />
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <KPICard 
+        title="Total Tasks" 
+        value={totalTasks} 
+        tooltip="Total number of tasks in the system" 
+      />
+      <KPICard 
+        title="Active Tasks" 
+        value={activeTasks} 
+        tooltip="Number of currently active tasks" 
+      />
+      <KPICard 
+        title="Consultant Types" 
+        value={consultantTypes} 
+        tooltip="Number of consultant types available" 
+      />
     </div>
   );
 };
 
-export default ConsultancyKPICards;
- */
+export default UsermanagementKPICards;
