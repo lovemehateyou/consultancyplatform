@@ -147,7 +147,7 @@ const userRegistrationForm = ({
               disabled={loading}
             />
              <Input
-              placeholder="Tax Identification Number (TIN)"
+              placeholder="Tax Identification Number (TIN)— optional"
               value={formData.TIN}
               onChange={handleInputChange("TIN")}
               className="h-12 text-left border-2 border-black"

@@ -4,6 +4,7 @@ import {
 	useContext,
 	useMemo,
 	useState,
+	useEffect,
 	type ReactNode,
 } from "react";
 
@@ -29,6 +30,28 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+const parseUserInfoCookie = (): Partial<AuthUser> | null => {
+	if (typeof document === "undefined") return null;
+	const segment = document.cookie
+		.split("; ")
+		.find((row) => row.startsWith("userInfo="));
+	if (!segment) return null;
+
+	const raw = segment.split("=")[1];
+	if (!raw) return null;
+
+	try {
+		let decoded = decodeURIComponent(raw);
+		if (decoded.startsWith("j:")) {
+			decoded = decoded.slice(2);
+		}
+		return JSON.parse(decoded) as Partial<AuthUser>;
+	} catch (error) {
+		console.error("Failed to parse userInfo cookie", error);
+		return null;
+	}
+};
+
 interface AuthProviderProps {
 	children: ReactNode;
 }
@@ -37,6 +60,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 	const [user, setUser] = useState<AuthUser | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		const cookieUser = parseUserInfoCookie();
+		if (cookieUser) {
+			setUser((prev) => ({ ...prev, ...cookieUser } as AuthUser));
+		}
+	}, []);
 
 	const withAsyncState = useCallback(
 		async <T,>(handler: () => Promise<T>): Promise<T> => {
@@ -70,7 +100,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 		(payload: LoginPayload) =>
 			withAsyncState(async () => {
 				await loginRequest(payload);
-				// TODO: add profile fetch once endpoint is available
+				const cookieUser = parseUserInfoCookie();
+				setUser((prev) => (cookieUser ? ({ ...prev, ...cookieUser } as AuthUser) : prev));
 			}),
 		[withAsyncState],
 	);

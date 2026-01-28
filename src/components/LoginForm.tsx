@@ -51,7 +51,7 @@ const extractRoleFromCookie = (): UserRole | null => {
 
 const LoginForm = ({ 
   onSubmit, 
-  title = "Create Free Consultant Account",
+  title = "Log in to your Account",
   subtitle = "Meri gives you the blocks and components you need to create a truly professional Business."
 }: RegistrationFormProps) => {
   const [formData, setFormData] = useState<RegistrationData>({
@@ -148,7 +148,7 @@ const LoginForm = ({
           {/* Login Link */}
           <p className="text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <a href="#" className="text-blue-500 hover:underline">
+            <a href="/userregistration" className="text-blue-500 hover:underline">
               Sign up
             </a>
           </p>

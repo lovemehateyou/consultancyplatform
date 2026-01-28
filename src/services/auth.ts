@@ -61,7 +61,7 @@ export interface SignupPayload {
 	BusinessAddress: string;
 	BusinessType: string;
 	Business: string;
-	TIN: string;
+	TIN?: string;
 	nationalIdFile?: File | null;
 	agreedToTerms: boolean;
 }
@@ -96,7 +96,9 @@ export const signup = async (payload: SignupPayload): Promise<SignupResponse> =>
 	formData.append("BusinessAddress", payload.BusinessAddress.trim());
 	formData.append("BusinessType", payload.BusinessType);
 	formData.append("Business", payload.Business);
-	formData.append("TIN", payload.TIN.trim());
+	if (payload.TIN?.trim()) {
+    formData.append("TIN", payload.TIN.trim());
+  }
 	formData.append("agreedToTerms", String(payload.agreedToTerms));
     
 	if (payload.role) {
