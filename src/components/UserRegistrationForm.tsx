@@ -3,7 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/authContext";
 
 interface RegistrationFormProps {
   onSubmit?: (data: RegistrationData) => void;
@@ -26,34 +28,70 @@ interface RegistrationData {
   agreedToTerms: boolean;
 }
 
+const createInitialFormState = (): RegistrationData => ({
+  userName: "",
+  phoneNumber: "",
+  email: "",
+  BusinessName: "",
+  Business: "",
+  BusinessAddress: "",
+  BusinessType: "",
+  TIN: "",
+  password: "",
+  ConformPassword: "",
+  nationalIdFile: null,
+  agreedToTerms: false,
+});
+
 const userRegistrationForm = ({ 
   onSubmit, 
   title = "Create Free Consultant Account",
   subtitle = "Meri gives you the blocks and components you need to create a truly professional Business."
 }: RegistrationFormProps) => {
-  const [formData, setFormData] = useState<RegistrationData>({
-    userName: "",
-    phoneNumber: "",
-    email: "",
-    BusinessName: "",
-    Business:"",
-    BusinessAddress: "",
-    BusinessType: "",
-    TIN: "",
-    password: "",
-    ConformPassword: "",
-    nationalIdFile: null,
-    agreedToTerms: false,
-  });
+  const [formData, setFormData] = useState<RegistrationData>(() => createInitialFormState());
+  const { signup, loading, error, clearError } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit?.(formData);
+  const updateField = <K extends keyof RegistrationData>(field: K, value: RegistrationData[K]) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (error) {
+      clearError();
+    }
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const result = await signup(formData);
+      toast({
+        title: "Registration successful",
+        description: result.message,
+      });
+      onSubmit?.(formData);
+      setFormData(createInitialFormState());
+      navigate("/login", { replace: true });
+    } catch (submissionError) {
+      const message =
+        submissionError instanceof Error
+          ? submissionError.message
+          : "Unable to complete registration. Please try again.";
+      toast({
+        title: "Registration failed",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleInputChange = <K extends keyof RegistrationData>(field: K) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      updateField(field, e.target.value as RegistrationData[K]);
+    };
 
   const handleFileChange = (field: "nationalIdFile") => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
-    setFormData(prev => ({ ...prev, [field]: file }));
+    updateField(field, file);
   };
 
   return (
@@ -74,45 +112,52 @@ const userRegistrationForm = ({
             <Input
               placeholder="Full Name"
               value={formData.userName}
-              onChange={(e) => setFormData(prev => ({ ...prev, userName: e.target.value }))}
+              onChange={handleInputChange("userName")}
               className="h-12 text-left border-2 border-black"
+              disabled={loading}
             />
             <Input
               placeholder="Phone number"
               type="tel"
               value={formData.phoneNumber}
-              onChange={(e) => setFormData(prev => ({ ...prev, phoneNumber: e.target.value }))}
+              onChange={handleInputChange("phoneNumber")}
               className="h-12 text-left  border-2 border-black"
+              disabled={loading}
             />
             <Input
               placeholder="Email Address"
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              onChange={handleInputChange("email")}
               className="h-12 text-left border-2 border-black"
+              disabled={loading}
             />
             <Input
               placeholder="Business Name"
               value={formData.BusinessName}
-              onChange={(e) => setFormData(prev => ({ ...prev, BusinessName: e.target.value }))}
+              onChange={handleInputChange("BusinessName")}
               className="h-12 text-left border-2 border-black"
+              disabled={loading}
             />
              <Input
               placeholder="Business Address"
               value={formData.BusinessAddress}
-              onChange={(e) => setFormData(prev => ({ ...prev, BusinessAddress: e.target.value }))}
+              onChange={handleInputChange("BusinessAddress")}
               className="h-12 text-left border-2 border-black"
+              disabled={loading}
             />
              <Input
               placeholder="Tax Identification Number (TIN)"
               value={formData.TIN}
-              onChange={(e) => setFormData(prev => ({ ...prev, TIN: e.target.value }))}
+              onChange={handleInputChange("TIN")}
               className="h-12 text-left border-2 border-black"
+              disabled={loading}
             />
              <select
               className="h-12 text-left text-sm text-muted-foreground border-2 border-black rounded-lg bg-transparent"
               value={formData.BusinessType}
-              onChange={(e) => setFormData(prev => ({ ...prev, BusinessType: e.target.value }))}
+              onChange={handleInputChange("BusinessType")}
+              disabled={loading}
             >
               <option value="" disabled>Select Business Type</option>
               <option value="Sole Proprietorship">Sole Proprietorship</option>
@@ -124,13 +169,14 @@ const userRegistrationForm = ({
             <select
               className="h-12 text-left text-sm text-muted-foreground border-2 border-black rounded-lg bg-transparent "
               value={formData.Business}
-              onChange={(e) => setFormData(prev => ({ ...prev, Business: e.target.value }))}
+              onChange={handleInputChange("Business")}
+              disabled={loading}
             >
               <option value="" disabled>Select Business Area </option>
-              <option value="Sole Proprietorship">Sales</option>
-              <option value="Partnership">Legal Work</option>
-              <option value="Corporation">Services</option>
-              <option value="LLC">Technologies</option>
+              <option value="Sales">Sales</option>
+              <option value="Legal Work">Legal Work</option>
+              <option value="Services">Services</option>
+              <option value="Technologies">Technologies</option>
             </select>
 
             
@@ -138,16 +184,18 @@ const userRegistrationForm = ({
               placeholder="Create Password"
               type="password"
               value={formData.password}
-              onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+              onChange={handleInputChange("password")}
               className="h-12 text-left border-2 border-black"
+              disabled={loading}
             />
 
             <Input
               placeholder="Conform Password"
               type="password"
               value={formData.ConformPassword}
-              onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+              onChange={handleInputChange("ConformPassword")}
               className="h-12 text-left border-2 border-black"
+              disabled={loading}
             />
           </div>
 
@@ -159,6 +207,7 @@ const userRegistrationForm = ({
                 accept="image/*"
                 onChange={handleFileChange("nationalIdFile")}
                 className="hidden"
+                disabled={loading}
               />
               <span className="text-muted-foreground">
                 {formData.nationalIdFile ? formData.nationalIdFile.name : "National Id image"}
@@ -171,9 +220,8 @@ const userRegistrationForm = ({
             <Checkbox
               id="terms"
               checked={formData.agreedToTerms}
-              onCheckedChange={(checked) => 
-                setFormData(prev => ({ ...prev, agreedToTerms: checked === true }))
-              }
+              onCheckedChange={(checked) => updateField("agreedToTerms", checked === true)}
+              disabled={loading}
             />
             <label htmlFor="terms" className="text-sm text-foreground">
               I agree with the{" "}
@@ -184,12 +232,19 @@ const userRegistrationForm = ({
             </label>
           </div>
 
+          {error && (
+            <p className="text-sm text-red-600" role="alert">
+              {error}
+            </p>
+          )}
+
           {/* Submit Button */}
           <Button
             type="submit"
             className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+            disabled={loading || !formData.agreedToTerms}
           >
-            Sign Up
+            {loading ? "Creating account..." : "Sign Up"}
           </Button>
 
           {/* Login Link */}

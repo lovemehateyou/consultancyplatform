@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-/* import { useAuth } from '@/contexts/AuthContext'; */
+import { useAuth } from '../context/authContext';
 import Logo from '../assets/Logo.png';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  /* const { user } = useAuth(); */
+  const { user } = useAuth();
 
   const navItems = [
     { name: 'Home', href: '#home' },
@@ -25,15 +25,11 @@ const Navbar = () => {
     setIsMenuOpen(false);
   };
 
- /*  const getDashboardLink = () => {
+  const getDashboardLink = () => {
     if (!user) return '/login';
-    return user.role === 'client' ? '/dashboard' : '/restaurants';
+    return user.role === 'user' ? '/Userdashboard' : '/ConsultantDashboard';
   };
 
-  const getDashboardText = () => {
-    if (!user) return 'Dashboard';
-    return user.role === 'client' ? 'Dashboard' : 'Restaurants';
-  }; */
 
   return (
     <nav className="bg-white/95 backdrop-blur-sm border-b border-black/10">
@@ -59,7 +55,7 @@ const Navbar = () => {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            {false ? (
+            {user ? (
               <Link to={"#"} >
                 <Button variant="outline" className="flex items-center space-x-2">
                   <User className="h-4 w-4" />
