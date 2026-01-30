@@ -8,6 +8,10 @@ export interface ProfileInfoValues {
   phone: string;
   email: string;
   businessName: string;
+  businessAddress: string;
+  businessType: string;
+  businessArea: string;
+  tin: string;
 }
 
 export interface PasswordChangeValues {
@@ -19,6 +23,7 @@ interface AccountInfoFormProps {
   initialValues: ProfileInfoValues;
   isProfileSaving?: boolean;
   isPasswordSaving?: boolean;
+  disableEmail?: boolean;
   onProfileSubmit: (values: ProfileInfoValues) => Promise<void> | void;
   onPasswordSubmit: (values: PasswordChangeValues) => Promise<void> | void;
 }
@@ -29,6 +34,7 @@ const AccountInfoForm = ({
   onPasswordSubmit,
   isProfileSaving = false,
   isPasswordSaving = false,
+  disableEmail = false,
 }: AccountInfoFormProps) => {
   const [profileValues, setProfileValues] = useState<ProfileInfoValues>(initialValues);
   const [passwordValues, setPasswordValues] = useState<PasswordChangeValues>({
@@ -79,7 +85,7 @@ const AccountInfoForm = ({
         
         <div className="space-y-4">
           <div>
-            <Label htmlFor="name" className="text-sm text-foreground">User Name</Label>
+            <Label htmlFor="name" className="text-sm text-foreground font-bold">User Name</Label>
             <Input 
               id="name"
               name="name"
@@ -92,7 +98,7 @@ const AccountInfoForm = ({
           </div>
           
           <div>
-            <Label htmlFor="phone" className="text-sm text-foreground">Phone No.</Label>
+            <Label htmlFor="phone" className="text-sm text-foreground font-bold">Phone No.</Label>
             <Input 
               id="phone" 
               name="phone"
@@ -106,7 +112,7 @@ const AccountInfoForm = ({
           </div>
           
           <div>
-            <Label htmlFor="email" className="text-sm text-foreground">Email</Label>
+            <Label htmlFor="email" className="text-sm text-foreground font-bold">Email</Label>
             <Input 
               id="email" 
               name="email"
@@ -115,18 +121,70 @@ const AccountInfoForm = ({
               placeholder="e.g. user@example.com"
               value={profileValues.email}
               onChange={handleProfileChange}
+              disabled={isProfileSaving || disableEmail}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="businessName" className="text-sm text-foreground font-bold">Business Name</Label>
+            <Input
+              id="businessName"
+              name="businessName"
+              className="mt-1 bg-muted border-border"
+              placeholder="e.g. Acme Corp"
+              value={profileValues.businessName}
+              onChange={handleProfileChange}
               disabled={isProfileSaving}
             />
           </div>
 
           <div>
-            <Label htmlFor="businessName" className="text-sm text-foreground">Business Name</Label>
+            <Label htmlFor="businessAddress" className="text-sm text-foreground font-bold">Business Address</Label>
             <Input
-              id="businessName"
-              name="Business Name"
+              id="businessAddress"
+              name="businessAddress"
               className="mt-1 bg-muted border-border"
-              placeholder="e.g. Acme Corp"
-              value={profileValues.businessName}
+              placeholder="e.g. 123 Main St"
+              value={profileValues.businessAddress}
+              onChange={handleProfileChange}
+              disabled={isProfileSaving}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="businessType" className="text-sm text-foreground font-bold">Business Type</Label>
+            <Input
+              id="businessType"
+              name="businessType"
+              className="mt-1 bg-muted border-border"
+              placeholder="e.g. Retail"
+              value={profileValues.businessType}
+              onChange={handleProfileChange}
+              disabled={isProfileSaving}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="businessArea" className="text-sm text-foreground font-bold">Business Area</Label>
+            <Input
+              id="businessArea"
+              name="businessArea"
+              className="mt-1 bg-muted border-border"
+              placeholder="e.g. Marketing"
+              value={profileValues.businessArea}
+              onChange={handleProfileChange}
+              disabled={isProfileSaving}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="tin" className="text-sm text-foreground font-bold">TIN</Label>
+            <Input
+              id="tin"
+              name="tin"
+              className="mt-1 bg-muted border-border"
+              placeholder="e.g. 1234567890"
+              value={profileValues.tin}
               onChange={handleProfileChange}
               disabled={isProfileSaving}
             />

@@ -29,29 +29,29 @@ const KPICard = ({ title, value, tooltip }: KPICardProps) => (
   </Card>
 );
 
-interface TaskManagementKPICardsProps {
-  totalTasks: number;
-  activeTasks: number;
-  consultantTypes: number;
+interface UserManagementKPICardsProps {
+  totalUsers: number;
+  adminUsers: number;
+  consultantUsers: number;
 }
 
-const UsermanagementKPICards = ({ totalTasks, activeTasks, consultantTypes }: TaskManagementKPICardsProps) => {
+const UsermanagementKPICards = ({ totalUsers, adminUsers, consultantUsers }: UserManagementKPICardsProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <KPICard 
-        title="Total Tasks" 
-        value={totalTasks} 
-        tooltip="Total number of tasks in the system" 
+        title="Total Users" 
+        value={totalUsers} 
+        tooltip="Total number of users in the system" 
       />
       <KPICard 
-        title="Active Tasks" 
-        value={activeTasks} 
-        tooltip="Number of currently active tasks" 
+        title="Admins" 
+        value={adminUsers} 
+        tooltip="Number of admin accounts" 
       />
       <KPICard 
-        title="Consultant Types" 
-        value={consultantTypes} 
-        tooltip="Number of consultant types available" 
+        title="Consultants" 
+        value={consultantUsers} 
+        tooltip="Number of consultant accounts" 
       />
     </div>
   );

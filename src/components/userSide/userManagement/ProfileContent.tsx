@@ -1,22 +1,33 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 /* import ProfileKPICards from "./ProfileKPICards"; */
 import AccountInfoForm, { type PasswordChangeValues, type ProfileInfoValues } from "./AccountInfoForm";
 import ProfileCard from "./ProfileCard";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/authContext";
+import { getProfile, updateProfile } from "@/services/users";
 
 interface ProfileState {
   name: string;
   phone: string;
   email: string;
   businessName: string;
+  businessAddress: string;
+  businessType: string;
+  businessArea: string;
+  tin: string;
   avatarUrl?: string;
 }
 
 const initialProfile: ProfileState = {
-  name: "Adewale Doe",
-  phone: "+234 800 000 0000",
-  email: "user@example.com",
-  businessName: "Doe Consulting",
+  name: "",
+  phone: "",
+  email: "",
+  businessName: "",
+  businessAddress: "",
+  businessType: "",
+  businessArea: "",
+  tin: "",
 };
 
 const ProfileContent = () => {
@@ -24,6 +35,44 @@ const ProfileContent = () => {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isProfileSaving, setIsProfileSaving] = useState(false);
   const [isPasswordSaving, setIsPasswordSaving] = useState(false);
+  const { user, setUser } = useAuth();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!user) return;
+    setProfile({
+      name: user.name ?? "",
+      phone: user.phone ?? "",
+      email: user.email ?? "",
+      businessName: user.businessName ?? "",
+      businessAddress: user.businessAddress ?? "",
+      businessType: user.businessType ?? "",
+      businessArea: user.businessArea ?? "",
+      tin: user.tin ?? "",
+      avatarUrl: user.profileImage ?? undefined,
+    });
+  }, [user]);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const response = await getProfile();
+        setUser(response.user ?? null);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Unable to load profile data.";
+        toast({
+          title: "Profile load failed",
+          description: message,
+          variant: "destructive",
+        });
+      }
+    };
+
+    if (user?.id) {
+      loadProfile();
+    }
+  }, [user?.id, setUser, toast]);
 
   const handleAvatarChange = (file: File | null, previewUrl?: string) => {
     setAvatarFile(file);
@@ -33,11 +82,6 @@ const ProfileContent = () => {
     }));
   };
 
-  const persistProfile = async (formData: FormData) => {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    console.log("Profile payload ready for backend:", Object.fromEntries(formData.entries()));
-  };
-
   const persistPasswordChange = async (formData: FormData) => {
     await new Promise((resolve) => setTimeout(resolve, 800));
     console.log("Password payload ready for backend:", Object.fromEntries(formData.entries()));
@@ -45,23 +89,43 @@ const ProfileContent = () => {
 
   const handleProfileSubmit = async (values: ProfileInfoValues) => {
     setIsProfileSaving(true);
-    const payload = new FormData();
-    payload.append("name", values.name);
-    payload.append("phone", values.phone);
-    payload.append("email", values.email);
-    payload.append("businessName", values.businessName);
-    if (avatarFile) payload.append("avatar", avatarFile);
-
     try {
-      await persistProfile(payload);
-      setProfile((prev) => ({
-        ...prev,
+      const response = await updateProfile({
         name: values.name,
         phone: values.phone,
-        email: values.email,
         businessName: values.businessName,
+        businessAddress: values.businessAddress,
+        businessType: values.businessType,
+        businessArea: values.businessArea,
+        tin: values.tin,
+        profileImage: avatarFile,
+      });
+      setUser(response.user ?? null);
+      setProfile((prev) => ({
+        ...prev,
+        name: response.user.name ?? prev.name,
+        phone: response.user.phone ?? prev.phone,
+        email: response.user.email ?? prev.email,
+        businessName: response.user.businessName ?? prev.businessName,
+        businessAddress: response.user.businessAddress ?? prev.businessAddress,
+        businessType: response.user.businessType ?? prev.businessType,
+        businessArea: response.user.businessArea ?? prev.businessArea,
+        tin: response.user.tin ?? prev.tin,
+        avatarUrl: response.user.profileImage ?? prev.avatarUrl,
       }));
       setAvatarFile(null);
+      toast({
+        title: "Profile updated",
+        description: response.message || "Your profile changes have been saved.",
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unable to update profile right now.";
+      toast({
+        title: "Profile update failed",
+        description: message,
+        variant: "destructive",
+      });
     } finally {
       setIsProfileSaving(false);
     }
@@ -75,6 +139,10 @@ const ProfileContent = () => {
 
     try {
       await persistPasswordChange(payload);
+      toast({
+        title: "Password update queued",
+        description: "Password updates are not available yet.",
+      });
     } finally {
       setIsPasswordSaving(false);
     }
@@ -94,6 +162,7 @@ const ProfileContent = () => {
             onPasswordSubmit={handlePasswordSubmit}
             isProfileSaving={isProfileSaving}
             isPasswordSaving={isPasswordSaving}
+            disableEmail
           />
         </div>
         

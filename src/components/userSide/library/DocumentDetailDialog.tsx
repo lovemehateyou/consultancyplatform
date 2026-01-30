@@ -15,8 +15,8 @@ interface DocumentDetailDialogProps {
     category: string;
     imageUrl: string;
     description: string;
-    governmentLink: string;
-    documentUrl: string;
+    governmentLink?: string | null;
+    documentUrl?: string | null;
   } | null;
 }
 
@@ -28,10 +28,12 @@ const DocumentDetailDialog = ({
   if (!document) return null;
 
   const handleOpenDocument = () => {
+    if (!document.documentUrl) return;
     window.open(document.documentUrl, "_blank");
   };
 
   const handleDownload = () => {
+    if (!document.documentUrl) return;
     const link = window.document.createElement("a");
     link.href = document.documentUrl;
     link.download = document.title;
@@ -68,15 +70,17 @@ const DocumentDetailDialog = ({
           </p>
 
           {/* Government Link */}
-          <a
-            href={document.governmentLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-primary hover:underline text-sm"
-          >
-            <Globe className="h-4 w-4" />
-            View on Government Website
-          </a>
+          {document.governmentLink ? (
+            <a
+              href={document.governmentLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-primary hover:underline text-sm"
+            >
+              <Globe className="h-4 w-4" />
+              View on Government Website
+            </a>
+          ) : null}
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-2">
@@ -84,11 +88,12 @@ const DocumentDetailDialog = ({
               onClick={handleOpenDocument}
               className="flex-1"
               variant="outline"
+              disabled={!document.documentUrl}
             >
               <ExternalLink className="h-4 w-4 mr-2" />
               Open in Browser
             </Button>
-            <Button onClick={handleDownload} className="flex-1">
+            <Button onClick={handleDownload} className="flex-1" disabled={!document.documentUrl}>
               <Download className="h-4 w-4 mr-2" />
               Download
             </Button>

@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import AccountInfoForm from "./AccountInfoForm";
 import ProfileCard from "./ProfileCard";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/context/authContext";
+import { getProfile, updateProfile } from "@/services/users";
+import { useToast } from "@/hooks/use-toast";
 
 type ProfileInfo = {
   name: string;
@@ -10,6 +13,12 @@ type ProfileInfo = {
   email: string;
   title: string;
   about: string;
+  businessName: string;
+  businessAddress: string;
+  businessType: string;
+  businessArea: string;
+  tin: string;
+  profileImage?: string;
   cvFile: File | null;
 };
 
@@ -24,6 +33,11 @@ const initialProfileState: ProfileInfo = {
   email: "",
   title: "",
   about: "",
+  businessName: "",
+  businessAddress: "",
+  businessType: "",
+  businessArea: "",
+  tin: "",
   cvFile: null,
 };
 
@@ -32,15 +46,12 @@ const initialPasswordState: PasswordValues = {
   newPassword: "",
 };
 
-const postFormData = async (endpoint: string, formData: FormData) => {
-  // TODO: Replace with real fetch when backend is available
-  console.info(`Form data ready for ${endpoint}:`, Array.from(formData.entries()));
-};
-
 const ProfileContent = () => {
   const [profileInfo, setProfileInfo] = useState<ProfileInfo>(initialProfileState);
   const [passwordValues, setPasswordValues] = useState<PasswordValues>(initialPasswordState);
   const [cvPreviewUrl, setCvPreviewUrl] = useState<string | null>(null);
+  const { user, setUser } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!profileInfo.cvFile) {
@@ -53,6 +64,43 @@ const ProfileContent = () => {
 
     return () => URL.revokeObjectURL(objectUrl);
   }, [profileInfo.cvFile]);
+
+  useEffect(() => {
+    if (!user) return;
+    setProfileInfo((prev) => ({
+      ...prev,
+      name: user.name ?? "",
+      phone: user.phone ?? "",
+      email: user.email ?? "",
+      businessName: user.businessName ?? "",
+      businessAddress: user.businessAddress ?? "",
+      businessType: user.businessType ?? "",
+      businessArea: user.businessArea ?? "",
+      tin: user.tin ?? "",
+      profileImage: user.profileImage ?? undefined,
+    }));
+  }, [user]);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const response = await getProfile();
+        setUser(response.user ?? null);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Unable to load profile data.";
+        toast({
+          title: "Profile load failed",
+          description: message,
+          variant: "destructive",
+        });
+      }
+    };
+
+    if (user?.id) {
+      loadProfile();
+    }
+  }, [user?.id, setUser, toast]);
 
   const handleProfileFieldChange = (
     field: keyof Omit<ProfileInfo, "cvFile">,
@@ -74,18 +122,30 @@ const ProfileContent = () => {
 
   const handleProfileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData();
-    formData.append("name", profileInfo.name);
-    formData.append("phone", profileInfo.phone);
-    formData.append("email", profileInfo.email);
-    formData.append("title", profileInfo.title);
-    formData.append("about", profileInfo.about);
-
-    if (profileInfo.cvFile) {
-      formData.append("cv", profileInfo.cvFile);
+    try {
+      const response = await updateProfile({
+        name: profileInfo.name,
+        phone: profileInfo.phone,
+        businessName: profileInfo.businessName,
+        businessAddress: profileInfo.businessAddress,
+        businessType: profileInfo.businessType,
+        businessArea: profileInfo.businessArea,
+        tin: profileInfo.tin,
+      });
+      setUser(response.user ?? null);
+      toast({
+        title: "Profile updated",
+        description: response.message || "Your profile changes have been saved.",
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unable to update profile right now.";
+      toast({
+        title: "Profile update failed",
+        description: message,
+        variant: "destructive",
+      });
     }
-
-    await postFormData("/api/consultants/profile", formData);
   };
 
   const handlePasswordSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -93,8 +153,11 @@ const ProfileContent = () => {
     const formData = new FormData();
     formData.append("oldPassword", passwordValues.oldPassword);
     formData.append("newPassword", passwordValues.newPassword);
-
-    await postFormData("/api/consultants/password", formData);
+    console.info("Password payload ready for backend:", Array.from(formData.entries()));
+    toast({
+      title: "Password update queued",
+      description: "Password updates are not available yet.",
+    });
   };
 
   const handleProfileReset = () => setProfileInfo(initialProfileState);
@@ -128,6 +191,12 @@ const ProfileContent = () => {
             email={profileInfo.email}
             title={profileInfo.title}
             about={profileInfo.about}
+            businessName={profileInfo.businessName}
+            businessAddress={profileInfo.businessAddress}
+            businessType={profileInfo.businessType}
+            businessArea={profileInfo.businessArea}
+            tin={profileInfo.tin}
+            profileImage={profileInfo.profileImage}
             cvFileName={profileInfo.cvFile?.name}
             cvFileUrl={cvPreviewUrl}
           />
