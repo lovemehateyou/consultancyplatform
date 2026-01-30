@@ -4,11 +4,10 @@ import ProgressWheel from "./ProgressWheel";
 import TasksTable, { Task } from "./TasksTable";
 
 const initialTasks: Task[] = [
-  { id: "1", name: "Task 1", status: "Active", role: "Law Consultant", email: "olivia@untitledui.com" },
-  { id: "2", name: "Task 2", status: "Active", role: "Finance Consultant", email: "phoenix@untitledui.com" },
-  { id: "3", name: "Task 3", status: "Active", role: "Frontend Developer", email: "lana@untitledui.com" },
-  { id: "4", name: "Task 4", status: "Active", role: "Backend Developer", email: "demi@untitledui.com" },
-  { id: "5", name: "Task 5", status: "Active", role: "Fullstack Developer", email: "candice@untitledui.com" },
+  { id: "1", name: "Getting your Trade ID ", status: "Active", role: "Law Consultant", email: "olivia@untitledui.com" },
+  { id: "2", name: "Registering For VAT Certificate", status: "Active", role: "Finance Consultant", email: "phoenix@untitledui.com" },
+  { id: "3", name: "Registering Buisness Sectors", status: "Active", role: "Business consultant", email: "lana@untitledui.com" },
+
 ];
 
 const DashboardContent = () => {
