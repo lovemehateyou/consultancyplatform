@@ -6,6 +6,11 @@ interface ProfileCardProps {
     name: string;
     phone: string;
     email: string;
+    businessName: string;
+    businessAddress: string;
+    businessType: string;
+    businessArea: string;
+    tin: string;
     avatarUrl?: string;
   };
   onAvatarSelect: (file: File | null, previewUrl?: string) => void;
@@ -41,7 +46,7 @@ const ProfileCard = ({ profile, onAvatarSelect }: ProfileCardProps) => {
             <AvatarImage src={profile.avatarUrl} alt="Profile avatar" className="object-cover" />
           ) : (
             <AvatarFallback className="bg-primary/10 text-primary text-3xl font-semibold">
-              AD
+              {(profile.name || "Anonymous").substring(0, 2).toUpperCase()}
             </AvatarFallback>
           )}
         </Avatar>
@@ -52,6 +57,7 @@ const ProfileCard = ({ profile, onAvatarSelect }: ProfileCardProps) => {
         accept="image/*"
         className="hidden"
         onChange={handleFileChange}
+        aria-label="Upload profile image"
       />
       
       <div className="flex items-center gap-8 mt-6">
@@ -70,9 +76,14 @@ const ProfileCard = ({ profile, onAvatarSelect }: ProfileCardProps) => {
       </div>
       
       <div className="mt-8 space-y-2 text-sm text-foreground">
-        <p>{profile.name || "Add your display name"}</p>
-        <p>{profile.phone || "Add your phone number"}</p>
-        <p>{profile.email || "Add your email address"}</p>
+        <p><span className="font-bold">Name:</span> {profile.name || "Add your display name"}</p>
+        <p><span className="font-bold">Phone:</span> {profile.phone || "Add your phone number"}</p>
+        <p><span className="font-bold">Email:</span> {profile.email || "Add your email address"}</p>
+        <p><span className="font-bold">Business Name:</span> {profile.businessName || "Add your business name"}</p>
+        <p><span className="font-bold">Business Address:</span> {profile.businessAddress || "Add your business address"}</p>
+        <p><span className="font-bold">Business Type:</span> {profile.businessType || "Add your business type"}</p>
+        <p><span className="font-bold">Business Area:</span> {profile.businessArea || "Add your business area"}</p>
+        <p><span className="font-bold">TIN:</span> {profile.tin || "Add your TIN"}</p>
       </div>
     </div>
   );

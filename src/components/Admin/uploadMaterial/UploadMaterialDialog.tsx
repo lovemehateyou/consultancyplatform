@@ -15,6 +15,8 @@ import { Upload, X, Image as ImageIcon } from "lucide-react";
 export interface MaterialFormData {
   title: string;
   subtitle: string;
+  category: string;
+  contentType: "file" | "article";
   description: string;
   governmentLink: string;
   image: File | null;
@@ -24,13 +26,15 @@ export interface MaterialFormData {
 interface UploadMaterialDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (data: MaterialFormData) => void;
+  onSave: (data: MaterialFormData) => Promise<void> | void;
 }
 
 const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDialogProps) => {
   const [formData, setFormData] = useState<MaterialFormData>({
     title: "",
     subtitle: "",
+    category: "",
+    contentType: "file",
     description: "",
     governmentLink: "",
     image: null,
@@ -79,8 +83,8 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
     }
   };
 
-  const handleSave = () => {
-    onSave(formData);
+  const handleSave = async () => {
+    await onSave(formData);
     resetForm();
     onOpenChange(false);
   };
@@ -89,6 +93,8 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
     setFormData({
       title: "",
       subtitle: "",
+      category: "",
+      contentType: "file",
       description: "",
       governmentLink: "",
       image: null,
@@ -102,7 +108,13 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
     onOpenChange(false);
   };
 
-  const isValid = formData.title.trim() !== "";
+  const isValid =
+    formData.title.trim() !== "" &&
+    formData.category.trim() !== "" &&
+    (formData.contentType === "file"
+      ? Boolean(formData.document)
+      : Boolean(formData.description.trim()));
+  const isCoverImageDisabled = formData.contentType === "file";
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -114,7 +126,7 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
         <div className="space-y-5 py-4">
           {/* Title */}
           <div className="space-y-2">
-            <Label htmlFor="title">Title *</Label>
+            <Label htmlFor="title" className="font-bold">Title *</Label>
             <Input
               id="title"
               value={formData.title}
@@ -126,7 +138,7 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
 
           {/* Subtitle */}
           <div className="space-y-2">
-            <Label htmlFor="subtitle">Subtitle</Label>
+            <Label htmlFor="subtitle" className="font-bold">Subtitle</Label>
             <Input
               id="subtitle"
               value={formData.subtitle}
@@ -136,9 +148,53 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
             />
           </div>
 
+          {/* Content Type */}
+          <div className="space-y-2">
+            <Label htmlFor="contentType" className="font-bold">Content Type *</Label>
+            <select
+              id="contentType"
+              value={formData.contentType}
+              aria-label="Content type"
+              onChange={(e) => {
+                const nextType = e.target.value as "file" | "article";
+                setFormData((prev) => ({
+                  ...prev,
+                  contentType: nextType,
+                  document: nextType === "article" ? null : prev.document,
+                  image: nextType === "file" ? null : prev.image,
+                }));
+                if (nextType === "article" && documentInputRef.current) {
+                  documentInputRef.current.value = "";
+                }
+                if (nextType === "file") {
+                  setImagePreview(null);
+                  if (imageInputRef.current) {
+                    imageInputRef.current.value = "";
+                  }
+                }
+              }}
+              className="h-10 rounded-md border border-border bg-card px-3 text-sm"
+            >
+              <option value="file">File upload</option>
+              <option value="article">Article</option>
+            </select>
+          </div>
+
+          {/* Category */}
+          <div className="space-y-2">
+            <Label htmlFor="category" className="font-bold">Category *</Label>
+            <Input
+              id="category"
+              value={formData.category}
+              onChange={(e) => handleInputChange("category", e.target.value)}
+              placeholder="e.g. Finance, Marketing"
+              className="bg-card border-border"
+            />
+          </div>
+
           {/* Image Upload */}
           <div className="space-y-2">
-            <Label>Cover Image</Label>
+            <Label className="font-bold">Cover Image</Label>
             {imagePreview ? (
               <div className="relative w-full h-48 rounded-lg overflow-hidden border border-border">
                 <img
@@ -158,8 +214,16 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
               </div>
             ) : (
               <div
-                onClick={() => imageInputRef.current?.click()}
-                className="w-full h-48 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => {
+                  if (!isCoverImageDisabled) {
+                    imageInputRef.current?.click();
+                  }
+                }}
+                className={`w-full h-48 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center transition-colors ${
+                  isCoverImageDisabled
+                    ? "cursor-not-allowed opacity-60"
+                    : "cursor-pointer hover:border-primary/50"
+                }`}
               >
                 <ImageIcon className="h-12 w-12 text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground">Click to upload cover image</p>
@@ -172,12 +236,14 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
               accept="image/*"
               onChange={handleImageChange}
               className="hidden"
+              disabled={isCoverImageDisabled}
+              aria-label="Cover image upload"
             />
           </div>
 
           {/* Document Upload */}
           <div className="space-y-2">
-            <Label>Document File</Label>
+            <Label className="font-bold">Document File</Label>
             {formData.document ? (
               <div className="flex items-center justify-between p-3 bg-card border border-border rounded-lg">
                 <div className="flex items-center gap-2">
@@ -196,7 +262,11 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
             ) : (
               <div
                 onClick={() => documentInputRef.current?.click()}
-                className="w-full p-6 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors"
+                className={`w-full p-6 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center transition-colors ${
+                  formData.contentType === "article"
+                    ? "cursor-not-allowed opacity-60"
+                    : "cursor-pointer hover:border-primary/50"
+                }`}
               >
                 <Upload className="h-8 w-8 text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground">Click to upload document</p>
@@ -209,24 +279,30 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
               accept=".pdf,.doc,.docx"
               onChange={handleDocumentChange}
               className="hidden"
+              disabled={formData.contentType === "article"}
+              aria-label="Document upload"
             />
           </div>
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description" className="font-bold">Description</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => handleInputChange("description", e.target.value)}
               placeholder="Enter a description about this document..."
               className="bg-card border-border min-h-[100px]"
+              disabled={formData.contentType === "file"}
             />
+            {formData.contentType === "article" ? (
+              <p className="text-xs text-muted-foreground">Required for articles.</p>
+            ) : null}
           </div>
 
           {/* Government Link */}
           <div className="space-y-2">
-            <Label htmlFor="governmentLink">Government Website Link</Label>
+            <Label htmlFor="governmentLink" className="font-bold">Government Website Link</Label>
             <Input
               id="governmentLink"
               type="url"

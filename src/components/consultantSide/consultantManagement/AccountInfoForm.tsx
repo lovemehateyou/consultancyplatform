@@ -10,6 +10,11 @@ type ProfileFields = {
   email: string;
   title: string;
   about: string;
+  businessName: string;
+  businessAddress: string;
+  businessType: string;
+  businessArea: string;
+  tin: string;
   cvFile: File | null;
 };
 
@@ -117,6 +122,71 @@ const AccountInfoForm = ({
               placeholder=""
             />
           </div>
+
+          <div>
+            <Label htmlFor="businessName" className="text-sm text-foreground">
+              Business Name
+            </Label>
+            <Input
+              id="businessName"
+              className="mt-1 bg-muted border-border"
+              value={profileInfo.businessName}
+              onChange={(event) => onProfileFieldChange("businessName", event.target.value)}
+              placeholder=""
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="businessAddress" className="text-sm text-foreground">
+              Business Address
+            </Label>
+            <Input
+              id="businessAddress"
+              className="mt-1 bg-muted border-border"
+              value={profileInfo.businessAddress}
+              onChange={(event) => onProfileFieldChange("businessAddress", event.target.value)}
+              placeholder=""
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="businessType" className="text-sm text-foreground">
+              Business Type
+            </Label>
+            <Input
+              id="businessType"
+              className="mt-1 bg-muted border-border"
+              value={profileInfo.businessType}
+              onChange={(event) => onProfileFieldChange("businessType", event.target.value)}
+              placeholder=""
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="businessArea" className="text-sm text-foreground">
+              Business Area
+            </Label>
+            <Input
+              id="businessArea"
+              className="mt-1 bg-muted border-border"
+              value={profileInfo.businessArea}
+              onChange={(event) => onProfileFieldChange("businessArea", event.target.value)}
+              placeholder=""
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="tin" className="text-sm text-foreground">
+              TIN
+            </Label>
+            <Input
+              id="tin"
+              className="mt-1 bg-muted border-border"
+              value={profileInfo.tin}
+              onChange={(event) => onProfileFieldChange("tin", event.target.value)}
+              placeholder=""
+            />
+          </div>
         </div>
 
         <div>
@@ -130,6 +200,7 @@ const AccountInfoForm = ({
             accept=".pdf,.doc,.docx"
             className="hidden"
             onChange={handleCvInput}
+            aria-label="Upload CV"
           />
           <div className="mt-1 border border-dashed border-border rounded-lg p-6 flex flex-col items-center justify-center text-center space-y-2">
             <Button

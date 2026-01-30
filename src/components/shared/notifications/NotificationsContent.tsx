@@ -1,67 +1,60 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bell, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import NotificationCard, { Notification } from "./NotificationCard";
+import { listNotifications, markNotificationRead } from "@/services/notifications";
+import { getUserInfoFromCookie } from "@/services/auth";
 
-// Mock notifications data
-const mockNotifications: Notification[] = [
-  {
-    id: "1",
-    title: "New Task Assigned",
-    message: "You have been assigned a new task: Business Plan Review",
-    type: "task",
-    timestamp: "2 hours ago",
-    isRead: false,
-  },
-  {
-    id: "2",
-    title: "Appointment Reminder",
-    message: "Your consultation with Dr. Smith is scheduled for tomorrow at 10:00 AM",
-    type: "appointment",
-    timestamp: "5 hours ago",
-    isRead: false,
-  },
-  {
-    id: "3",
-    title: "Document Uploaded",
-    message: "A new document has been uploaded to your library: Q4 Financial Report",
-    type: "info",
-    timestamp: "1 day ago",
-    isRead: true,
-  },
-  {
-    id: "4",
-    title: "Task Completed",
-    message: "Your task 'Market Analysis' has been marked as completed",
-    type: "success",
-    timestamp: "2 days ago",
-    isRead: true,
-  },
-  {
-    id: "5",
-    title: "Payment Pending",
-    message: "You have a pending payment for your last consultation session",
-    type: "warning",
-    timestamp: "3 days ago",
-    isRead: false,
-  },
-  {
-    id: "6",
-    title: "Profile Update Required",
-    message: "Please update your professional information to continue receiving assignments",
-    type: "warning",
-    timestamp: "4 days ago",
-    isRead: true,
-  },
-];
+const typeTitleMap: Record<string, string> = {
+  booking_request: "New booking request",
+  booking_update: "Booking update",
+  system: "System notification",
+};
 
 const NotificationsContent = () => {
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [activeTab, setActiveTab] = useState("all");
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      const cookieUser = getUserInfoFromCookie();
+      if (!cookieUser?.id) {
+        setNotifications([]);
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const response = await listNotifications({ recipientId: cookieUser.id });
+        const mapped = response.data.map((item) => ({
+          id: item.id,
+          title: typeTitleMap[item.type] ?? "Notification",
+          message: item.message,
+          type: item.type === "booking_request" ? "task" : item.type === "booking_update" ? "appointment" : "info",
+          timestamp: new Date(item.createdAt).toLocaleString(),
+          isRead: item.read,
+        })) as Notification[];
+        setNotifications(mapped);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Unable to load notifications.";
+        toast({
+          title: "Failed to load notifications",
+          description: message,
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchNotifications();
+  }, [toast]);
 
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.isRead).length,
@@ -74,22 +67,47 @@ const NotificationsContent = () => {
     return notifications.filter((n) => n.isRead);
   }, [notifications, activeTab]);
 
-  const handleMarkAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-    );
-    toast({
-      title: "Notification marked as read",
-      description: "The notification has been marked as read.",
-    });
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      await markNotificationRead(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      );
+      toast({
+        title: "Notification marked as read",
+        description: "The notification has been marked as read.",
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unable to update notification.";
+      toast({
+        title: "Update failed",
+        description: message,
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleMarkAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-    toast({
-      title: "All notifications marked as read",
-      description: "All notifications have been marked as read.",
-    });
+  const handleMarkAllAsRead = async () => {
+    const unread = notifications.filter((n) => !n.isRead);
+    if (unread.length === 0) return;
+
+    try {
+      await Promise.all(unread.map((n) => markNotificationRead(n.id)));
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      toast({
+        title: "All notifications marked as read",
+        description: "All notifications have been marked as read.",
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unable to update notifications.";
+      toast({
+        title: "Update failed",
+        description: message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -135,7 +153,11 @@ const NotificationsContent = () => {
           </Tabs>
         </CardHeader>
         <CardContent className="space-y-3">
-          {filteredNotifications.length > 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading notifications...</p>
+            </div>
+          ) : filteredNotifications.length > 0 ? (
             filteredNotifications.map((notification) => (
               <NotificationCard
                 key={notification.id}

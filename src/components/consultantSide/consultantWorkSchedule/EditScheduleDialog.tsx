@@ -45,9 +45,28 @@ const EditScheduleDialog = ({
 
   useEffect(() => {
     if (schedule) {
-      setDay(schedule.name);
-      setStartTime(schedule.startTime);
-      setEndTime(schedule.endTime);
+      const startDate = new Date(schedule.slotStart);
+      const endDate = new Date(schedule.slotEnd);
+
+      setDay(
+        startDate.toLocaleDateString("en-US", {
+          weekday: "long",
+        }),
+      );
+      setStartTime(
+        startDate.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        }),
+      );
+      setEndTime(
+        endDate.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        }),
+      );
     }
   }, [schedule]);
 
