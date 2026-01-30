@@ -67,7 +67,7 @@ const Navbar = () => {
 
   const getDashboardLink = () => {
     if (!user) return "/login";
-    return user.role === "user" ? "/Userdashboard" : "/ConsultantDashboard";
+    return user.role === "user" ? "/Userdashboard" : user.role === "consultant" ? "/ConsultantDashboard" : "/admin/overview";
   };
 
   return (
@@ -98,15 +98,13 @@ const Navbar = () => {
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
-              <Link to={"#"}>
+              <Link to={getDashboardLink()}>
                 <Button
                   variant="outline"
                   className="flex items-center space-x-2"
                 >
                   <User className="h-4 w-4" />
-                  <Link to={getDashboardLink()}>
-                    <span>{"help"}</span>
-                  </Link>
+                    <span>{"Dashboard"}</span>
                 </Button>
               </Link>
             ) : (
