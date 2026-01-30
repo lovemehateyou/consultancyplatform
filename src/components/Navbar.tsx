@@ -1,13 +1,53 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X, User, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../context/authContext";
 import Logo from "../assets/Logo.png";
 
+
+type UserRole = "user" | "consultant" | "admin";
+
+const ROLE_ROUTES: Record<UserRole, string> = {
+  user: "/userDashboard",
+  consultant: "/consultantDashboard",
+  admin: "/adminDashboard",
+};
+
+const getRoleFromCookie = (): UserRole | null => {
+  if (typeof document === "undefined") return null;
+  const cookieChunk = document.cookie
+    .split("; ")
+    .find((segment) => segment.startsWith("userInfo="));
+  if (!cookieChunk) return null;
+
+  const [, rawValue = ""] = cookieChunk.split("=");
+  if (!rawValue) return null;
+
+  try {
+    let decoded = decodeURIComponent(rawValue);
+    if (decoded.startsWith("j:")) {
+      decoded = decoded.slice(2);
+    }
+    const parsed = JSON.parse(decoded);
+    return parsed?.role ?? null;
+  } catch (error) {
+    console.error("Failed to parse userInfo cookie", error);
+    return null;
+  }
+};
+
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useAuth();
+
+  const { dashboardHref, isAuthenticated } = useMemo(() => {
+    const resolvedRole = (user?.role as UserRole | undefined) ?? getRoleFromCookie();
+    if (!resolvedRole) {
+      return { dashboardHref: null, isAuthenticated: false };
+    }
+    return { dashboardHref: ROLE_ROUTES[resolvedRole], isAuthenticated: true };
+  }, [user?.role]);
 
   const navItems = [
     { name: "Home", href: "#home" },
@@ -71,7 +111,7 @@ const Navbar = () => {
               </Link>
             ) : (
               <>
-                <Link to="/login" target="_blank">
+                <Link to="/login">
                   <Button variant="outline">Sign In</Button>
                 </Link>
                 <Link to="/userregistration" target="_blank">

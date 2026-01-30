@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/context/authContext";
 
 interface DashboardHeaderProps {
   onToggleSidebar?: () => void;
@@ -10,10 +11,23 @@ interface DashboardHeaderProps {
   avatarFallback?: string;
 }
 
+const deriveInitials = (name?: string | null, fallback?:string) => {
+  if (!name?.trim()) {
+    return fallback.slice(0, 2).toUpperCase();
+  }
+  const [first = "", second = ""] = name
+    .trim()
+    .split(/\s+/)
+    .map((segment) => segment.charAt(0));
+  return `${first}${second}`.trim().toUpperCase() || fallback.slice(0, 2).toUpperCase();
+};
+
 const DashboardHeader = ({ onToggleSidebar, avatarUrl, avatarFallback = "AD" }: DashboardHeaderProps) => {
   const navigate = useNavigate();
-  const mockAvatarUrl = avatarUrl ?? null; // TODO: replace with backend-provided avatar URL
-  const fallbackInitials = avatarFallback.slice(0, 2).toUpperCase();
+  const { user } = useAuth();
+  console.log("User in DashboardHeader:", user);
+  const resolvedAvatar = avatarUrl ?? user?.profileImage ?? null;
+  const fallbackInitials = deriveInitials(user?.name, avatarFallback);
 
   return (
     <header className="w-full h-16 bg-card border-b border-border flex items-center justify-between px-6">
@@ -41,8 +55,8 @@ const DashboardHeader = ({ onToggleSidebar, avatarUrl, avatarFallback = "AD" }: 
         </Button>
         
         <Avatar className="w-9 h-9 border border-border">
-          {mockAvatarUrl ? (
-            <AvatarImage src={mockAvatarUrl} alt="User avatar" className="object-cover" />
+          {resolvedAvatar ? (
+            <AvatarImage src={resolvedAvatar} alt="User avatar" className="object-cover" />
           ) : (
             <AvatarFallback className="bg-muted text-foreground text-sm font-medium">
               {fallbackInitials}

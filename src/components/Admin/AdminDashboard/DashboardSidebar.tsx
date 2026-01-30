@@ -9,6 +9,7 @@ import {
   LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/authContext";
 
 interface SidebarItem {
@@ -28,14 +29,21 @@ const sidebarItems: SidebarItem[] = [
 const AdminDashboardSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { logout, loading } = useAuth();
 
   const handleLogout = async () => {
     try {
       await logout();
-      navigate("/login");
+      toast({
+        title: "Signed out",
+        description: "You have been logged out successfully.",
+      });
+      navigate("/login", { replace: true });
     } catch (error) {
-      console.error("Logout failed", error);
+      const message =
+        error instanceof Error ? error.message : "Unable to log you out. Please try again.";
+      toast({ title: "Logout failed", description: message, variant: "destructive" });
     }
   };
 
