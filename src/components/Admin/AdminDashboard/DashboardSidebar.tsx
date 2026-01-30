@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { 
   Upload, 
@@ -9,6 +9,7 @@ import {
   LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/authContext";
 
 interface SidebarItem {
   label: string;
@@ -26,6 +27,17 @@ const sidebarItems: SidebarItem[] = [
 
 const AdminDashboardSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout, loading } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
 
   return (
     <aside className="w-[250px] flex-shrink-0 min-h-screen bg-card border-r border-border flex flex-col">
@@ -59,6 +71,8 @@ const AdminDashboardSidebar = () => {
         <Button 
           variant="outline" 
           className="w-full justify-start gap-3 border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive"
+          onClick={handleLogout}
+          disabled={loading}
         >
           <LogOut className="w-5 h-5" />
           Logout

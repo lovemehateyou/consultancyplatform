@@ -11,9 +11,10 @@ import {
 
 export interface ScheduleItem {
   id: string;
-  name: string;
-  startTime: string;
-  endTime: string;
+  slotStart: string;
+  slotEnd: string;
+  timezone: string;
+  status?: string;
 }
 
 interface ScheduleTableProps {
@@ -23,13 +24,26 @@ interface ScheduleTableProps {
 }
 
 const ScheduleTable = ({ schedules, onEdit, onDelete }: ScheduleTableProps) => {
+  const formatDay = (value: string) =>
+    new Date(value).toLocaleDateString(undefined, {
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+    });
+
+  const formatTime = (value: string) =>
+    new Date(value).toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+
   return (
     <div className="bg-card rounded-lg border border-border">
       <Table>
         <TableHeader>
           <TableRow className="border-b border-border">
             <TableHead className="w-12"></TableHead>
-            <TableHead className="text-muted-foreground font-medium">Name</TableHead>
+            <TableHead className="text-muted-foreground font-medium">Day</TableHead>
             <TableHead className="text-muted-foreground font-medium">Start Time</TableHead>
             <TableHead className="text-muted-foreground font-medium">End Time</TableHead>
             <TableHead className="text-muted-foreground font-medium text-center">Edit</TableHead>
@@ -43,13 +57,13 @@ const ScheduleTable = ({ schedules, onEdit, onDelete }: ScheduleTableProps) => {
                 <Checkbox />
               </TableCell>
               <TableCell className="font-medium text-foreground">
-                {schedule.name}
+                {formatDay(schedule.slotStart)}
               </TableCell>
               <TableCell className="text-blue-600 font-medium">
-                {schedule.startTime}
+                {formatTime(schedule.slotStart)}
               </TableCell>
               <TableCell className="text-foreground">
-                {schedule.endTime}
+                {formatTime(schedule.slotEnd)}
               </TableCell>
               <TableCell className="text-center">
                 <Button

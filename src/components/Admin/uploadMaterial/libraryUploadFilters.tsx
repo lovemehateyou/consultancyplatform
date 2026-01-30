@@ -8,13 +8,14 @@ interface LibraryFiltersProps {
     date: string;
     access: string;
   };
+  categories: string[];
   onCategoryChange: (value: string) => void;
   onDateChange: (value: string) => void;
   onAccessChange: (value: string) => void;
   onUploadClick: () => void;
 }
 
-const LibraryFilters = ({ filters, onCategoryChange, onDateChange, onAccessChange, onUploadClick }: LibraryFiltersProps) => {
+const LibraryFilters = ({ filters, categories, onCategoryChange, onDateChange, onAccessChange, onUploadClick }: LibraryFiltersProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <Select value={filters.category} onValueChange={onCategoryChange}>
@@ -23,9 +24,11 @@ const LibraryFilters = ({ filters, onCategoryChange, onDateChange, onAccessChang
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Categories</SelectItem>
-          <SelectItem value="design">Design Systems</SelectItem>
-          <SelectItem value="accessibility">Accessibility</SelectItem>
-          <SelectItem value="tech">Tech</SelectItem>
+          {categories.map((category) => (
+            <SelectItem key={category} value={category}>
+              {category}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 

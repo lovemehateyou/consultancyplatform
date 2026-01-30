@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/authContext";
+import { getUserInfoFromCookie } from "@/services/auth";
 
 interface RegistrationFormProps {
   onSubmit?: (data: RegistrationData) => void;
@@ -27,26 +28,8 @@ const ROLE_REDIRECTS: Record<UserRole, string> = {
 };
 
 const extractRoleFromCookie = (): UserRole | null => {
-  if (typeof document === "undefined") return null;
-  const cookieSegment = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("userInfo="));
-  if (!cookieSegment) return null;
-
-  let value = cookieSegment.split("=")[1];
-  if (!value) return null;
-
-  try {
-    value = decodeURIComponent(value);
-    if (value.startsWith("j:")) {
-      value = value.slice(2);
-    }
-    const parsed = JSON.parse(value);
-    return parsed?.role ?? null;
-  } catch (error) {
-    console.error("Failed to parse userInfo cookie", error);
-    return null;
-  }
+  const cookieUser = getUserInfoFromCookie();
+  return (cookieUser?.role as UserRole) ?? null;
 };
 
 const LoginForm = ({ 
@@ -148,9 +131,9 @@ const LoginForm = ({
           {/* Login Link */}
           <p className="text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <a href="#" className="text-blue-500 hover:underline">
+            <Link to="/userregistration" className="text-blue-500 hover:underline">
               Sign up
-            </a>
+            </Link>
           </p>
         </form>
       </Card>

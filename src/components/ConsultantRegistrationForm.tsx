@@ -3,6 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/authContext";
+import { Link, useNavigate } from "react-router-dom";
 
 interface RegistrationFormProps {
   onSubmit?: (data: RegistrationData) => void;
@@ -14,10 +17,13 @@ interface RegistrationData {
   userName: string;
   phoneNumber: string;
   email: string;
-  Profession:string;
+  BusinessName: string;
+  BusinessAddress: string;
+  BusinessType: string;
+  Business: string;
+  TIN: string;
   password: string;
   nationalIdFile: File | null;
-  cvFile: File | null;
   agreedToTerms: boolean;
 }
 
@@ -30,22 +36,61 @@ const RegistrationForm = ({
     userName: "",
     phoneNumber: "",
     email: "",
-    Profession:"",
+    BusinessName: "",
+    BusinessAddress: "",
+    BusinessType: "",
+    Business: "",
+    TIN: "",
     password: "",
     nationalIdFile: null,
-    cvFile: null,
     agreedToTerms: false,
   });
+  const { signup, loading, error, clearError } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit?.(formData);
+    try {
+      const result = await signup({
+        ...formData,
+        role: "consultant",
+        ConformPassword: formData.password,
+      });
+      toast({
+        title: "Registration successful",
+        description: result.message,
+      });
+      onSubmit?.(formData);
+      navigate("/login", { replace: true });
+    } catch (submissionError) {
+      const message =
+        submissionError instanceof Error
+          ? submissionError.message
+          : "Unable to complete registration. Please try again.";
+      toast({
+        title: "Registration failed",
+        description: message,
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleFileChange = (field: "nationalIdFile" | "cvFile") => (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (field: "nationalIdFile") => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setFormData(prev => ({ ...prev, [field]: file }));
+    if (error) {
+      clearError();
+    }
   };
+
+  const handleInputChange = (field: keyof RegistrationData) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      setFormData(prev => ({ ...prev, [field]: e.target.value }));
+      if (error) {
+        clearError();
+      }
+    };
 
   return (
     <div className="w-full max-w-3xl mx-auto">
@@ -65,36 +110,80 @@ const RegistrationForm = ({
             <Input
               placeholder="Full Name"
               value={formData.userName}
-              onChange={(e) => setFormData(prev => ({ ...prev, userName: e.target.value }))}
+              onChange={handleInputChange("userName")}
               className="h-12 text-center border-border"
+              disabled={loading}
             />
             <Input
               placeholder="Phone number"
               type="tel"
               value={formData.phoneNumber}
-              onChange={(e) => setFormData(prev => ({ ...prev, phoneNumber: e.target.value }))}
+              onChange={handleInputChange("phoneNumber")}
               className="h-12 text-center border-border"
+              disabled={loading}
             />
             <Input
               placeholder="Email Address"
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              onChange={handleInputChange("email")}
               className="h-12 text-center border-border"
+              disabled={loading}
             />
             <Input
               placeholder="Create Password"
               type="password"
               value={formData.password}
-              onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+              onChange={handleInputChange("password")}
               className="h-12 text-center border-border"
+              disabled={loading}
             />
-             <Input
-              placeholder="Professional Title"
-              value={formData.Profession}
-              onChange={(e) => setFormData(prev => ({ ...prev, Profession: e.target.value }))}
+            <Input
+              placeholder="Business Name"
+              value={formData.BusinessName}
+              onChange={handleInputChange("BusinessName")}
               className="h-12 text-center border-border"
+              disabled={loading}
             />
+            <Input
+              placeholder="Business Address"
+              value={formData.BusinessAddress}
+              onChange={handleInputChange("BusinessAddress")}
+              className="h-12 text-center border-border"
+              disabled={loading}
+            />
+            <Input
+              placeholder="Tax Identification Number (TIN)"
+              value={formData.TIN}
+              onChange={handleInputChange("TIN")}
+              className="h-12 text-center border-border"
+              disabled={loading}
+            />
+            <select
+              className="h-12 text-center text-sm text-muted-foreground border-border rounded-lg bg-transparent"
+              value={formData.BusinessType}
+              onChange={handleInputChange("BusinessType")}
+              disabled={loading}
+            >
+              <option value="" disabled>Select Business Type</option>
+              <option value="Sole Proprietorship">Sole Proprietorship</option>
+              <option value="Partnership">Partnership</option>
+              <option value="Corporation">Corporation</option>
+              <option value="LLC">LLC</option>
+            </select>
+
+            <select
+              className="h-12 text-center text-sm text-muted-foreground border-border rounded-lg bg-transparent"
+              value={formData.Business}
+              onChange={handleInputChange("Business")}
+              disabled={loading}
+            >
+              <option value="" disabled>Select Business Area</option>
+              <option value="Sales">Sales</option>
+              <option value="Legal Work">Legal Work</option>
+              <option value="Services">Services</option>
+              <option value="Technologies">Technologies</option>
+            </select>
 
           </div>
 
@@ -106,20 +195,10 @@ const RegistrationForm = ({
                 accept="image/*"
                 onChange={handleFileChange("nationalIdFile")}
                 className="hidden"
+                disabled={loading}
               />
               <span className="text-muted-foreground">
                 {formData.nationalIdFile ? formData.nationalIdFile.name : "National Id image"}
-              </span>
-            </label>
-            <label className="flex items-center justify-center h-28 border border-border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={handleFileChange("cvFile")}
-                className="hidden"
-              />
-              <span className="text-muted-foreground">
-                {formData.cvFile ? formData.cvFile.name : "CV PDF"}
               </span>
             </label>
           </div>
@@ -132,6 +211,7 @@ const RegistrationForm = ({
               onCheckedChange={(checked) => 
                 setFormData(prev => ({ ...prev, agreedToTerms: checked === true }))
               }
+              disabled={loading}
             />
             <label htmlFor="terms" className="text-sm text-foreground">
               I agree with the{" "}
@@ -142,20 +222,27 @@ const RegistrationForm = ({
             </label>
           </div>
 
+          {error && (
+            <p className="text-sm text-red-600" role="alert">
+              {error}
+            </p>
+          )}
+
           {/* Submit Button */}
           <Button
             type="submit"
             className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+            disabled={loading || !formData.agreedToTerms}
           >
-            Sign Up
+            {loading ? "Creating account..." : "Sign Up"}
           </Button>
 
           {/* Login Link */}
           <p className="text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <a href="#" className="text-blue-500 hover:underline">
+            <Link to="/userregistration" className="text-blue-500 hover:underline">
               Sign up
-            </a>
+            </Link>
           </p>
         </form>
       </Card>

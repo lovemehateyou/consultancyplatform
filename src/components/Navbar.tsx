@@ -1,35 +1,34 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X, User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '../context/authContext';
-import Logo from '../assets/Logo.png';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Menu, X, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "../context/authContext";
+import Logo from "../assets/Logo.png";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useAuth();
 
   const navItems = [
-    { name: 'Home', href: '#home' },
-    { name: 'What We Do', href: '#wedo' },
-    { name: 'Why Us', href: '#why' },
-    { name: 'How It Works', href: '#how' },
-    { name: 'Contact us', href: '#support' },
+    { name: "Home", href: "#home" },
+    { name: "What We Do", href: "#wedo" },
+    { name: "Why Us", href: "#why" },
+    { name: "How It Works", href: "#how" },
+    { name: "Contact us", href: "#support" },
   ];
 
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      element.scrollIntoView({ behavior: "smooth" });
     }
     setIsMenuOpen(false);
   };
 
   const getDashboardLink = () => {
-    if (!user) return '/login';
-    return user.role === 'user' ? '/Userdashboard' : '/ConsultantDashboard';
+    if (!user) return "/login";
+    return user.role === "user" ? "/Userdashboard" : "/ConsultantDashboard";
   };
-
 
   return (
     <nav className="bg-white/95 backdrop-blur-sm border-b border-black/10">
@@ -45,7 +44,10 @@ const Navbar = () => {
               <a
                 key={item.href}
                 href={item.href}
-                onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection(item.href);
+                }}
                 className="text-sm font-montserrat font-medium transition-colors hover:text-primary text-black"
               >
                 {item.name}
@@ -56,10 +58,15 @@ const Navbar = () => {
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
-              <Link to={"#"} >
-                <Button variant="outline" className="flex items-center space-x-2">
+              <Link to={"#"}>
+                <Button
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
                   <User className="h-4 w-4" />
-                  <span>{"help"}</span>
+                  <Link to={getDashboardLink()}>
+                    <span>{"help"}</span>
+                  </Link>
                 </Button>
               </Link>
             ) : (
@@ -68,7 +75,9 @@ const Navbar = () => {
                   <Button variant="outline">Sign In</Button>
                 </Link>
                 <Link to="/userregistration" target="_blank">
-                  <Button className="bg-blue-600 hover:bg-blue-700">Get Started</Button>
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    Get Started
+                  </Button>
                 </Link>
               </>
             )}
@@ -81,7 +90,11 @@ const Navbar = () => {
             className="md:hidden"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {isMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </Button>
         </div>
 
@@ -92,7 +105,10 @@ const Navbar = () => {
               <a
                 key={item.href}
                 href={item.href}
-                onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection(item.href);
+                }}
                 className="block py-2 text-sm font-montserrat font-medium transition-colors hover:text-primary text-black"
               >
                 {item.name}
@@ -101,15 +117,21 @@ const Navbar = () => {
             <div className="pt-4 space-y-2">
               {false ? (
                 <Link to={"#"} className="block">
-                  <Button variant="outline" className="w-full">{"help me"}</Button>
+                  <Button variant="outline" className="w-full">
+                    {"help me"}
+                  </Button>
                 </Link>
               ) : (
                 <>
                   <Link to="/login" className="block">
-                    <Button variant="outline" className="w-full">Sign In</Button>
+                    <Button variant="outline" className="w-full">
+                      Sign In
+                    </Button>
                   </Link>
                   <Link to="/accountselection" className="block">
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700">Get Started</Button>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                      Get Started
+                    </Button>
                   </Link>
                 </>
               )}

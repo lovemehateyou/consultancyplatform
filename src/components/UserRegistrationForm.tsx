@@ -249,7 +249,7 @@ const userRegistrationForm = ({
 
           {/* Login Link */}
           <p className="text-center text-sm text-muted-foreground">
-            have an account?{" "}
+            Have an account?{" "}
             <Link to="/login" className="text-blue-500 hover:underline">
               Log in
             </Link>

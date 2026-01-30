@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Table,
@@ -19,8 +19,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import AvailabilityDialog from "./AvailabilityDialog";
+import { listConsultants, type ConsultantSummary } from "@/services/users";
+import { useToast } from "@/hooks/use-toast";
 
-interface Consultant {
+interface ConsultantRow {
   id: string;
   name: string;
   username: string;
@@ -30,22 +32,57 @@ interface Consultant {
   email: string;
 }
 
-const consultants: Consultant[] = [
-  { id: "1", name: "Olivia Rhye", username: "@olivia", status: "Active", role: "Law Consultant", email: "olivia@untitledui.com" },
-  { id: "2", name: "Phoenix Baker", username: "@phoenix", status: "Active", role: "Finance Consultant", email: "phoenix@untitledui.com" },
-  { id: "3", name: "Lana Steiner", username: "@lana", status: "Active", role: "Business Consultant", email: "lana@untitledui.com" },
-  { id: "4", name: "Demi Wilkinson", username: "@demi", status: "Active", role: "Law Consultant", email: "demi@untitledui.com" },
-  { id: "5", name: "Candice Wu", username: "@candice", status: "Active", role: "Business Consultant", email: "candice@untitledui.com" },
-  { id: "6", name: "Natali Craig", username: "@natali", status: "Active", role: "Finance Consultant", email: "natali@untitledui.com" },
-];
+const buildUsername = (name: string) =>
+  `@${name
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[^a-z0-9_]/g, "")}`;
 
 const ConsultantsTable = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedConsultant, setSelectedConsultant] = useState<string>("");
+  const [selectedConsultantId, setSelectedConsultantId] = useState<string>("");
+  const [consultants, setConsultants] = useState<ConsultantSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const handleBookClick = (name: string) => {
-    setSelectedConsultant(name);
+  useEffect(() => {
+    let isMounted = true;
+    const fetchConsultants = async () => {
+      setIsLoading(true);
+      setLoadError(null);
+      try {
+        const response = await listConsultants();
+        if (!isMounted) return;
+        setConsultants(response.data || []);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Unable to load consultants.";
+        if (isMounted) {
+          setLoadError(message);
+        }
+        toast({
+          title: "Unable to load consultants",
+          description: message,
+          variant: "destructive",
+        });
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    fetchConsultants();
+    return () => {
+      isMounted = false;
+    };
+  }, [toast]);
+
+  const handleBookClick = (consultant: ConsultantRow) => {
+    setSelectedConsultant(consultant.name);
+    setSelectedConsultantId(consultant.id);
     setDialogOpen(true);
   };
 
@@ -54,8 +91,20 @@ const ConsultantsTable = () => {
   };
 
   const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return name.split(" ").map((n) => n[0]).join("").toUpperCase();
   };
+
+  const rows = useMemo<ConsultantRow[]>(() => {
+    return consultants.map((consultant) => ({
+      id: consultant.id,
+      name: consultant.name,
+      username: buildUsername(consultant.name || "consultant"),
+      avatar: consultant.profileImage ?? undefined,
+      status: "Active",
+      role: consultant.businessArea || consultant.businessType || "Consultant",
+      email: consultant.email,
+    }));
+  }, [consultants]);
 
   return (
     <>
@@ -93,7 +142,14 @@ const ConsultantsTable = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {consultants.map((consultant) => (
+            {isLoading ? (
+              <TableRow className="border-border">
+                <TableCell colSpan={6} className="text-muted-foreground py-6">
+                  Loading consultants...
+                </TableCell>
+              </TableRow>
+            ) : rows.length ? (
+              rows.map((consultant) => (
               <TableRow key={consultant.id} className="border-border">
                 <TableCell>
                   <Checkbox />
@@ -126,13 +182,20 @@ const ConsultantsTable = () => {
                 <TableCell>
                   <Button 
                     className="bg-blue-600 hover:bg-blue-700 text-primary-foreground rounded-lg px-6"
-                    onClick={() => handleBookClick(consultant.name)}
+                    onClick={() => handleBookClick(consultant)}
                   >
                     Book
                   </Button>
                 </TableCell>
               </TableRow>
-            ))}
+            ))
+            ) : (
+              <TableRow className="border-border">
+                <TableCell colSpan={6} className="text-muted-foreground py-6">
+                  {loadError || "No consultants available yet."}
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
@@ -141,6 +204,7 @@ const ConsultantsTable = () => {
         open={dialogOpen} 
         onOpenChange={setDialogOpen}
         consultantName={selectedConsultant}
+        consultantId={selectedConsultantId}
       />
     </>
   );

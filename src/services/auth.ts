@@ -1,40 +1,12 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ?? "http://localhost:5000/api";
+import Cookies from "js-cookie";
+import { API_BASE_URL, parseResponse } from "./api";
+
 const AUTH_BASE_URL = `${API_BASE_URL}/auth`;
-
-type ErrorPayload = {
-	message?: string;
-	error?: string;
-};
-
-const buildErrorMessage = (payload: unknown, status: number): string => {
-	if (!payload) {
-		return `Request failed with status ${status}`;
-	}
-
-	if (typeof payload === "string") {
-		return payload || `Request failed with status ${status}`;
-	}
-
-	const { message, error } = payload as ErrorPayload;
-	return message || error || `Request failed with status ${status}`;
-};
-
-const parseResponse = async <T,>(response: Response): Promise<T> => {
-	const contentType = response.headers.get("content-type") ?? "";
-	const isJson = contentType.includes("application/json");
-	const payload = isJson ? await response.json() : await response.text();
-
-	if (!response.ok) {
-		throw new Error(buildErrorMessage(payload, response.status));
-	}
-
-	return payload as T;
-};
 
 export interface AuthUser {
 	id: string;
 	name: string;
-	email: string;
+	email?: string;
 	role: "user" | "consultant" | "admin";
 	phone?: string | null;
 	businessName?: string | null;
@@ -83,6 +55,24 @@ export interface LoginResponse {
 export interface LogoutResponse {
 	message: string;
 }
+
+export const getUserInfoFromCookie = (): AuthUser | null => {
+	if (typeof window === "undefined") return null;
+
+	let value = Cookies.get("userInfo");
+	if (!value) return null;
+
+	try {
+		if (value.startsWith("j:")) {
+			value = value.slice(2);
+		}
+		const parsed = JSON.parse(value);
+		return parsed ?? null;
+	} catch (error) {
+		console.error("Failed to parse userInfo cookie", error);
+		return null;
+	}
+};
 
 export const signup = async (payload: SignupPayload): Promise<SignupResponse> => {
 	const formData = new FormData();

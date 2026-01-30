@@ -2,6 +2,7 @@ import {
 	createContext,
 	useCallback,
 	useContext,
+	useEffect,
 	useMemo,
 	useState,
 	type ReactNode,
@@ -11,6 +12,7 @@ import {
 	signup as signupRequest,
 	login as loginRequest,
 	logout as logoutRequest,
+	getUserInfoFromCookie,
 	type AuthUser,
 	type SignupPayload,
 	type SignupResponse,
@@ -24,6 +26,7 @@ interface AuthContextValue {
 	signup: (payload: SignupPayload) => Promise<SignupResponse>;
 	login: (payload: LoginPayload) => Promise<void>;
 	logout: () => Promise<void>;
+	setUser: (user: AuthUser | null) => void;
 	clearError: () => void;
 }
 
@@ -70,7 +73,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 		(payload: LoginPayload) =>
 			withAsyncState(async () => {
 				await loginRequest(payload);
-				// TODO: add profile fetch once endpoint is available
+				const nextUser = getUserInfoFromCookie();
+				setUser(nextUser);
 			}),
 		[withAsyncState],
 	);
@@ -86,6 +90,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
 	const clearError = useCallback(() => setError(null), []);
 
+	const hydrateFromCookie = useCallback(() => {
+		const cookieUser = getUserInfoFromCookie();
+		if (cookieUser) {
+			setUser(cookieUser);
+		}
+	}, []);
+
 	const value = useMemo<AuthContextValue>(
 		() => ({
 			user,
@@ -94,10 +105,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 			signup: handleSignup,
 			login: handleLogin,
 			logout: handleLogout,
+			setUser,
 			clearError,
 		}),
 		[user, loading, error, handleSignup, handleLogin, handleLogout, clearError],
 	);
+
+	useEffect(() => {
+		hydrateFromCookie();
+	}, [hydrateFromCookie]);
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

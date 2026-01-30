@@ -21,9 +21,12 @@ interface Request {
 
 interface RequestsTableProps {
   requests: Request[];
+  onApprove: (id: string) => void;
+  onReject: (id: string) => void;
+  busyId?: string | null;
 }
 
-const RequestsTable = ({ requests }: RequestsTableProps) => {
+const RequestsTable = ({ requests, onApprove, onReject, busyId }: RequestsTableProps) => {
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -44,6 +47,7 @@ const RequestsTable = ({ requests }: RequestsTableProps) => {
             <TableHead className="text-muted-foreground font-medium">Date</TableHead>
             <TableHead className="text-muted-foreground font-medium">Status</TableHead>
             <TableHead className="text-muted-foreground font-medium">Stage</TableHead>
+            <TableHead className="text-muted-foreground font-medium text-center">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -74,7 +78,39 @@ const RequestsTable = ({ requests }: RequestsTableProps) => {
                 <span className="text-blue-500 font-medium">{request.status}</span>
               </TableCell>
               <TableCell>
-                <span className="text-green-500 font-medium">{request.stage}</span>
+                <span className={
+                  request.stage === "Approved"
+                    ? "text-green-500 font-medium"
+                    : request.stage === "Rejected"
+                      ? "text-red-500 font-medium"
+                      : "text-amber-500 font-medium"
+                }>
+                  {request.stage}
+                </span>
+              </TableCell>
+              <TableCell className="text-center">
+                {request.stage === "Pending" ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onApprove(request.id)}
+                      disabled={busyId === request.id}
+                      className="rounded-md bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-60"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onReject(request.id)}
+                      disabled={busyId === request.id}
+                      className="rounded-md bg-red-600 px-3 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-60"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground">—</span>
+                )}
               </TableCell>
             </TableRow>
           ))}
