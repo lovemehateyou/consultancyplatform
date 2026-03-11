@@ -34,7 +34,9 @@ import UploadLibrary from "./pages/Admin/adminUploadLibrary";
 import TaskManagement from "./pages/Admin/taskManagement";
 import AdminConsultancyManagement from "./pages/Admin/adminConsultancyManagement";
 import TransactionManagement from "./pages/Admin/TransactionManagement";
+import AiFilesPage from "./pages/Admin/aiFiles";
 import BookingPaymentReturn from "./pages/bookingPaymentReturn";
+import ChatWidget from "./components/shared/ChatWidget";
 
 const queryClient = new QueryClient();
 
@@ -71,10 +73,12 @@ const App = () => (
           <Route path="/admin/taskmanagement" element={<TaskManagement />} />
           <Route path="/admin/consultancy" element={<AdminConsultancyManagement />} />
           <Route path="/admin/transactions" element={<TransactionManagement />} />
+          <Route path="/admin/ai-files" element={<AiFilesPage />} />
           <Route path="/booking-payment/return" element={<BookingPaymentReturn />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <ChatWidget />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
