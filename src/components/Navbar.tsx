@@ -11,7 +11,7 @@ type UserRole = "user" | "consultant" | "admin";
 const ROLE_ROUTES: Record<UserRole, string> = {
   user: "/userDashboard",
   consultant: "/consultantDashboard",
-  admin: "/adminDashboard",
+  admin: "/admin/overview",
 };
 
 const getRoleFromCookie = (): UserRole | null => {

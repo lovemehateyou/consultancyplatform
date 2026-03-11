@@ -24,7 +24,7 @@ type UserRole = "user" | "consultant" | "admin";
 const ROLE_REDIRECTS: Record<UserRole, string> = {
   user: "/userDashboard",
   consultant: "/consultantDashboard",
-  admin: "/overview",
+  admin: "/admin/overview",
 };
 
 const extractRoleFromCookie = (): UserRole | null => {
