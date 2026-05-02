@@ -5,7 +5,10 @@ export type UpdateProfilePayload = {
 	name?: string;
 	phone?: string;
 	businessName?: string;
-	businessAddress?: string;
+	businessCity?: string;
+	businessSubCity?: string;
+	businessWereda?: string;
+	businessKebele?: string;
 	businessType?: string;
 	businessArea?: string;
 	tin?: string;
@@ -28,7 +31,10 @@ export type ConsultantSummary = {
 	profileImage?: string | null;
 	phone?: string | null;
 	businessName?: string | null;
-	businessAddress?: string | null;
+	businessCity?: string | null;
+	businessSubCity?: string | null;
+	businessWereda?: string | null;
+	businessKebele?: string | null;
 	businessType?: string | null;
 	businessArea?: string | null;
 	tin?: string | null;
@@ -51,8 +57,14 @@ export const updateProfile = async (
 	if (payload.name !== undefined) formData.append("name", payload.name);
 	if (payload.phone !== undefined) formData.append("phone", payload.phone);
 	if (payload.businessName !== undefined) formData.append("businessName", payload.businessName);
-	if (payload.businessAddress !== undefined)
-		formData.append("businessAddress", payload.businessAddress);
+	if (payload.businessCity !== undefined)
+		formData.append("businessCity", payload.businessCity);
+	if (payload.businessSubCity !== undefined)
+		formData.append("businessSubCity", payload.businessSubCity);
+	if (payload.businessWereda !== undefined)
+		formData.append("businessWereda", payload.businessWereda);
+	if (payload.businessKebele !== undefined)
+		formData.append("businessKebele", payload.businessKebele);
 	if (payload.businessType !== undefined) formData.append("businessType", payload.businessType);
 	if (payload.businessArea !== undefined) formData.append("businessArea", payload.businessArea);
 	if (payload.tin !== undefined) formData.append("tin", payload.tin);

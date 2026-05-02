@@ -8,7 +8,10 @@ export interface ProfileInfoValues {
   phone: string;
   email: string;
   businessName: string;
-  businessAddress: string;
+  businessCity: string;
+  businessSubCity: string;
+  businessWereda: string;
+  businessKebele: string;
   businessType: string;
   businessArea: string;
   tin: string;
@@ -139,13 +142,52 @@ const AccountInfoForm = ({
           </div>
 
           <div>
-            <Label htmlFor="businessAddress" className="text-sm text-foreground font-bold">Business Address</Label>
+            <Label htmlFor="businessCity" className="text-sm text-foreground font-bold">Business City</Label>
             <Input
-              id="businessAddress"
-              name="businessAddress"
+              id="businessCity"
+              name="businessCity"
               className="mt-1 bg-muted border-border"
-              placeholder="e.g. 123 Main St"
-              value={profileValues.businessAddress}
+              placeholder="e.g. Addis Ababa"
+              value={profileValues.businessCity}
+              onChange={handleProfileChange}
+              disabled={isProfileSaving}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="businessSubCity" className="text-sm text-foreground font-bold">Business Sub-city</Label>
+            <Input
+              id="businessSubCity"
+              name="businessSubCity"
+              className="mt-1 bg-muted border-border"
+              placeholder="e.g. Bole"
+              value={profileValues.businessSubCity}
+              onChange={handleProfileChange}
+              disabled={isProfileSaving}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="businessWereda" className="text-sm text-foreground font-bold">Business Wereda</Label>
+            <Input
+              id="businessWereda"
+              name="businessWereda"
+              className="mt-1 bg-muted border-border"
+              placeholder="e.g. 04"
+              value={profileValues.businessWereda}
+              onChange={handleProfileChange}
+              disabled={isProfileSaving}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="businessKebele" className="text-sm text-foreground font-bold">Business Kebele</Label>
+            <Input
+              id="businessKebele"
+              name="businessKebele"
+              className="mt-1 bg-muted border-border"
+              placeholder="e.g. 12"
+              value={profileValues.businessKebele}
               onChange={handleProfileChange}
               disabled={isProfileSaving}
             />

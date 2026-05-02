@@ -6,7 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Home";
 
 import ConsultancyRegistration from "./pages/consultantRegistration";
-import UserRegistrationForm from "./components/UserRegistrationForm";
+import UserRegistrationPersonal from "./pages/userRegistrationPersonal";
+import UserRegistrationBusiness from "./pages/userRegistrationBusiness";
 import LoginForm from "./components/LoginForm";
 import NotFound from "./pages/NotFound";
 //User side pages
@@ -50,7 +51,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           {/* <Route path="/accountselection" element={<AccountSelection />} />
           <Route path="/consultancyregistration" element={<ConsultancyRegistration />} /> */}
-          <Route path="/userregistration" element={<UserRegistrationForm />} />
+          <Route path="/userregistration" element={<UserRegistrationPersonal />} />
+          <Route path="/userregistration/business" element={<UserRegistrationBusiness />} />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/Userdashboard" element={<Dashboard />} />
           <Route path="/library" element={<Library />} />

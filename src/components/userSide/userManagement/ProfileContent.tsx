@@ -12,7 +12,10 @@ interface ProfileState {
   phone: string;
   email: string;
   businessName: string;
-  businessAddress: string;
+  businessCity: string;
+  businessSubCity: string;
+  businessWereda: string;
+  businessKebele: string;
   businessType: string;
   businessArea: string;
   tin: string;
@@ -24,7 +27,10 @@ const initialProfile: ProfileState = {
   phone: "",
   email: "",
   businessName: "",
-  businessAddress: "",
+  businessCity: "",
+  businessSubCity: "",
+  businessWereda: "",
+  businessKebele: "",
   businessType: "",
   businessArea: "",
   tin: "",
@@ -45,7 +51,10 @@ const ProfileContent = () => {
       phone: user.phone ?? "",
       email: user.email ?? "",
       businessName: user.businessName ?? "",
-      businessAddress: user.businessAddress ?? "",
+      businessCity: user.businessCity ?? "",
+      businessSubCity: user.businessSubCity ?? "",
+      businessWereda: user.businessWereda ?? "",
+      businessKebele: user.businessKebele ?? "",
       businessType: user.businessType ?? "",
       businessArea: user.businessArea ?? "",
       tin: user.tin ?? "",
@@ -94,7 +103,10 @@ const ProfileContent = () => {
         name: values.name,
         phone: values.phone,
         businessName: values.businessName,
-        businessAddress: values.businessAddress,
+        businessCity: values.businessCity,
+        businessSubCity: values.businessSubCity,
+        businessWereda: values.businessWereda,
+        businessKebele: values.businessKebele,
         businessType: values.businessType,
         businessArea: values.businessArea,
         tin: values.tin,
@@ -107,7 +119,10 @@ const ProfileContent = () => {
         phone: response.user.phone ?? prev.phone,
         email: response.user.email ?? prev.email,
         businessName: response.user.businessName ?? prev.businessName,
-        businessAddress: response.user.businessAddress ?? prev.businessAddress,
+        businessCity: response.user.businessCity ?? prev.businessCity,
+        businessSubCity: response.user.businessSubCity ?? prev.businessSubCity,
+        businessWereda: response.user.businessWereda ?? prev.businessWereda,
+        businessKebele: response.user.businessKebele ?? prev.businessKebele,
         businessType: response.user.businessType ?? prev.businessType,
         businessArea: response.user.businessArea ?? prev.businessArea,
         tin: response.user.tin ?? prev.tin,

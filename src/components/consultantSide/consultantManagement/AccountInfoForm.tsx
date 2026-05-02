@@ -11,7 +11,10 @@ type ProfileFields = {
   title: string;
   about: string;
   businessName: string;
-  businessAddress: string;
+  businessCity: string;
+  businessSubCity: string;
+  businessWereda: string;
+  businessKebele: string;
   businessType: string;
   businessArea: string;
   tin: string;
@@ -137,14 +140,53 @@ const AccountInfoForm = ({
           </div>
 
           <div>
-            <Label htmlFor="businessAddress" className="text-sm text-foreground">
-              Business Address
+            <Label htmlFor="businessCity" className="text-sm text-foreground">
+              Business City
             </Label>
             <Input
-              id="businessAddress"
+              id="businessCity"
               className="mt-1 bg-muted border-border"
-              value={profileInfo.businessAddress}
-              onChange={(event) => onProfileFieldChange("businessAddress", event.target.value)}
+              value={profileInfo.businessCity}
+              onChange={(event) => onProfileFieldChange("businessCity", event.target.value)}
+              placeholder=""
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="businessSubCity" className="text-sm text-foreground">
+              Business Sub-city
+            </Label>
+            <Input
+              id="businessSubCity"
+              className="mt-1 bg-muted border-border"
+              value={profileInfo.businessSubCity}
+              onChange={(event) => onProfileFieldChange("businessSubCity", event.target.value)}
+              placeholder=""
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="businessWereda" className="text-sm text-foreground">
+              Business Wereda
+            </Label>
+            <Input
+              id="businessWereda"
+              className="mt-1 bg-muted border-border"
+              value={profileInfo.businessWereda}
+              onChange={(event) => onProfileFieldChange("businessWereda", event.target.value)}
+              placeholder=""
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="businessKebele" className="text-sm text-foreground">
+              Business Kebele
+            </Label>
+            <Input
+              id="businessKebele"
+              className="mt-1 bg-muted border-border"
+              value={profileInfo.businessKebele}
+              onChange={(event) => onProfileFieldChange("businessKebele", event.target.value)}
               placeholder=""
             />
           </div>

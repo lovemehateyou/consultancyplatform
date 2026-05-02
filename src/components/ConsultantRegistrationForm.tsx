@@ -17,8 +17,12 @@ interface RegistrationData {
   userName: string;
   phoneNumber: string;
   email: string;
+  userAddress: string;
   BusinessName: string;
-  BusinessAddress: string;
+  BusinessCity: string;
+  BusinessSubCity: string;
+  BusinessWereda: string;
+  BusinessKebele: string;
   BusinessType: string;
   Business: string;
   TIN: string;
@@ -36,8 +40,12 @@ const RegistrationForm = ({
     userName: "",
     phoneNumber: "",
     email: "",
+    userAddress: "",
     BusinessName: "",
-    BusinessAddress: "",
+    BusinessCity: "",
+    BusinessSubCity: "",
+    BusinessWereda: "",
+    BusinessKebele: "",
     BusinessType: "",
     Business: "",
     TIN: "",
@@ -131,6 +139,13 @@ const RegistrationForm = ({
               disabled={loading}
             />
             <Input
+              placeholder="User Address"
+              value={formData.userAddress}
+              onChange={handleInputChange("userAddress")}
+              className="h-12 text-center border-border"
+              disabled={loading}
+            />
+            <Input
               placeholder="Create Password"
               type="password"
               value={formData.password}
@@ -146,9 +161,30 @@ const RegistrationForm = ({
               disabled={loading}
             />
             <Input
-              placeholder="Business Address"
-              value={formData.BusinessAddress}
-              onChange={handleInputChange("BusinessAddress")}
+              placeholder="City"
+              value={formData.BusinessCity}
+              onChange={handleInputChange("BusinessCity")}
+              className="h-12 text-center border-border"
+              disabled={loading}
+            />
+            <Input
+              placeholder="Sub-city"
+              value={formData.BusinessSubCity}
+              onChange={handleInputChange("BusinessSubCity")}
+              className="h-12 text-center border-border"
+              disabled={loading}
+            />
+            <Input
+              placeholder="Wereda"
+              value={formData.BusinessWereda}
+              onChange={handleInputChange("BusinessWereda")}
+              className="h-12 text-center border-border"
+              disabled={loading}
+            />
+            <Input
+              placeholder="Kebele"
+              value={formData.BusinessKebele}
+              onChange={handleInputChange("BusinessKebele")}
               className="h-12 text-center border-border"
               disabled={loading}
             />

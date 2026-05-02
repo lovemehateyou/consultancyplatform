@@ -7,7 +7,10 @@ interface ProfileCardProps {
   title: string;
   about: string;
   businessName: string;
-  businessAddress: string;
+  businessCity: string;
+  businessSubCity: string;
+  businessWereda: string;
+  businessKebele: string;
   businessType: string;
   businessArea: string;
   tin: string;
@@ -19,6 +22,13 @@ interface ProfileCardProps {
 const withFallback = (value: string, fallback: string) =>
   value?.trim().length ? value : fallback;
 
+const formatBusinessAddress = (
+  city: string,
+  subCity: string,
+  wereda: string,
+  kebele: string
+) => [city, subCity, wereda, kebele].map((part) => part?.trim()).filter(Boolean).join(", ");
+
 const ProfileCard = ({
   name,
   phone,
@@ -26,7 +36,10 @@ const ProfileCard = ({
   title,
   about,
   businessName,
-  businessAddress,
+  businessCity,
+  businessSubCity,
+  businessWereda,
+  businessKebele,
   businessType,
   businessArea,
   tin,
@@ -68,7 +81,13 @@ const ProfileCard = ({
         <p><span className="font-bold">Title:</span> {withFallback(title, "Professional title not set")}</p>
         <p className="text-muted-foreground"><span className="font-bold">About:</span> {withFallback(about, "Write something about yourself")}</p>
         <p><span className="font-bold">Business Name:</span> {withFallback(businessName, "Business name not set")}</p>
-        <p><span className="font-bold">Business Address:</span> {withFallback(businessAddress, "Business address not set")}</p>
+        <p>
+          <span className="font-bold">Business Address:</span>{" "}
+          {withFallback(
+            formatBusinessAddress(businessCity, businessSubCity, businessWereda, businessKebele),
+            "Business address not set"
+          )}
+        </p>
         <p><span className="font-bold">Business Type:</span> {withFallback(businessType, "Business type not set")}</p>
         <p><span className="font-bold">Business Area:</span> {withFallback(businessArea, "Business area not set")}</p>
         <p><span className="font-bold">TIN:</span> {withFallback(tin, "TIN not set")}</p>

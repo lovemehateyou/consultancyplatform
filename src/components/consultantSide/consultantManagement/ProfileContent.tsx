@@ -14,7 +14,10 @@ type ProfileInfo = {
   title: string;
   about: string;
   businessName: string;
-  businessAddress: string;
+  businessCity: string;
+  businessSubCity: string;
+  businessWereda: string;
+  businessKebele: string;
   businessType: string;
   businessArea: string;
   tin: string;
@@ -34,7 +37,10 @@ const initialProfileState: ProfileInfo = {
   title: "",
   about: "",
   businessName: "",
-  businessAddress: "",
+  businessCity: "",
+  businessSubCity: "",
+  businessWereda: "",
+  businessKebele: "",
   businessType: "",
   businessArea: "",
   tin: "",
@@ -73,7 +79,10 @@ const ProfileContent = () => {
       phone: user.phone ?? "",
       email: user.email ?? "",
       businessName: user.businessName ?? "",
-      businessAddress: user.businessAddress ?? "",
+      businessCity: user.businessCity ?? "",
+      businessSubCity: user.businessSubCity ?? "",
+      businessWereda: user.businessWereda ?? "",
+      businessKebele: user.businessKebele ?? "",
       businessType: user.businessType ?? "",
       businessArea: user.businessArea ?? "",
       tin: user.tin ?? "",
@@ -127,7 +136,10 @@ const ProfileContent = () => {
         name: profileInfo.name,
         phone: profileInfo.phone,
         businessName: profileInfo.businessName,
-        businessAddress: profileInfo.businessAddress,
+        businessCity: profileInfo.businessCity,
+        businessSubCity: profileInfo.businessSubCity,
+        businessWereda: profileInfo.businessWereda,
+        businessKebele: profileInfo.businessKebele,
         businessType: profileInfo.businessType,
         businessArea: profileInfo.businessArea,
         tin: profileInfo.tin,
@@ -192,7 +204,10 @@ const ProfileContent = () => {
             title={profileInfo.title}
             about={profileInfo.about}
             businessName={profileInfo.businessName}
-            businessAddress={profileInfo.businessAddress}
+            businessCity={profileInfo.businessCity}
+            businessSubCity={profileInfo.businessSubCity}
+            businessWereda={profileInfo.businessWereda}
+            businessKebele={profileInfo.businessKebele}
             businessType={profileInfo.businessType}
             businessArea={profileInfo.businessArea}
             tin={profileInfo.tin}

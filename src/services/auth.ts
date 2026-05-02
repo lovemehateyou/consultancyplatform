@@ -9,8 +9,12 @@ export interface AuthUser {
 	email?: string;
 	role: "user" | "consultant" | "admin";
 	phone?: string | null;
+	userAddress?: string | null;
 	businessName?: string | null;
-	businessAddress?: string | null;
+	businessCity?: string | null;
+	businessSubCity?: string | null;
+	businessWereda?: string | null;
+	businessKebele?: string | null;
 	businessType?: string | null;
 	businessArea?: string | null;
 	tin?: string | null;
@@ -29,8 +33,12 @@ export interface SignupPayload {
 	ConformPassword: string;
 	role?: "user" | "consultant" | "admin";
 	phoneNumber: string;
+	userAddress: string;
 	BusinessName: string;
-	BusinessAddress: string;
+	BusinessCity: string;
+	BusinessSubCity: string;
+	BusinessWereda: string;
+	BusinessKebele: string;
 	BusinessType: string;
 	Business: string;
 	TIN?: string;
@@ -82,8 +90,12 @@ export const signup = async (payload: SignupPayload): Promise<SignupResponse> =>
 	formData.append("password", payload.password);
 	formData.append("ConformPassword", payload.ConformPassword);
 	formData.append("phoneNumber", payload.phoneNumber.trim());
+	formData.append("userAddress", payload.userAddress.trim());
 	formData.append("BusinessName", payload.BusinessName.trim());
-	formData.append("BusinessAddress", payload.BusinessAddress.trim());
+	formData.append("BusinessCity", payload.BusinessCity.trim());
+	formData.append("BusinessSubCity", payload.BusinessSubCity.trim());
+	formData.append("BusinessWereda", payload.BusinessWereda.trim());
+	formData.append("BusinessKebele", payload.BusinessKebele.trim());
 	formData.append("BusinessType", payload.BusinessType);
 	formData.append("Business", payload.Business);
 	if (payload.TIN?.trim()) {

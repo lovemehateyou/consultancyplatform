@@ -7,7 +7,10 @@ interface ProfileCardProps {
     phone: string;
     email: string;
     businessName: string;
-    businessAddress: string;
+    businessCity: string;
+    businessSubCity: string;
+    businessWereda: string;
+    businessKebele: string;
     businessType: string;
     businessArea: string;
     tin: string;
@@ -18,6 +21,15 @@ interface ProfileCardProps {
 
 const ProfileCard = ({ profile, onAvatarSelect }: ProfileCardProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const businessAddress = [
+    profile.businessCity,
+    profile.businessSubCity,
+    profile.businessWereda,
+    profile.businessKebele,
+  ]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(", ");
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
@@ -80,7 +92,10 @@ const ProfileCard = ({ profile, onAvatarSelect }: ProfileCardProps) => {
         <p><span className="font-bold">Phone:</span> {profile.phone || "Add your phone number"}</p>
         <p><span className="font-bold">Email:</span> {profile.email || "Add your email address"}</p>
         <p><span className="font-bold">Business Name:</span> {profile.businessName || "Add your business name"}</p>
-        <p><span className="font-bold">Business Address:</span> {profile.businessAddress || "Add your business address"}</p>
+        <p>
+          <span className="font-bold">Business Address:</span>{" "}
+          {businessAddress || "Add your business address"}
+        </p>
         <p><span className="font-bold">Business Type:</span> {profile.businessType || "Add your business type"}</p>
         <p><span className="font-bold">Business Area:</span> {profile.businessArea || "Add your business area"}</p>
         <p><span className="font-bold">TIN:</span> {profile.tin || "Add your TIN"}</p>

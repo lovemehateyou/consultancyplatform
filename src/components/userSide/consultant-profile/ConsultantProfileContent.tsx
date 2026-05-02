@@ -72,6 +72,15 @@ const ConsultantProfileContent = () => {
     .slice(0, 2);
   const consultantTitle =
     consultant?.businessArea || consultant?.businessType || "Consultant";
+  const consultantLocation = [
+    consultant?.businessCity,
+    consultant?.businessSubCity,
+    consultant?.businessWereda,
+    consultant?.businessKebele,
+  ]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <div className="flex-1 p-6 bg-background overflow-auto">
@@ -92,7 +101,7 @@ const ConsultantProfileContent = () => {
           }
           email={consultant?.email || "Email not provided"}
           phone={consultant?.phone || "Phone not provided"}
-          location={consultant?.businessAddress || "Location not provided"}
+          location={consultantLocation || "Location not provided"}
         />
         {isLoading ? (
           <div className="bg-card border border-border rounded-lg p-6 text-muted-foreground">
