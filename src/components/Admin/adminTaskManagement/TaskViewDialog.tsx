@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, User, FileText, Building2, Briefcase, Link as LinkIcon } from "lucide-react";
+import { ExternalLink, User, FileText, Building2, Briefcase, Link as LinkIcon, MapPin } from "lucide-react";
 import type { Task } from "./TaskFormDialog";
 
 interface TaskViewDialogProps {
@@ -108,6 +108,37 @@ const TaskViewDialog = ({ open, onOpenChange, task }: TaskViewDialogProps) => {
                 ))
               ) : (
                 <span className="text-sm text-muted-foreground">No links provided</span>
+              )}
+            </div>
+          </div>
+
+          {/* Map Links */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin className="w-4 h-4" />
+              <span>Map Links by Location</span>
+            </div>
+            <div className="space-y-2">
+              {task.mapLinks.length > 0 ? (
+                task.mapLinks.map((link, index) => (
+                  <a
+                    key={index}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/30 px-3 py-2 text-sm"
+                  >
+                    <span className="flex items-center gap-2 text-blue-600 hover:text-blue-700">
+                      <ExternalLink className="w-4 h-4" />
+                      {link.url}
+                    </span>
+                    <span className="text-muted-foreground">
+                      {link.city} · {link.subCity}
+                    </span>
+                  </a>
+                ))
+              ) : (
+                <span className="text-sm text-muted-foreground">No map links provided</span>
               )}
             </div>
           </div>

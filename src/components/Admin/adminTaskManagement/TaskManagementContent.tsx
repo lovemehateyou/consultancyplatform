@@ -26,6 +26,7 @@ const initialTasks: Task[] = [
     businessTypes: ["PLC (Private Limited Company)", "Sole Proprietorship", "Partnership"],
     businessAreas: ["Sales", "Services", "Manufacturing", "Retail"],
     governmentLinks: ["https://www.irs.gov/businesses", "https://example.gov/tin-application"],
+    mapLinks: [],
     order: 1,
   },
   {
@@ -36,6 +37,7 @@ const initialTasks: Task[] = [
     businessTypes: ["PLC (Private Limited Company)", "LLC (Limited Liability Company)", "Corporation"],
     businessAreas: ["Sales", "Retail", "Manufacturing"],
     governmentLinks: ["https://example.gov/vat-registration"],
+    mapLinks: [],
     order: 2,
   },
   {
@@ -46,6 +48,7 @@ const initialTasks: Task[] = [
     businessTypes: ["PLC (Private Limited Company)", "Sole Proprietorship", "Franchise"],
     businessAreas: ["Services", "Retail", "Food & Beverage"],
     governmentLinks: ["https://example.gov/business-license"],
+    mapLinks: [],
     order: 3,
   },
   {
@@ -56,6 +59,7 @@ const initialTasks: Task[] = [
     businessTypes: ["PLC (Private Limited Company)", "Corporation", "Non-Profit Organization"],
     businessAreas: ["Healthcare", "Education", "Technology"],
     governmentLinks: ["https://example.gov/social-security"],
+    mapLinks: [],
     order: 4,
   },
 ];

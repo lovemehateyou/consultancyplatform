@@ -27,7 +27,14 @@ export interface Task {
   businessTypes: string[];
   businessAreas: string[];
   governmentLinks: string[];
+  mapLinks: TaskMapLink[];
   order: number;
+}
+
+export interface TaskMapLink {
+  url: string;
+  city: string;
+  subCity: string;
 }
 
 interface TaskFormDialogProps {
@@ -77,6 +84,9 @@ const TaskFormDialog = ({ open, onOpenChange, task, onSave, mode }: TaskFormDial
   const [selectedBusinessTypes, setSelectedBusinessTypes] = useState<string[]>([]);
   const [selectedBusinessAreas, setSelectedBusinessAreas] = useState<string[]>([]);
   const [governmentLinks, setGovernmentLinks] = useState<string[]>([""]);
+  const [mapLinks, setMapLinks] = useState<TaskMapLink[]>([
+    { url: "", city: "", subCity: "" },
+  ]);
   const [order, setOrder] = useState(1);
 
   useEffect(() => {
@@ -87,6 +97,9 @@ const TaskFormDialog = ({ open, onOpenChange, task, onSave, mode }: TaskFormDial
       setSelectedBusinessTypes(task.businessTypes);
       setSelectedBusinessAreas(task.businessAreas);
       setGovernmentLinks(task.governmentLinks.length > 0 ? task.governmentLinks : [""]);
+      setMapLinks(
+        task.mapLinks.length > 0 ? task.mapLinks : [{ url: "", city: "", subCity: "" }]
+      );
       setOrder(task.order ?? 1);
     } else {
       setName("");
@@ -95,6 +108,7 @@ const TaskFormDialog = ({ open, onOpenChange, task, onSave, mode }: TaskFormDial
       setSelectedBusinessTypes([]);
       setSelectedBusinessAreas([]);
       setGovernmentLinks([""]);
+      setMapLinks([{ url: "", city: "", subCity: "" }]);
       setOrder(1);
     }
   }, [task, mode, open]);
@@ -123,8 +137,29 @@ const TaskFormDialog = ({ open, onOpenChange, task, onSave, mode }: TaskFormDial
     setGovernmentLinks((prev) => prev.map((link, i) => (i === index ? value : link)));
   };
 
+  const handleAddMapLink = () => {
+    setMapLinks((prev) => [...prev, { url: "", city: "", subCity: "" }]);
+  };
+
+  const handleRemoveMapLink = (index: number) => {
+    setMapLinks((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleMapLinkChange = (
+    index: number,
+    field: keyof TaskMapLink,
+    value: string
+  ) => {
+    setMapLinks((prev) =>
+      prev.map((link, i) => (i === index ? { ...link, [field]: value } : link))
+    );
+  };
+
   const handleSave = () => {
     const filteredLinks = governmentLinks.filter((link) => link.trim() !== "");
+    const filteredMapLinks = mapLinks.filter(
+      (link) => link.url.trim() && link.city.trim() && link.subCity.trim()
+    );
     
     onSave({
       id: task?.id,
@@ -134,6 +169,7 @@ const TaskFormDialog = ({ open, onOpenChange, task, onSave, mode }: TaskFormDial
       businessTypes: selectedBusinessTypes,
       businessAreas: selectedBusinessAreas,
       governmentLinks: filteredLinks,
+      mapLinks: filteredMapLinks,
       order,
     });
     onOpenChange(false);
@@ -271,6 +307,56 @@ const TaskFormDialog = ({ open, onOpenChange, task, onSave, mode }: TaskFormDial
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Another Link
+              </Button>
+            </div>
+          </div>
+
+          {/* Map Links */}
+          <div className="space-y-3">
+            <Label>Map Links (City and Sub-City)</Label>
+            <div className="space-y-2">
+              {mapLinks.map((link, index) => (
+                <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  <Input
+                    placeholder="https://maps.google.com/..."
+                    value={link.url}
+                    onChange={(e) => handleMapLinkChange(index, "url", e.target.value)}
+                  />
+                  <Input
+                    placeholder="City"
+                    value={link.city}
+                    onChange={(e) => handleMapLinkChange(index, "city", e.target.value)}
+                  />
+                  <div className="flex items-center gap-2">
+                    <Input
+                      placeholder="Sub-city"
+                      value={link.subCity}
+                      onChange={(e) => handleMapLinkChange(index, "subCity", e.target.value)}
+                      className="flex-1"
+                    />
+                    {mapLinks.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleRemoveMapLink(index)}
+                        className="shrink-0"
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAddMapLink}
+                className="mt-2"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Another Location
               </Button>
             </div>
           </div>

@@ -2,16 +2,39 @@ import { useState } from "react";
 import KPICards from "./KPICards";
 import ProgressWheel from "./ProgressWheel";
 import TasksTable, { Task } from "./TasksTable";
+import { useAuth } from "@/context/authContext";
 
 const initialTasks: Task[] = [
-  { id: "1", name: "Getting your Trade ID ", status: "Active", role: "Law Consultant", email: "olivia@untitledui.com" },
-  { id: "2", name: "Registering For VAT Certificate", status: "Active", role: "Finance Consultant", email: "phoenix@untitledui.com" },
-  { id: "3", name: "Registering Buisness Sectors", status: "Active", role: "Business consultant", email: "lana@untitledui.com" },
+  {
+    id: "1",
+    name: "Getting your Trade ID ",
+    status: "Active",
+    role: "Law Consultant",
+    email: "olivia@untitledui.com",
+    mapLinks: [],
+  },
+  {
+    id: "2",
+    name: "Registering For VAT Certificate",
+    status: "Active",
+    role: "Finance Consultant",
+    email: "phoenix@untitledui.com",
+    mapLinks: [],
+  },
+  {
+    id: "3",
+    name: "Registering Buisness Sectors",
+    status: "Active",
+    role: "Business consultant",
+    email: "lana@untitledui.com",
+    mapLinks: [],
+  },
 
 ];
 
 const DashboardContent = () => {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const { user } = useAuth();
 
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter(t => t.status === "Completed").length;
@@ -53,6 +76,8 @@ const DashboardContent = () => {
         <TasksTable 
           tasks={tasks}
           onCompleteTask={handleCompleteTask}
+          userCity={user?.businessCity ?? ""}
+          userSubCity={user?.businessSubCity ?? ""}
         />
       </div>
     </div>

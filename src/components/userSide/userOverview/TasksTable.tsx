@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowDown, HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowDown, HelpCircle, ChevronDown, ChevronUp, ExternalLink, MapPin } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Table,
@@ -21,14 +21,23 @@ export interface Task {
   role: string;
   email: string;
   details?: string[];
+  mapLinks?: TaskMapLink[];
+}
+
+export interface TaskMapLink {
+  url: string;
+  city: string;
+  subCity: string;
 }
 
 interface TasksTableProps {
   tasks: Task[];
   onCompleteTask?: (taskId: string) => void;
+  userCity: string;
+  userSubCity: string;
 }
 
-const TasksTable = ({ tasks, onCompleteTask }: TasksTableProps) => {
+const TasksTable = ({ tasks, onCompleteTask, userCity, userSubCity }: TasksTableProps) => {
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
   const toggleRow = (taskId: string) => {
@@ -47,6 +56,19 @@ const TasksTable = ({ tasks, onCompleteTask }: TasksTableProps) => {
       `Submit progress report by deadline`,
       `Schedule follow-up meeting if needed`,
     ];
+  };
+
+  const normalizeLocation = (value: string) => value.trim().toLowerCase();
+
+  const getMatchingMapLinks = (task: Task): TaskMapLink[] => {
+    if (!task.mapLinks || task.mapLinks.length === 0) return [];
+    const city = normalizeLocation(userCity);
+    const subCity = normalizeLocation(userSubCity);
+    if (!city || !subCity) return [];
+
+    return task.mapLinks.filter((link) =>
+      normalizeLocation(link.city) === city && normalizeLocation(link.subCity) === subCity
+    );
   };
 
 
@@ -136,6 +158,35 @@ const TasksTable = ({ tasks, onCompleteTask }: TasksTableProps) => {
                             <li key={index}>{detail}</li>
                           ))}
                         </ul>
+                        <div className="mb-4">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                            <MapPin className="w-4 h-4" />
+                            <span>Map Links for Your Area</span>
+                          </div>
+                          {getMatchingMapLinks(task).length > 0 ? (
+                            <div className="space-y-2">
+                              {getMatchingMapLinks(task).map((link, index) => (
+                                <a
+                                  key={index}
+                                  href={link.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center justify-between gap-3 rounded-md border border-border bg-background px-3 py-2 text-sm"
+                                >
+                                  <span className="flex items-center gap-2 text-blue-600 hover:text-blue-700">
+                                    <ExternalLink className="w-4 h-4" />
+                                    {link.url}
+                                  </span>
+                                  <span className="text-muted-foreground">
+                                    {link.city} · {link.subCity}
+                                  </span>
+                                </a>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">No locations for your area</p>
+                          )}
+                        </div>
                         {task.status === "Active" && (
                           <Button 
                             onClick={() => onCompleteTask?.(task.id)}
