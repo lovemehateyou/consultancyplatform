@@ -57,6 +57,30 @@ const defaultBusiness: BusinessInfo = {
   agreedToTerms: false,
 };
 
+const businessTypes = [
+  "PLC (Private Limited Company)",
+  "Sole Proprietorship",
+  "Partnership",
+  "Franchise",
+  "LLC (Limited Liability Company)",
+  "Corporation",
+  "Non-Profit Organization",
+];
+
+const businessAreas = [
+  "Sales",
+  "Services",
+  "Manufacturing",
+  "Retail",
+  "Technology",
+  "Healthcare",
+  "Education",
+  "Construction",
+  "Food & Beverage",
+  "Transportation",
+];
+
+
 const loadDraft = (): RegistrationDraft | null => {
   if (typeof window === "undefined") return null;
   const raw = sessionStorage.getItem(DRAFT_KEY);
@@ -234,11 +258,12 @@ const UserRegistrationBusiness = () => {
                   onChange={handleInputChange("BusinessType")}
                   disabled={loading}
                 >
-                  <option value="" disabled>Select Business Type</option>
-                  <option value="Sole Proprietorship">Sole Proprietorship</option>
-                  <option value="Partnership">Partnership</option>
-                  <option value="Corporation">Corporation</option>
-                  <option value="LLC">LLC</option>
+                  {businessTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+
                 </select>
 
                 <select
@@ -248,7 +273,11 @@ const UserRegistrationBusiness = () => {
                   disabled={loading}
                 >
                   <option value="" disabled>Select Business Area</option>
-                  <option value="Sales">Sales</option>
+                  {businessAreas.map((area) => (
+                    <option key={area} value={area}>
+                      {area}
+                    </option>
+                  ))}
                   <option value="Legal Work">Legal Work</option>
                   <option value="Services">Services</option>
                   <option value="Technologies">Technologies</option>

@@ -47,8 +47,9 @@ const OverviewContent = () => {
           ? booking.user.email.split("@")[0]
           : name.split(" ")[0]?.toLowerCase() || "client";
         const slotDate = booking.slotStart || booking.appointmentDate;
-        const status = slotDate && new Date(slotDate) < new Date() ? "Passed" : "Upcoming";
-        const stage =
+        const status: "Passed" | "Upcoming" =
+          slotDate && new Date(slotDate) < new Date() ? "Passed" : "Upcoming";
+        const stage: "Approved" | "Pending" | "Rejected" =
           booking.status === "accepted"
             ? "Approved"
             : booking.status === "declined" || booking.status === "cancelled"
