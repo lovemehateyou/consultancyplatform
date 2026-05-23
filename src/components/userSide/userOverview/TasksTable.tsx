@@ -75,21 +75,21 @@ const TasksTable = ({ tasks, onCompleteTask, userCity, userSubCity }: TasksTable
 
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
+    <div className="bg-card border border-border/60 rounded-2xl overflow-hidden shadow-sm">
       <Table>
         <TableHeader>
-          <TableRow className="hover:bg-transparent border-b border-border">
+          <TableRow className="hover:bg-transparent border-b border-border/60 bg-muted/30">
             <TableHead className="w-12">
               <Checkbox />
             </TableHead>
-            <TableHead className="text-muted-foreground font-medium">Name</TableHead>
-            <TableHead className="text-muted-foreground font-medium">
+            <TableHead className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">Name</TableHead>
+            <TableHead className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
               <div className="flex items-center gap-1">
                 Status
                 <ArrowDown className="w-3.5 h-3.5" />
               </div>
             </TableHead>
-            <TableHead className="text-muted-foreground font-medium">
+            <TableHead className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
               <div className="flex items-center gap-1">
                 Consultant Needed
                 <Tooltip>
@@ -102,9 +102,10 @@ const TasksTable = ({ tasks, onCompleteTask, userCity, userSubCity }: TasksTable
                 </Tooltip>
               </div>
             </TableHead>
-            <TableHead className="text-muted-foreground font-medium text-right">Details</TableHead>
+            <TableHead className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider text-right">Details</TableHead>
           </TableRow>
         </TableHeader>
+
         <TableBody>
           {tasks.map((task) => (
             <Collapsible key={task.id} open={expandedRows[task.id]} onOpenChange={() => toggleRow(task.id)} asChild>
