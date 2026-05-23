@@ -13,14 +13,30 @@ export type BookingPayment = {
 	currency: string;
 };
 
+export type BookingStatus =
+	| "pending"
+	| "accepted"
+	| "declined"
+	| "cancelled"
+	| "completed";
+
 export type BookingRecord = {
 	id: string;
-	status: string;
+	status: BookingStatus;
 	appointmentDate: string;
 	slotStart: string;
 	slotEnd: string;
 	timezone: string;
 	transactionId?: string | null;
+	createdAt?: string;
+	updatedAt?: string;
+	metadata?: {
+		paymentStatus?: string;
+		paymentAmount?: number | string;
+		paymentCurrency?: string;
+		paidAt?: string;
+		[key: string]: unknown;
+	} | null;
 	user?: {
 		id: string;
 		name: string;
@@ -77,6 +93,27 @@ export const listUserBookings = async (userId: string, status?: string) => {
 		params.set("status", status);
 	}
 	const response = await fetch(`${API_BASE_URL}/bookings?${params.toString()}`,
+		{
+			method: "GET",
+			credentials: "include",
+		},
+	);
+
+	return parseResponse<{ data: BookingRecord[] }>(response);
+};
+
+export const listBookings = async (params?: {
+	userId?: string;
+	consultantId?: string;
+	status?: string;
+}) => {
+	const query = new URLSearchParams();
+	if (params?.userId) query.set("userId", params.userId);
+	if (params?.consultantId) query.set("consultantId", params.consultantId);
+	if (params?.status) query.set("status", params.status);
+
+	const suffix = query.toString();
+	const response = await fetch(`${API_BASE_URL}/bookings${suffix ? `?${suffix}` : ""}`,
 		{
 			method: "GET",
 			credentials: "include",

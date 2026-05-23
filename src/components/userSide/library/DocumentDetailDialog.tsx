@@ -44,59 +44,57 @@ const DocumentDetailDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] h-full p-0 overflow-y-auto">
-        {/* Banner Image */}
-        <div className="aspect-[16/9] w-full">
-          <img
-            src={document.imageUrl}
-            alt={document.title}
-            className="w-full h-full object-cover"
-          />
-        </div>
+      <DialogContent className="sm:max-w-[720px] p-0 overflow-hidden">
+        <div className="grid gap-6 p-6 md:grid-cols-[220px_1fr]">
+          <div className="aspect-[4/3] w-full overflow-hidden rounded-lg bg-muted">
+            <img
+              src={document.imageUrl}
+              alt={document.title}
+              className="h-full w-full object-cover"
+            />
+          </div>
 
-        <div className="p-6 space-y-4">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold">
-              {document.title}
-            </DialogTitle>
-            <span className="text-primary text-sm font-medium">
-              {document.category}
-            </span>
-          </DialogHeader>
+          <div className="space-y-4">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-semibold">
+                {document.title}
+              </DialogTitle>
+              <span className="text-primary text-sm font-medium">
+                {document.category}
+              </span>
+            </DialogHeader>
 
-          {/* Description */}
-          <p className="text-muted-foreground text-sm leading-relaxed">
-            {document.description}
-          </p>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              {document.description}
+            </p>
 
-          {/* Government Link */}
-          {document.governmentLink ? (
-            <a
-              href={document.governmentLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-primary hover:underline text-sm"
-            >
-              <Globe className="h-4 w-4" />
-              View on Government Website
-            </a>
-          ) : null}
+            {document.governmentLink ? (
+              <a
+                href={document.governmentLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-primary hover:underline text-sm"
+              >
+                <Globe className="h-4 w-4" />
+                View on Government Website
+              </a>
+            ) : null}
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-2">
-            <Button
-              onClick={handleOpenDocument}
-              className="flex-1"
-              variant="outline"
-              disabled={!document.documentUrl}
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Open in Browser
-            </Button>
-            <Button onClick={handleDownload} className="flex-1" disabled={!document.documentUrl}>
-              <Download className="h-4 w-4 mr-2" />
-              Download
-            </Button>
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+              <Button
+                onClick={handleOpenDocument}
+                className="flex-1"
+                variant="outline"
+                disabled={!document.documentUrl}
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Open in Browser
+              </Button>
+              <Button onClick={handleDownload} className="flex-1" disabled={!document.documentUrl}>
+                <Download className="h-4 w-4 mr-2" />
+                Download
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>

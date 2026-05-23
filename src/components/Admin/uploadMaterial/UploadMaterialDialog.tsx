@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -27,23 +27,65 @@ interface UploadMaterialDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (data: MaterialFormData) => Promise<void> | void;
+  mode?: "create" | "edit";
+  initialData?: Partial<MaterialFormData>;
+  existingImageUrl?: string | null;
+  existingDocumentUrl?: string | null;
+  dialogTitle?: string;
+  submitLabel?: string;
 }
 
-const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDialogProps) => {
-  const [formData, setFormData] = useState<MaterialFormData>({
-    title: "",
-    subtitle: "",
-    category: "",
-    contentType: "file",
-    description: "",
-    governmentLink: "",
-    image: null,
-    document: null,
-  });
+const defaultFormData: MaterialFormData = {
+  title: "",
+  subtitle: "",
+  category: "",
+  contentType: "file",
+  description: "",
+  governmentLink: "",
+  image: null,
+  document: null,
+};
+
+const UploadMaterialDialog = ({
+  open,
+  onOpenChange,
+  onSave,
+  mode = "create",
+  initialData,
+  existingImageUrl,
+  existingDocumentUrl,
+  dialogTitle,
+  submitLabel,
+}: UploadMaterialDialogProps) => {
+  const [formData, setFormData] = useState<MaterialFormData>(defaultFormData);
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
+  const [currentDocumentUrl, setCurrentDocumentUrl] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const documentInputRef = useRef<HTMLInputElement>(null);
+  const isEditMode = mode === "edit";
+
+  useEffect(() => {
+    if (!open) return;
+    const nextContentType = initialData?.contentType ?? defaultFormData.contentType;
+    setFormData({
+      ...defaultFormData,
+      ...initialData,
+      contentType: nextContentType,
+      image: null,
+      document: null,
+    });
+    setCurrentImageUrl(existingImageUrl ?? null);
+    setCurrentDocumentUrl(existingDocumentUrl ?? null);
+    setImagePreview(existingImageUrl ?? null);
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
+    if (documentInputRef.current) {
+      documentInputRef.current.value = "";
+    }
+  }, [open, initialData, existingImageUrl, existingDocumentUrl]);
 
   const handleInputChange = (field: keyof MaterialFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -71,6 +113,7 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
   const handleRemoveImage = () => {
     setFormData((prev) => ({ ...prev, image: null }));
     setImagePreview(null);
+    setCurrentImageUrl(null);
     if (imageInputRef.current) {
       imageInputRef.current.value = "";
     }
@@ -90,17 +133,10 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
   };
 
   const resetForm = () => {
-    setFormData({
-      title: "",
-      subtitle: "",
-      category: "",
-      contentType: "file",
-      description: "",
-      governmentLink: "",
-      image: null,
-      document: null,
-    });
+    setFormData(defaultFormData);
     setImagePreview(null);
+    setCurrentImageUrl(null);
+    setCurrentDocumentUrl(null);
   };
 
   const handleClose = () => {
@@ -108,19 +144,22 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
     onOpenChange(false);
   };
 
+  const hasCoverImage = Boolean(formData.image) || Boolean(currentImageUrl);
+  const hasDocument = Boolean(formData.document) || Boolean(currentDocumentUrl);
   const isValid =
     formData.title.trim() !== "" &&
     formData.category.trim() !== "" &&
-    (formData.contentType === "file"
-      ? Boolean(formData.document)
-      : Boolean(formData.description.trim()));
-  const isCoverImageDisabled = formData.contentType === "file";
+    Boolean(formData.description.trim()) &&
+    hasCoverImage &&
+    (formData.contentType === "file" ? hasDocument : true);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Upload New Material</DialogTitle>
+          <DialogTitle className="text-xl font-bold">
+            {dialogTitle ?? (isEditMode ? "Edit Material" : "Upload New Material")}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-5 py-4">
@@ -155,25 +194,20 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
               id="contentType"
               value={formData.contentType}
               aria-label="Content type"
+              disabled={isEditMode}
               onChange={(e) => {
                 const nextType = e.target.value as "file" | "article";
                 setFormData((prev) => ({
                   ...prev,
                   contentType: nextType,
                   document: nextType === "article" ? null : prev.document,
-                  image: nextType === "file" ? null : prev.image,
+                  image: prev.image,
                 }));
                 if (nextType === "article" && documentInputRef.current) {
                   documentInputRef.current.value = "";
                 }
-                if (nextType === "file") {
-                  setImagePreview(null);
-                  if (imageInputRef.current) {
-                    imageInputRef.current.value = "";
-                  }
-                }
               }}
-              className="h-10 rounded-md border border-border bg-card px-3 text-sm"
+              className="h-10 rounded-md border border-border bg-card px-3 text-sm disabled:opacity-60"
             >
               <option value="file">File upload</option>
               <option value="article">Article</option>
@@ -215,15 +249,9 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
             ) : (
               <div
                 onClick={() => {
-                  if (!isCoverImageDisabled) {
-                    imageInputRef.current?.click();
-                  }
+                  imageInputRef.current?.click();
                 }}
-                className={`w-full h-48 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center transition-colors ${
-                  isCoverImageDisabled
-                    ? "cursor-not-allowed opacity-60"
-                    : "cursor-pointer hover:border-primary/50"
-                }`}
+                className="w-full h-48 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center transition-colors cursor-pointer hover:border-primary/50"
               >
                 <ImageIcon className="h-12 w-12 text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground">Click to upload cover image</p>
@@ -236,7 +264,6 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
               accept="image/*"
               onChange={handleImageChange}
               className="hidden"
-              disabled={isCoverImageDisabled}
               aria-label="Cover image upload"
             />
           </div>
@@ -257,6 +284,21 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
                   onClick={handleRemoveDocument}
                 >
                   <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : currentDocumentUrl && formData.contentType === "file" ? (
+              <div className="flex items-center justify-between p-3 bg-card border border-border rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Upload className="h-5 w-5 text-primary" />
+                  <span className="text-sm text-foreground">Current file attached</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => window.open(currentDocumentUrl, "_blank")}
+                >
+                  View
                 </Button>
               </div>
             ) : (
@@ -293,11 +335,8 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
               onChange={(e) => handleInputChange("description", e.target.value)}
               placeholder="Enter a description about this document..."
               className="bg-card border-border min-h-[100px]"
-              disabled={formData.contentType === "file"}
             />
-            {formData.contentType === "article" ? (
-              <p className="text-xs text-muted-foreground">Required for articles.</p>
-            ) : null}
+            <p className="text-xs text-muted-foreground">Required for all content types.</p>
           </div>
 
           {/* Government Link */}
@@ -323,7 +362,7 @@ const UploadMaterialDialog = ({ open, onOpenChange, onSave }: UploadMaterialDial
             disabled={!isValid}
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
-            Upload Material
+            {submitLabel ?? (isEditMode ? "Save Changes" : "Upload Material")}
           </Button>
         </DialogFooter>
       </DialogContent>

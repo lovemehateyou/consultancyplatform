@@ -5,17 +5,15 @@ interface LibraryFiltersProps {
   filters: {
     category: string;
     date: string;
-    access: string;
   };
   categories: string[];
   onCategoryChange: (value: string) => void;
   onDateChange: (value: string) => void;
-  onAccessChange: (value: string) => void;
 }
 
-const LibraryFilters = ({ filters, categories, onCategoryChange, onDateChange, onAccessChange }: LibraryFiltersProps) => {
+const LibraryFilters = ({ filters, categories, onCategoryChange, onDateChange }: LibraryFiltersProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <Select value={filters.category} onValueChange={onCategoryChange}>
         <SelectTrigger className="bg-card border-border">
           <SelectValue placeholder="All Categories" />
@@ -37,17 +35,6 @@ const LibraryFilters = ({ filters, categories, onCategoryChange, onDateChange, o
         value={filters.date}
         onChange={(event) => onDateChange(event.target.value)}
       />
-
-      <Select value={filters.access} onValueChange={onAccessChange}>
-        <SelectTrigger className="bg-card border-border">
-          <SelectValue placeholder="Paid / Free" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Paid / Free</SelectItem>
-          <SelectItem value="paid">Paid</SelectItem>
-          <SelectItem value="free">Free</SelectItem>
-        </SelectContent>
-      </Select>
     </div>
   );
 };

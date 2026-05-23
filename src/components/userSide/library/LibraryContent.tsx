@@ -11,7 +11,6 @@ interface DocumentItem {
   category: string;
   imageUrl: string;
   date: string;
-  isPaid: boolean;
   description: string;
   governmentLink?: string | null;
   documentUrl?: string | null;
@@ -23,7 +22,6 @@ const LibraryContent = () => {
   const [filters, setFilters] = useState({
     category: "all",
     date: "",
-    access: "all",
   });
   const [selectedDocument, setSelectedDocument] = useState<DocumentItem | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -66,9 +64,8 @@ const LibraryContent = () => {
       id: item.id,
       title: item.title,
       category: item.category,
-      imageUrl: fallbackImage,
+      imageUrl: item.imageUrl ?? fallbackImage,
       date: item.createdAt,
-      isPaid: item.contentType === "file",
       description: item.description ?? "No description provided.",
       governmentLink: null,
       documentUrl: item.fileUrl ?? null,
@@ -84,14 +81,6 @@ const LibraryContent = () => {
       if (filters.date) {
         const docDate = new Date(doc.date).toISOString().slice(0, 10);
         if (docDate !== filters.date) return false;
-      }
-
-      if (filters.access === "paid" && !doc.isPaid) {
-        return false;
-      }
-
-      if (filters.access === "free" && doc.isPaid) {
-        return false;
       }
 
       return true;
@@ -117,7 +106,6 @@ const LibraryContent = () => {
           categories={categories}
           onCategoryChange={(value) => handleFilterChange("category", value)}
           onDateChange={(value) => handleFilterChange("date", value)}
-          onAccessChange={(value) => handleFilterChange("access", value)}
         />
 
         {isLoading ? (
@@ -133,7 +121,6 @@ const LibraryContent = () => {
                 category={doc.category}
                 imageUrl={doc.imageUrl}
                 date={doc.date}
-                isPaid={doc.isPaid}
                 onClick={() => handleDocumentClick(doc)}
               />
             ))}

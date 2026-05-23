@@ -3,11 +3,10 @@ interface DocumentCardProps {
   category: string;
   imageUrl: string;
   date: string;
-  isPaid: boolean;
   onClick?: () => void;
 }
 
-const DocumentCard = ({ title, category, imageUrl, date, isPaid, onClick }: DocumentCardProps) => {
+const DocumentCard = ({ title, category, imageUrl, date, onClick }: DocumentCardProps) => {
   const formattedDate = new Date(date).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -29,15 +28,8 @@ const DocumentCard = ({ title, category, imageUrl, date, isPaid, onClick }: Docu
       <span className="text-primary text-sm font-medium">
         {category}
       </span>
-      <div className="flex items-center justify-between text-xs text-muted-foreground mt-3">
+      <div className="text-xs text-muted-foreground mt-3">
         <span>{formattedDate}</span>
-        <span
-          className={`px-2 py-0.5 rounded-full font-medium ${
-            isPaid ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"
-          }`}
-        >
-          {isPaid ? "Paid" : "Free"}
-        </span>
       </div>
     </div>
   );

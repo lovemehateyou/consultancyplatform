@@ -39,16 +39,20 @@ const OverviewContent = () => {
         });
   };
 
-  const requests = useMemo(
-    () =>
-      bookings.map((booking) => {
+  const requests = useMemo(() => {
+    const now = Date.now();
+    return bookings.reduce(
+      (acc, booking) => {
+        const slotDate = booking.slotStart || booking.appointmentDate;
+        if (!slotDate) return acc;
+
+        const slotTime = new Date(slotDate).getTime();
+        if (Number.isNaN(slotTime) || slotTime < now) return acc;
+
         const name = booking.user?.name || "Client";
         const username = booking.user?.email
           ? booking.user.email.split("@")[0]
           : name.split(" ")[0]?.toLowerCase() || "client";
-        const slotDate = booking.slotStart || booking.appointmentDate;
-        const status: "Passed" | "Upcoming" =
-          slotDate && new Date(slotDate) < new Date() ? "Passed" : "Upcoming";
         const stage: "Approved" | "Pending" | "Rejected" =
           booking.status === "accepted"
             ? "Approved"
@@ -56,17 +60,27 @@ const OverviewContent = () => {
               ? "Rejected"
               : "Pending";
 
-        return {
+        acc.push({
           id: booking.id,
           name,
           username,
           date: formatRequestDate(slotDate),
-          status,
+          status: "Upcoming",
           stage,
-        };
-      }),
-    [bookings],
-  );
+        });
+
+        return acc;
+      },
+      [] as Array<{
+        id: string;
+        name: string;
+        username: string;
+        date: string;
+        status: "Upcoming";
+        stage: "Approved" | "Pending" | "Rejected";
+      }>,
+    );
+  }, [bookings]);
 
   const totalRequests = requests.length;
   const approvedRequests = requests.filter((r) => r.stage === "Approved").length;

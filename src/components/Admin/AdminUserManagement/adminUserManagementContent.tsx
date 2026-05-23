@@ -1,11 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ConsultancyFilters from "./adminUserManagementFilters";
 import ConsultantsTable from "./adminUserManagementTable";
 import UsermanagementKPICards from "./adminUserManagementKPICards";
 import AddUserDialog from "./AddUserDialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { listAdminUsers, updateAdminUserRole, type AdminUser } from "@/services/adminUsers";
+import {
+  listAdminUsers,
+  updateAdminUserRole,
+  updateAdminUserStatus,
+  type AdminUser,
+} from "@/services/adminUsers";
 import { useToast } from "@/hooks/use-toast";
 
 const ConsultancyContent = () => {
@@ -16,40 +21,45 @@ const ConsultancyContent = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setIsLoading(true);
-      try {
-        const response = await listAdminUsers({
-          role: role === "all" ? undefined : role,
-          search: search || undefined,
-        });
-        setUsers(response.data || []);
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Unable to load users.";
-        toast({
-          title: "User list unavailable",
-          description: message,
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUsers();
+  const fetchUsers = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await listAdminUsers({
+        role: role === "all" ? undefined : role,
+        search: search || undefined,
+      });
+      setUsers(response.data || []);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unable to load users.";
+      toast({
+        title: "User list unavailable",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }, [role, search, toast]);
 
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  const filteredUsers = useMemo(() => {
+    if (role === "all") return users;
+    return users.filter((user) => user.role === role);
+  }, [role, users]);
+
   const roleCounts = useMemo(() => {
-    const counts = { total: users.length, admin: 0, consultant: 0, user: 0 };
-    users.forEach((user) => {
+    const counts = { total: filteredUsers.length, admin: 0, consultant: 0, user: 0 };
+    filteredUsers.forEach((user) => {
       if (user.role === "admin") counts.admin += 1;
       if (user.role === "consultant") counts.consultant += 1;
       if (user.role === "user") counts.user += 1;
     });
     return counts;
-  }, [users]);
+  }, [filteredUsers]);
 
   const handleRoleUpdate = async (userId: string, nextRole: AdminUser["role"]) => {
     try {
@@ -64,6 +74,32 @@ const ConsultancyContent = () => {
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Unable to update role.";
+      toast({
+        title: "Update failed",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleStatusUpdate = async (
+    userId: string,
+    nextStatus: AdminUser["status"],
+  ) => {
+    try {
+      const updated = await updateAdminUserStatus(userId, nextStatus);
+      setUsers((prev) =>
+        prev.map((user) =>
+          user.id === updated.id ? { ...user, status: updated.status } : user
+        )
+      );
+      toast({
+        title: "Status updated",
+        description: `Updated ${updated.email} to ${updated.status}.`,
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unable to update status.";
       toast({
         title: "Update failed",
         description: message,
@@ -99,13 +135,20 @@ const ConsultancyContent = () => {
           onSearchChange={setSearch}
         />
         <ConsultantsTable
-          users={users}
+          users={filteredUsers}
           isLoading={isLoading}
           onRoleUpdate={handleRoleUpdate}
+          onStatusUpdate={handleStatusUpdate}
         />
       </div>
 
-      <AddUserDialog open={addUserOpen} onOpenChange={setAddUserOpen} />
+      <AddUserDialog
+        open={addUserOpen}
+        onOpenChange={setAddUserOpen}
+        onUserCreated={() => {
+          void fetchUsers();
+        }}
+      />
     </div>
   );
 };

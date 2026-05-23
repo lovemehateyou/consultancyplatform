@@ -9,6 +9,8 @@ export interface AuthUser {
 	email?: string;
 	role: "user" | "consultant" | "admin";
 	phone?: string | null;
+	title?: string | null;
+	about?: string | null;
 	userAddress?: string | null;
 	businessName?: string | null;
 	businessCity?: string | null;

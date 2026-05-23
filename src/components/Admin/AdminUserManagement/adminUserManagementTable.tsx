@@ -35,9 +35,15 @@ interface ConsultantsTableProps {
   users: AdminUser[];
   isLoading?: boolean;
   onRoleUpdate: (userId: string, role: AdminUser["role"]) => void;
+  onStatusUpdate: (userId: string, status: AdminUser["status"]) => void;
 }
 
-const ConsultantsTable = ({ users, isLoading = false, onRoleUpdate }: ConsultantsTableProps) => {
+const ConsultantsTable = ({
+  users,
+  isLoading = false,
+  onRoleUpdate,
+  onStatusUpdate,
+}: ConsultantsTableProps) => {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [roleDrafts, setRoleDrafts] = useState<Record<string, AdminUser["role"]>>({});
 
@@ -100,6 +106,12 @@ const ConsultantsTable = ({ users, isLoading = false, onRoleUpdate }: Consultant
                 const isExpanded = expandedRows.has(user.id);
                 const displayName = user.name || user.email || "User";
                 const roleValue = roleDrafts[user.id] || user.role;
+                const isActive = user.status === "active";
+                const statusLabel = isActive ? "Active" : "Inactive";
+                const statusDotClass = isActive ? "bg-green-500" : "bg-slate-400";
+                const statusTextClass = isActive ? "text-green-600" : "text-slate-600";
+                const nextStatus = isActive ? "inactive" : "active";
+                const actionLabel = isActive ? "Suspend User" : "Activate User";
 
                 return (
                   <Collapsible
@@ -129,8 +141,8 @@ const ConsultantsTable = ({ users, isLoading = false, onRoleUpdate }: Consultant
                         </TableCell>
                         <TableCell>
                           <span className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                            <span className="text-green-600">Active</span>
+                            <span className={`w-2 h-2 rounded-full ${statusDotClass}`}></span>
+                            <span className={statusTextClass}>{statusLabel}</span>
                           </span>
                         </TableCell>
                         <TableCell className="text-foreground">{user.role}</TableCell>
@@ -177,7 +189,7 @@ const ConsultantsTable = ({ users, isLoading = false, onRoleUpdate }: Consultant
                                   <Shield className="h-4 w-4 text-muted-foreground" />
                                   Role: {user.role}
                                 </p>
-                                <p className="text-sm text-muted-foreground">Status: Active</p>
+                                <p className="text-sm text-muted-foreground">Status: {statusLabel}</p>
                                 <p className="text-sm text-muted-foreground">
                                   Joined: {new Date(user.createdAt).toLocaleDateString()}
                                 </p>
@@ -214,8 +226,12 @@ const ConsultantsTable = ({ users, isLoading = false, onRoleUpdate }: Consultant
                                   Quick Actions
                                 </h4>
                                 <div className="grid gap-2">
-                                  <Button variant="ghost" className="border border-border">
-                                    View Profile
+                                  <Button
+                                    variant="ghost"
+                                    className="border border-border"
+                                    onClick={() => onStatusUpdate(user.id, nextStatus)}
+                                  >
+                                    {actionLabel}
                                   </Button>
                                 </div>
                               </section>

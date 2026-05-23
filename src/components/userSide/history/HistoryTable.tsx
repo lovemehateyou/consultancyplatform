@@ -17,15 +17,17 @@ export interface HistoryEntry {
   date: string;
   status: "Upcoming" | "Passed";
   stage: "Approved" | "Pending" | "Rejected";
+  bookingStatus: "pending" | "accepted" | "declined" | "cancelled" | "completed";
 }
 
 interface HistoryTableProps {
   entries: HistoryEntry[];
+  oncancel: (id: string) => void;
   isLoading?: boolean;
   emptyMessage?: string;
 }
 
-const HistoryTable = ({ entries, isLoading = false, emptyMessage }: HistoryTableProps) => {
+const HistoryTable = ({ entries, oncancel, isLoading = false, emptyMessage }: HistoryTableProps) => {
   return (
     <div className="bg-card rounded-lg border border-border">
       <Table>
@@ -38,6 +40,7 @@ const HistoryTable = ({ entries, isLoading = false, emptyMessage }: HistoryTable
             <TableHead className="text-muted-foreground font-medium">Date</TableHead>
             <TableHead className="text-muted-foreground font-medium">Status</TableHead>
             <TableHead className="text-muted-foreground font-medium">Stage</TableHead>
+            <TableHead className="text-muted-foreground font-medium">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -81,6 +84,12 @@ const HistoryTable = ({ entries, isLoading = false, emptyMessage }: HistoryTable
                 </TableCell>
                 <TableCell>
                   <span className="text-emerald-500 font-medium">{entry.stage}</span>
+                </TableCell>
+                <TableCell>
+                  <button 
+                  className="text-sm text-primary hover:underline"
+                  onClick={()=>oncancel(entry.id)}
+                  >Cancel</button>
                 </TableCell>
               </TableRow>
             ))

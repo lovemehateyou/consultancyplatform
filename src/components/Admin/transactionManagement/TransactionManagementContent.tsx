@@ -1,119 +1,120 @@
-import { useState, useMemo } from "react";
-/* import TransactionManagementKPICards from "./TransactionManagementKPICards";
- */
+import { useEffect, useMemo, useState } from "react";
+import { listAdminBookings } from "@/services/adminBookings";
+import type { BookingRecord } from "@/services/bookings";
 import TransactionManagementFilters from "./TransactionManagementFilters";
 import TransactionManagementTable, { Transaction } from "./TransactionManagementTable";
 
-const mockTransactions: Transaction[] = [
-  {
-    id: "1",
-    transactionId: "5146846548465",
-    clientName: "Jane Cooper",
-    billingDate: "2/19/21",
-    status: "Paid",
-    amount: "$500.00",
-  },
-  {
-    id: "2",
-    transactionId: "5467319467348",
-    clientName: "Wade Warren",
-    billingDate: "5/7/16",
-    status: "Paid",
-    amount: "$500.00",
-  },
-  {
-    id: "3",
-    transactionId: "1345705945446",
-    clientName: "Esther Howard",
-    billingDate: "9/18/16",
-    status: "Failed",
-    amount: "$500.00",
-  },
-  {
-    id: "4",
-    transactionId: "5440754979...",
-    clientName: "Cameron Williamson",
-    billingDate: "2/11/12",
-    status: "Paid",
-    amount: "$500.00",
-  },
-  {
-    id: "5",
-    transactionId: "1243467984543",
-    clientName: "Brooklyn Simmons",
-    billingDate: "9/18/16",
-    status: "Failed",
-    amount: "$500.00",
-  },
-  {
-    id: "6",
-    transactionId: "8454134649707",
-    clientName: "Leslie Alexander",
-    billingDate: "1/28/17",
-    status: "Failed",
-    amount: "$500.00",
-  },
-  {
-    id: "7",
-    transactionId: "2130164040451",
-    clientName: "Jenny Wilson",
-    billingDate: "5/27/15",
-    status: "Paid",
-    amount: "$500.00",
-  },
-  {
-    id: "8",
-    transactionId: "0439104645404",
-    clientName: "Guy Hawkins",
-    billingDate: "8/2/19",
-    status: "Paid",
-    amount: "$500.00",
-  },
-];
+const formatAmount = (metadata?: BookingRecord["metadata"] | null) => {
+  const amount = metadata?.paymentAmount;
+  const currency = metadata?.paymentCurrency;
+
+  if (amount == null && !currency) return "N/A";
+  if (amount == null) return String(currency);
+  if (!currency) return String(amount);
+  return `${currency} ${amount}`;
+};
+
+const formatBillingDate = (value?: string) => {
+  if (!value) return "N/A";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "N/A";
+  return date.toLocaleDateString();
+};
+
+const getPaymentStatus = (
+  metadata?: BookingRecord["metadata"] | null,
+): "paid" | "unpaid" => {
+  const status = metadata?.paymentStatus?.toLowerCase();
+  return status === "paid" ? "paid" : "unpaid";
+};
 
 const TransactionManagementContent = () => {
-  const [activeTab, setActiveTab] = useState("succeeded");
+  const [activeTab, setActiveTab] = useState<"all" | "paid" | "unpaid">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bookings, setBookings] = useState<BookingRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab as "all" | "paid" | "unpaid");
+  };
+
+  useEffect(() => {
+    let isActive = true;
+
+    const loadBookings = async () => {
+      setIsLoading(true);
+      setErrorMessage(null);
+
+      try {
+        const { data } = await listAdminBookings();
+        if (isActive) {
+          setBookings(data);
+        }
+      } catch (error) {
+        if (isActive) {
+          setErrorMessage(
+            error instanceof Error ? error.message : "Unable to load transactions",
+          );
+        }
+      } finally {
+        if (isActive) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadBookings();
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    setSelectedIds([]);
+  }, [bookings]);
 
   const filteredTransactions = useMemo(() => {
-    let filtered = mockTransactions;
+    let filtered = bookings;
 
     // Filter by tab
-    switch (activeTab) {
-      case "succeeded":
-        filtered = filtered.filter((t) => t.status === "Paid");
-        break;
-      case "failed":
-        filtered = filtered.filter((t) => t.status === "Failed");
-        break;
-      case "uncaptured":
-        filtered = filtered.filter((t) => t.status === "Uncaptured");
-        break;
-      default:
-        break;
+    if (activeTab !== "all") {
+      filtered = filtered.filter(
+        (booking) => getPaymentStatus(booking.metadata) === activeTab,
+      );
     }
 
     // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        (t) =>
-          t.transactionId.toLowerCase().includes(query) ||
-          t.clientName.toLowerCase().includes(query) ||
-          t.amount.toLowerCase().includes(query)
+        (booking) => {
+          const transactionId = booking.transactionId ?? "";
+          const clientName = booking.user?.name ?? "";
+          const consultantName = booking.consultant?.name ?? "";
+          const amount = formatAmount(booking.metadata);
+
+          return (
+            transactionId.toLowerCase().includes(query) ||
+            clientName.toLowerCase().includes(query) ||
+            consultantName.toLowerCase().includes(query) ||
+            amount.toLowerCase().includes(query)
+          );
+        },
       );
     }
 
-    return filtered;
-  }, [activeTab, searchQuery]);
-
-  const kpiCounts = useMemo(() => {
-    const total = mockTransactions.length;
-    const approved = mockTransactions.filter((t) => t.status === "Paid").length;
-    const rejected = mockTransactions.filter((t) => t.status === "Failed").length;
-    return { total, approved, rejected };
-  }, []);
+    return filtered.map((booking): Transaction => ({
+      id: booking.id,
+      transactionId: booking.transactionId ?? "N/A",
+      clientName: booking.user?.name ?? "N/A",
+      consultantName: booking.consultant?.name ?? "N/A",
+      billingDate: formatBillingDate(booking.createdAt),
+      status: getPaymentStatus(booking.metadata),
+      amount: formatAmount(booking.metadata),
+    }));
+  }, [activeTab, bookings, searchQuery]);
 
   const handleSelectTransaction = (id: string) => {
     setSelectedIds((prev) =>
@@ -143,10 +144,17 @@ const TransactionManagementContent = () => {
  */}
       <TransactionManagementFilters
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
+
+      {errorMessage ? (
+        <p className="text-sm text-red-600 mb-4">{errorMessage}</p>
+      ) : null}
+      {isLoading ? (
+        <p className="text-sm text-muted-foreground mb-4">Loading transactions...</p>
+      ) : null}
 
       <TransactionManagementTable
         transactions={filteredTransactions}

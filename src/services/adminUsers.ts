@@ -5,6 +5,7 @@ export type AdminUser = {
 	name?: string | null;
 	email: string;
 	role: "user" | "consultant" | "admin";
+	status: "active" | "inactive";
 	phone?: string | null;
 	createdAt: string;
 	updatedAt: string;
@@ -19,6 +20,12 @@ export type AdminUserListResponse = {
 		total: number;
 		totalPages: number;
 	};
+};
+
+export type CreateAdminUserPayload = {
+	email: string;
+	password: string;
+	role: AdminUser["role"];
 };
 
 export const listAdminUsers = async (params?: {
@@ -50,6 +57,33 @@ export const updateAdminUserRole = async (
 		credentials: "include",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ role }),
+	});
+
+	return parseResponse<AdminUser>(response);
+};
+
+export const updateAdminUserStatus = async (
+	userId: string,
+	status: AdminUser["status"],
+): Promise<AdminUser> => {
+	const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/status`, {
+		method: "PATCH",
+		credentials: "include",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ status }),
+	});
+
+	return parseResponse<AdminUser>(response);
+};
+
+export const createAdminUser = async (
+	payload: CreateAdminUserPayload,
+): Promise<AdminUser> => {
+	const response = await fetch(`${API_BASE_URL}/admin/users`, {
+		method: "POST",
+		credentials: "include",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(payload),
 	});
 
 	return parseResponse<AdminUser>(response);

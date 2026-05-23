@@ -1,5 +1,5 @@
 import DashboardLayout from "@/components/Consultantdashboard/DashboardLayout";
-import HistoryContent from "@/components/userSide/history/HistoryContent";
+import HistoryContent from "@/components/consultantSide/history/HistoryContent";
 
 const History = () => {
   return (

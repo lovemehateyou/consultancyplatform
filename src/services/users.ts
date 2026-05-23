@@ -4,6 +4,8 @@ import type { AuthUser } from "./auth";
 export type UpdateProfilePayload = {
 	name?: string;
 	phone?: string;
+	title?: string;
+	about?: string;
 	businessName?: string;
 	businessCity?: string;
 	businessSubCity?: string;
@@ -13,6 +15,7 @@ export type UpdateProfilePayload = {
 	businessArea?: string;
 	tin?: string;
 	profileImage?: File | null;
+	cvFile?: File | null;
 };
 
 export type UpdateProfileResponse = {
@@ -56,6 +59,8 @@ export const updateProfile = async (
 
 	if (payload.name !== undefined) formData.append("name", payload.name);
 	if (payload.phone !== undefined) formData.append("phone", payload.phone);
+	if (payload.title !== undefined) formData.append("title", payload.title);
+	if (payload.about !== undefined) formData.append("about", payload.about);
 	if (payload.businessName !== undefined) formData.append("businessName", payload.businessName);
 	if (payload.businessCity !== undefined)
 		formData.append("businessCity", payload.businessCity);
@@ -69,6 +74,7 @@ export const updateProfile = async (
 	if (payload.businessArea !== undefined) formData.append("businessArea", payload.businessArea);
 	if (payload.tin !== undefined) formData.append("tin", payload.tin);
 	if (payload.profileImage) formData.append("profileImage", payload.profileImage);
+	if (payload.cvFile) formData.append("cv", payload.cvFile);
 
 	const response = await fetch(`${API_BASE_URL}/users/profile`, {
 		method: "PATCH",

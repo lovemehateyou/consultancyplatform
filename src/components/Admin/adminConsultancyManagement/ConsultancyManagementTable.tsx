@@ -1,4 +1,3 @@
-import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,18 +22,20 @@ interface ConsultancyRequest {
     avatar?: string;
   };
   date: string;
-  status: "Upcoming" | "Passed";
-  stage: "Paid" | "unpaid";
+  status: "pending" | "accepted" | "declined" | "cancelled" | "completed";
+  stage: "Paid" | "Unpaid";
 }
 
 interface ConsultancyManagementTableProps {
   requests: ConsultancyRequest[];
+  isLoading?: boolean;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
 }
 
 const ConsultancyManagementTable = ({
   requests,
+  isLoading = false,
   onApprove,
   onReject,
 }: ConsultancyManagementTableProps) => {
@@ -45,6 +46,17 @@ const ConsultancyManagementTable = ({
       .join("")
       .toUpperCase();
   };
+
+  const statusClasses: Record<ConsultancyRequest["status"], string> = {
+    pending: "text-blue-600",
+    accepted: "text-green-600",
+    declined: "text-red-600",
+    cancelled: "text-slate-500",
+    completed: "text-emerald-600",
+  };
+
+  const statusLabel = (status: ConsultancyRequest["status"]) =>
+    `${status.charAt(0).toUpperCase()}${status.slice(1)}`;
 
   return (
     <div className="bg-card border border-border rounded-lg overflow-hidden">
@@ -60,9 +72,15 @@ const ConsultancyManagementTable = ({
           </TableRow>
         </TableHeader>
         <TableBody>
+          {isLoading ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center text-muted-foreground">
+                Loading bookings...
+              </TableCell>
+            </TableRow>
+          ) : null}
           {requests.map((request) => (
             <TableRow key={request.id} className="border-border">
-            
               <TableCell>
                 <div className="flex items-center gap-3">
                   <Avatar className="w-10 h-10">
@@ -99,19 +117,13 @@ const ConsultancyManagementTable = ({
               </TableCell>
               <TableCell className="text-foreground">{request.date}</TableCell>
               <TableCell>
-                <span
-                  className={`font-medium ${
-                    request.status === "Upcoming" ? "text-blue-500" : "text-green-500"
-                  }`}
-                >
-                  {request.status}
+                <span className={`font-medium ${statusClasses[request.status]}`}>
+                  {statusLabel(request.status)}
                 </span>
               </TableCell>
               <TableCell>
                 <span
-                  className={`font-medium ${
-                    request.stage === "Paid" ? "text-green-500" : "text-red-500"
-                  }`}
+                  className={`font-medium ${request.stage === "Paid" ? "text-green-500" : "text-red-500"}`}
                 >
                   {request.stage}
                 </span>
@@ -122,6 +134,7 @@ const ConsultancyManagementTable = ({
                     size="sm"
                     className="bg-primary hover:bg-primary/90 text-primary-foreground"
                     onClick={() => onApprove(request.id)}
+                    disabled={request.status == "completed"}
                   >
                     Approve
                   </Button>
@@ -129,6 +142,7 @@ const ConsultancyManagementTable = ({
                     size="sm"
                     variant="destructive"
                     onClick={() => onReject(request.id)}
+                    disabled={request.status == "completed"}
                   >
                     Reject
                   </Button>
