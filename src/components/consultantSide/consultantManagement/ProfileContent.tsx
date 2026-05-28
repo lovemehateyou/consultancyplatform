@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/authContext";
-import { getProfile, updateProfile } from "@/services/users";
+import { changePassword, getProfile, updateProfile } from "@/services/users";
 import {
   Briefcase,
   Camera,
@@ -163,10 +163,19 @@ const ProfileContent = () => {
   const handlePasswordSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsPasswordSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    toast({ title: "Password update queued", description: "Password updates are not available yet." });
-    setPasswordValues({ oldPassword: "", newPassword: "" });
-    setIsPasswordSaving(false);
+    try {
+      const response = await changePassword({
+        oldPassword: passwordValues.oldPassword,
+        newPassword: passwordValues.newPassword,
+      });
+      toast({ title: "Password updated", description: response.message });
+      setPasswordValues({ oldPassword: "", newPassword: "" });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to update password right now.";
+      toast({ title: "Password update failed", description: message, variant: "destructive" });
+    } finally {
+      setIsPasswordSaving(false);
+    }
   };
 
   const handleReset = () => {

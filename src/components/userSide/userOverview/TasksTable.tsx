@@ -15,24 +15,31 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 export interface Task {
-  id: string;
+  id: number;
+  taskId: number;
+  userGoalId: number;
   name: string;
   status: "Active" | "Completed";
-  role: string;
-  email: string;
+  goalTitle: string;
+  goalCategory: string;
+  goalBusinessArea?: string | null;
+  goalBusinessType?: string | null;
+  taskDescription?: string | null;
+  goalDescription?: string | null;
+  stepOrder: number;
   details?: string[];
   mapLinks?: TaskMapLink[];
 }
 
 export interface TaskMapLink {
   url: string;
-  city: string;
+  city?: string | null;
   subCity: string;
 }
 
 interface TasksTableProps {
   tasks: Task[];
-  onCompleteTask?: (taskId: string) => void;
+  onCompleteTask?: (task: Task) => void;
   userCity: string;
   userSubCity: string;
 }
@@ -49,30 +56,48 @@ const TasksTable = ({ tasks, onCompleteTask, userCity, userSubCity }: TasksTable
 
   // Default details if not provided
   const getTaskDetails = (task: Task): string[] => {
-    return task.details || [
-      `Review documentation for ${task.role}`,
-      `Complete assigned requirements and deliverables`,
-      `Coordinate with team members via ${task.email}`,
-      `Submit progress report by deadline`,
-      `Schedule follow-up meeting if needed`,
-    ];
+    if (task.details && task.details.length > 0) {
+      return task.details;
+    }
+
+    const details: string[] = [];
+    if (task.taskDescription) {
+      details.push(task.taskDescription);
+    }
+    if (task.goalDescription) {
+      details.push(task.goalDescription);
+    }
+    if (task.goalCategory) {
+      details.push(`Goal category: ${task.goalCategory}`);
+    }
+
+    const target = [task.goalBusinessArea, task.goalBusinessType]
+      .filter((value) => value && value.trim().length > 0)
+      .join(" / ");
+    if (target) {
+      details.push(`Business target: ${target}`);
+    }
+
+    return details.length > 0 ? details : ["No additional details provided."];
   };
 
-  const normalizeLocation = (value: string) => value.trim().toLowerCase();
+  const normalizeLocation = (value: string) => {
+    return value.trim().toLowerCase();
+  };
 
   const getMatchingMapLinks = (task: Task): TaskMapLink[] => {
     if (!task.mapLinks || task.mapLinks.length === 0) return [];
-    const city = normalizeLocation(userCity);
     const subCity = normalizeLocation(userSubCity);
-    if (!city || !subCity) return [];
+    if (!subCity) return [];
+    const city = normalizeLocation(userCity);
 
-    return task.mapLinks.filter((link) =>
-      normalizeLocation(link.city) === city && normalizeLocation(link.subCity) === subCity
-    );
+    return task.mapLinks.filter((link) => {
+      const linkSubCity = normalizeLocation(link.subCity ?? "");
+      if (!linkSubCity || linkSubCity !== subCity) return false;
+      const linkCity = normalizeLocation(link.city ?? "");
+      return !linkCity || !city || linkCity === city;
+    });
   };
-
-
-
 
   return (
     <div className="bg-card border border-border/60 rounded-2xl overflow-hidden shadow-sm">
@@ -91,13 +116,13 @@ const TasksTable = ({ tasks, onCompleteTask, userCity, userSubCity }: TasksTable
             </TableHead>
             <TableHead className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
               <div className="flex items-center gap-1">
-                Consultant Needed
+                Goal
                 <Tooltip>
                   <TooltipTrigger>
                     <HelpCircle className="w-3.5 h-3.5" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Consultant Needed for the Task if you want help</p>
+                    <p>Goal context for the task</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -108,7 +133,12 @@ const TasksTable = ({ tasks, onCompleteTask, userCity, userSubCity }: TasksTable
 
         <TableBody>
           {tasks.map((task) => (
-            <Collapsible key={task.id} open={expandedRows[task.id]} onOpenChange={() => toggleRow(task.id)} asChild>
+            <Collapsible
+              key={task.id}
+              open={expandedRows[String(task.id)] ?? false}
+              onOpenChange={() => toggleRow(String(task.id))}
+              asChild
+            >
               <>
                 <TableRow className="border-b border-border hover:bg-muted/30">
                   <TableCell>
@@ -127,14 +157,19 @@ const TasksTable = ({ tasks, onCompleteTask, userCity, userSubCity }: TasksTable
                       </span>
                     )}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{task.role}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    <div className="text-sm text-foreground">{task.goalTitle}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {task.goalCategory}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-right">
                     <CollapsibleTrigger asChild>
                       <Button 
                         variant="default"
                         className="bg-blue-600 hover:bg-blue-700 text-white"
                       >
-                        {expandedRows[task.id] ? (
+                        {expandedRows[String(task.id)] ? (
                           <>
                             Less
                             <ChevronUp className="ml-1 w-4 h-4" />
@@ -179,7 +214,7 @@ const TasksTable = ({ tasks, onCompleteTask, userCity, userSubCity }: TasksTable
                                     {link.url}
                                   </span>
                                   <span className="text-muted-foreground">
-                                    {link.city} · {link.subCity}
+                                    {link.city ? `${link.city} - ${link.subCity}` : link.subCity}
                                   </span>
                                 </a>
                               ))}
@@ -190,7 +225,7 @@ const TasksTable = ({ tasks, onCompleteTask, userCity, userSubCity }: TasksTable
                         </div>
                         {task.status === "Active" && (
                           <Button 
-                            onClick={() => onCompleteTask?.(task.id)}
+                            onClick={() => onCompleteTask?.(task)}
                             className="bg-tag-green hover:bg-tag-green/90 text-white"
                           >
                             Complete Task

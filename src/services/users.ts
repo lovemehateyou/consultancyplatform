@@ -27,6 +27,15 @@ export type GetProfileResponse = {
 	user: AuthUser;
 };
 
+export type ChangePasswordPayload = {
+	oldPassword: string;
+	newPassword: string;
+};
+
+export type ChangePasswordResponse = {
+	message: string;
+};
+
 export type ConsultantSummary = {
 	id: string;
 	name: string;
@@ -50,6 +59,19 @@ export const getProfile = async (): Promise<GetProfileResponse> => {
 	});
 
 	return parseResponse<GetProfileResponse>(response);
+};
+
+export const changePassword = async (
+	payload: ChangePasswordPayload,
+): Promise<ChangePasswordResponse> => {
+	const response = await fetch(`${API_BASE_URL}/users/change-password`, {
+		method: "PATCH",
+		credentials: "include",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(payload),
+	});
+
+	return parseResponse<ChangePasswordResponse>(response);
 };
 
 export const updateProfile = async (

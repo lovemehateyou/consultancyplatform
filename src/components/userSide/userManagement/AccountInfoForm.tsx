@@ -2,6 +2,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { BUSINESS_AREAS, BUSINESS_TYPES } from "@/constants/businessOptions";
 
 export interface ProfileInfoValues {
   name: string;
@@ -49,7 +50,7 @@ const AccountInfoForm = ({
     setProfileValues(initialValues);
   }, [initialValues]);
 
-  const handleProfileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleProfileChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
     setProfileValues((prev) => ({ ...prev, [name]: value }));
   };
@@ -195,28 +196,42 @@ const AccountInfoForm = ({
 
           <div>
             <Label htmlFor="businessType" className="text-sm text-foreground font-bold">Business Type</Label>
-            <Input
+            <select
               id="businessType"
               name="businessType"
-              className="mt-1 bg-muted border-border"
-              placeholder="e.g. Retail"
+              className="mt-1 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm text-foreground"
               value={profileValues.businessType}
               onChange={handleProfileChange}
+              aria-label="Business type"
               disabled={isProfileSaving}
-            />
+            >
+              <option value="">Select Business Type</option>
+              {BUSINESS_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
             <Label htmlFor="businessArea" className="text-sm text-foreground font-bold">Business Area</Label>
-            <Input
+            <select
               id="businessArea"
               name="businessArea"
-              className="mt-1 bg-muted border-border"
-              placeholder="e.g. Marketing"
+              className="mt-1 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm text-foreground"
               value={profileValues.businessArea}
               onChange={handleProfileChange}
+              aria-label="Business area"
               disabled={isProfileSaving}
-            />
+            >
+              <option value="">Select Business Area</option>
+              {BUSINESS_AREAS.map((area) => (
+                <option key={area} value={area}>
+                  {area}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>

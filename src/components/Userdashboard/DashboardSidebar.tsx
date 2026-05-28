@@ -6,6 +6,7 @@ import {
   User, 
   MessageSquare, 
   History,
+  Flag,
   LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ interface SidebarItem {
 
 const sidebarItems: SidebarItem[] = [
   { label: "Dashboard", path: "/Userdashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
+  { label: "Goals", path: "/goals", icon: <Flag className="w-5 h-5" /> },
   { label: "Library Management", path: "/library", icon: <BookOpen className="w-5 h-5" /> },
   { label: "User Profile", path: "/profile", icon: <User className="w-5 h-5" /> },
   { label: "Live Consultancy", path: "/consultancy", icon: <MessageSquare className="w-5 h-5" /> },

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { BUSINESS_AREAS, BUSINESS_TYPES } from "@/constants/businessOptions";
 
 type ProfileFields = {
   name: string;
@@ -195,26 +196,40 @@ const AccountInfoForm = ({
             <Label htmlFor="businessType" className="text-sm text-foreground">
               Business Type
             </Label>
-            <Input
+            <select
               id="businessType"
-              className="mt-1 bg-muted border-border"
+              className="mt-1 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm text-foreground"
               value={profileInfo.businessType}
               onChange={(event) => onProfileFieldChange("businessType", event.target.value)}
-              placeholder=""
-            />
+              aria-label="Business type"
+            >
+              <option value="">Select Business Type</option>
+              {BUSINESS_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
             <Label htmlFor="businessArea" className="text-sm text-foreground">
               Business Area
             </Label>
-            <Input
+            <select
               id="businessArea"
-              className="mt-1 bg-muted border-border"
+              className="mt-1 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm text-foreground"
               value={profileInfo.businessArea}
               onChange={(event) => onProfileFieldChange("businessArea", event.target.value)}
-              placeholder=""
-            />
+              aria-label="Business area"
+            >
+              <option value="">Select Business Area</option>
+              {BUSINESS_AREAS.map((area) => (
+                <option key={area} value={area}>
+                  {area}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>

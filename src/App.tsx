@@ -18,6 +18,7 @@ import Consultancy from "./pages/userPages/LiveConsultancy";
 import ConsultantProfile from "./pages/userPages/ConsultantProfile";
 import History from "./pages/userPages/userHistory";
 import UserNotifications from "./pages/userPages/userNotifications";
+import UserGoals from "./pages/userPages/userGoals";
 import AccountSelection from "./components/accountSelection";
 
 // Consultancy side pages
@@ -61,6 +62,7 @@ const App = () => (
           <Route path="/consultant/:id" element={<ConsultantProfile />} />
           <Route path="/history" element={<History />} />
           <Route path="/notifications" element={<UserNotifications />} />
+          <Route path="/goals" element={<UserGoals />} />
           {/* Adding the consultant routes */}
           <Route path="/consultantdashboard" element={<ConsultantOverview />} />
           <Route path="/consultanthistory" element={<CHistory />} />

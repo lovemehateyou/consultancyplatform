@@ -9,7 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/authContext";
-import { getProfile, updateProfile } from "@/services/users";
+import { changePassword, getProfile, updateProfile } from "@/services/users";
+import { BUSINESS_AREAS, BUSINESS_TYPES } from "@/constants/businessOptions";
 
 interface ProfileState {
   name: string;
@@ -84,7 +85,8 @@ const ProfileContent = () => {
     if (user?.id) loadProfile();
   }, [user?.id, setUser, toast]);
 
-  const handleField = (field: keyof ProfileState) => (e: ChangeEvent<HTMLInputElement>) => {
+  const handleField =
+    (field: keyof ProfileState) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setProfile((prev) => ({ ...prev, [field]: e.target.value }));
   };
 
@@ -128,10 +130,19 @@ const ProfileContent = () => {
   const handlePasswordSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsPasswordSaving(true);
-    await new Promise((r) => setTimeout(r, 600));
-    toast({ title: "Password update queued", description: "Password updates are not available yet." });
-    setPasswordValues({ oldPassword: "", newPassword: "" });
-    setIsPasswordSaving(false);
+    try {
+      const response = await changePassword({
+        oldPassword: passwordValues.oldPassword,
+        newPassword: passwordValues.newPassword,
+      });
+      toast({ title: "Password updated", description: response.message });
+      setPasswordValues({ oldPassword: "", newPassword: "" });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to update password right now.";
+      toast({ title: "Password update failed", description: message, variant: "destructive" });
+    } finally {
+      setIsPasswordSaving(false);
+    }
   };
 
   const initials = (profile.name || "U").split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
@@ -172,7 +183,14 @@ const ProfileContent = () => {
               >
                 <Camera className="h-4 w-4" />
               </button>
-              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
+                aria-label="Upload profile photo"
+              />
             </div>
 
             <div className="flex-1 min-w-0">
@@ -257,10 +275,38 @@ const ProfileContent = () => {
                     <Input id="businessName" value={profile.businessName} onChange={handleField("businessName")} placeholder="Acme Corp" disabled={isProfileSaving} />
                   </FieldGroup>
                   <FieldGroup icon={<Briefcase className="h-4 w-4" />} label="Business Type" htmlFor="businessType">
-                    <Input id="businessType" value={profile.businessType} onChange={handleField("businessType")} placeholder="Retail" disabled={isProfileSaving} />
+                    <select
+                      id="businessType"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+                      value={profile.businessType}
+                      onChange={handleField("businessType")}
+                      aria-label="Business type"
+                      disabled={isProfileSaving}
+                    >
+                      <option value="">Select Business Type</option>
+                      {BUSINESS_TYPES.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
                   </FieldGroup>
                   <FieldGroup icon={<Briefcase className="h-4 w-4" />} label="Business Area" htmlFor="businessArea">
-                    <Input id="businessArea" value={profile.businessArea} onChange={handleField("businessArea")} placeholder="Marketing" disabled={isProfileSaving} />
+                    <select
+                      id="businessArea"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+                      value={profile.businessArea}
+                      onChange={handleField("businessArea")}
+                      aria-label="Business area"
+                      disabled={isProfileSaving}
+                    >
+                      <option value="">Select Business Area</option>
+                      {BUSINESS_AREAS.map((area) => (
+                        <option key={area} value={area}>
+                          {area}
+                        </option>
+                      ))}
+                    </select>
                   </FieldGroup>
                   <FieldGroup icon={<Hash className="h-4 w-4" />} label="TIN" htmlFor="tin">
                     <Input id="tin" value={profile.tin} onChange={handleField("tin")} placeholder="1234567890" disabled={isProfileSaving} />

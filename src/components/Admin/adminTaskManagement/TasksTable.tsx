@@ -1,6 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -9,42 +7,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Edit, Trash2, Eye, ExternalLink } from "lucide-react";
-import type { Task } from "./TaskFormDialog";
+import { Edit, Eye, Trash2 } from "lucide-react";
+import type { Task } from "./TaskFormDialog.tsx";
 
 interface TasksTableProps {
   tasks: Task[];
   onView: (task: Task) => void;
-  onEdit: (task: Task) => void;
-  onDelete: (id: string) => void;
+  onEditGoal: (goalId: number) => void;
+  onDeleteGoal: (goalId: number) => void;
 }
 
-const TasksTable = ({ tasks, onView, onEdit, onDelete }: TasksTableProps) => {
+const TasksTable = ({ tasks, onView, onEditGoal, onDeleteGoal }: TasksTableProps) => {
   return (
     <div className="bg-card border border-border rounded-lg min-w-0 ">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent">
-              <TableHead className="w-12">
-                <Checkbox />
+              <TableHead className="text-muted-foreground font-medium min-w-[240px]">
+                Task
               </TableHead>
               <TableHead className="text-muted-foreground font-medium min-w-[200px]">
-                Task Name
+                Goal
               </TableHead>
-              <TableHead className="text-muted-foreground font-medium min-w-[150px]">
-                Consultant Type
+              <TableHead className="text-muted-foreground font-medium min-w-[160px]">
+                Category
               </TableHead>
-              <TableHead className="text-muted-foreground font-medium min-w-[150px]">
-                Business Types
+              <TableHead className="text-muted-foreground font-medium min-w-[120px]">
+                Step Order
               </TableHead>
-              <TableHead className="text-muted-foreground font-medium min-w-[150px]">
-                Business Areas
-              </TableHead>
-              <TableHead className="text-muted-foreground font-medium min-w-[100px]">
-                Links
-              </TableHead>
-              <TableHead className="text-muted-foreground font-medium text-right min-w-[200px]">
+              <TableHead className="text-muted-foreground font-medium text-right min-w-[140px]">
                 Actions
               </TableHead>
             </TableRow>
@@ -52,60 +44,37 @@ const TasksTable = ({ tasks, onView, onEdit, onDelete }: TasksTableProps) => {
           <TableBody>
             {tasks.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                  No tasks found. Click "Add Task" to create one.
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  No tasks found. Create a goal with tasks to get started.
                 </TableCell>
               </TableRow>
             ) : (
               tasks.map((task) => (
                 <TableRow key={task.id} className="border-border">
                   <TableCell>
-                    <Checkbox />
+                    <p className="font-medium text-foreground">{task.title}</p>
+                    {task.description ? (
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {task.description}
+                      </p>
+                    ) : null}
                   </TableCell>
                   <TableCell>
-                    <p className="font-medium text-foreground">{task.name}</p>
+                    <p className="text-sm text-foreground">{task.goalTitle}</p>
+                    {task.goalDescription ? (
+                      <p className="text-xs text-muted-foreground line-clamp-1">
+                        {task.goalDescription}
+                      </p>
+                    ) : null}
+                    <p className="text-xs text-muted-foreground">
+                      {task.goalBusinessArea || "All areas"} / {task.goalBusinessType || "All types"}
+                    </p>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100">
-                      {task.consultantType || "Not specified"}
-                    </Badge>
+                    <p className="text-sm text-foreground">{task.goalCategory}</p>
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {task.businessTypes.slice(0, 2).map((type) => (
-                        <Badge key={type} variant="outline" className="text-xs">
-                          {type.split(" ")[0]}
-                        </Badge>
-                      ))}
-                      {task.businessTypes.length > 2 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{task.businessTypes.length - 2}
-                        </Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {task.businessAreas.slice(0, 2).map((area) => (
-                        <Badge key={area} variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-                          {area}
-                        </Badge>
-                      ))}
-                      {task.businessAreas.length > 2 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{task.businessAreas.length - 2}
-                        </Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <ExternalLink className="w-4 h-4 text-muted-foreground" />
-                      <div className="text-xs text-muted-foreground">
-                        <div>Gov: {task.governmentLinks.length}</div>
-                        <div>Map: {task.mapLinks.length}</div>
-                      </div>
-                    </div>
+                    <p className="text-sm text-foreground">{task.stepOrder}</p>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-2">
@@ -120,20 +89,21 @@ const TasksTable = ({ tasks, onView, onEdit, onDelete }: TasksTableProps) => {
                       </Button>
                       <Button
                         size="sm"
-                        onClick={() => onEdit(task)}
-                        className="h-8 bg-blue-600 hover:bg-blue-700 text-white"
+                        variant="outline"
+                        onClick={() => onEditGoal(task.goalId)}
+                        className="h-8"
                       >
                         <Edit className="w-4 h-4 mr-1" />
-                        Edit
+                        Edit Goal
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
-                        onClick={() => onDelete(task.id)}
+                        onClick={() => onDeleteGoal(task.goalId)}
                         className="h-8"
                       >
                         <Trash2 className="w-4 h-4 mr-1" />
-                        Delete
+                        Delete Goal
                       </Button>
                     </div>
                   </TableCell>

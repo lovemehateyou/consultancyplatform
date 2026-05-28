@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/authContext";
 import { useToast } from "@/hooks/use-toast";
+import { BUSINESS_AREAS, BUSINESS_TYPES } from "@/constants/businessOptions";
 
 interface PersonalInfo {
   userName: string;
@@ -56,30 +57,6 @@ const defaultBusiness: BusinessInfo = {
   TIN: "",
   agreedToTerms: false,
 };
-
-const businessTypes = [
-  "PLC (Private Limited Company)",
-  "Sole Proprietorship",
-  "Partnership",
-  "Franchise",
-  "LLC (Limited Liability Company)",
-  "Corporation",
-  "Non-Profit Organization",
-];
-
-const businessAreas = [
-  "Sales",
-  "Services",
-  "Manufacturing",
-  "Retail",
-  "Technology",
-  "Healthcare",
-  "Education",
-  "Construction",
-  "Food & Beverage",
-  "Transportation",
-];
-
 
 const loadDraft = (): RegistrationDraft | null => {
   if (typeof window === "undefined") return null;
@@ -256,9 +233,11 @@ const UserRegistrationBusiness = () => {
                   className="h-12 text-left text-sm text-muted-foreground border-2 border-black rounded-lg bg-transparent"
                   value={business.BusinessType}
                   onChange={handleInputChange("BusinessType")}
+                  aria-label="Business type"
                   disabled={loading}
                 >
-                  {businessTypes.map((type) => (
+                  <option value="" disabled>Select Business Type</option>
+                  {BUSINESS_TYPES.map((type) => (
                     <option key={type} value={type}>
                       {type}
                     </option>
@@ -270,17 +249,15 @@ const UserRegistrationBusiness = () => {
                   className="h-12 text-left text-sm text-muted-foreground border-2 border-black rounded-lg bg-transparent"
                   value={business.Business}
                   onChange={handleInputChange("Business")}
+                  aria-label="Business area"
                   disabled={loading}
                 >
                   <option value="" disabled>Select Business Area</option>
-                  {businessAreas.map((area) => (
+                  {BUSINESS_AREAS.map((area) => (
                     <option key={area} value={area}>
                       {area}
                     </option>
                   ))}
-                  <option value="Legal Work">Legal Work</option>
-                  <option value="Services">Services</option>
-                  <option value="Technologies">Technologies</option>
                 </select>
 
                 <Input

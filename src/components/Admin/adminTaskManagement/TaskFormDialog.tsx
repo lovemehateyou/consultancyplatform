@@ -1,382 +1,481 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
+import type { CreateGoalPayload, Goal } from "@/services/goals";
+import { BUSINESS_AREAS, BUSINESS_TYPES } from "@/constants/businessOptions";
 
 export interface Task {
-  id: string;
-  name: string;
-  consultantType: string;
-  details: string;
-  businessTypes: string[];
-  businessAreas: string[];
-  governmentLinks: string[];
-  mapLinks: TaskMapLink[];
-  order: number;
+	id: number;
+	goalId: number;
+	title: string;
+	description?: string | null;
+	stepOrder: number;
+	mapLinks?: MapLinkDraft[];
+	goalTitle: string;
+	goalCategory: string;
+	goalBusinessArea?: string | null;
+	goalBusinessType?: string | null;
+	goalDescription?: string | null;
 }
 
-export interface TaskMapLink {
-  url: string;
-  city: string;
-  subCity: string;
-}
+type MapLinkDraft = {
+	city: string;
+	subCity: string;
+	url: string;
+};
+
+type TaskDraft = {
+	id?: number;
+	title: string;
+	description: string;
+	stepOrder: number;
+	mapLinks: MapLinkDraft[];
+};
 
 interface TaskFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  task: Task | null;
-  onSave: (task: Omit<Task, "id"> & { id?: string }) => void;
-  mode: "add" | "edit";
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+	goal?: Goal | null;
+	mode: "add" | "edit";
+	onSave: (payload: CreateGoalPayload) => void;
+	isSaving?: boolean;
 }
 
-const consultantTypes = [
-  "Law Consultant",
-  "Finance Consultant",
-  "Tax Consultant",
-  "Business Consultant",
-  "HR Consultant",
-  "Marketing Consultant",
-];
+const TaskFormDialog = ({
+	open,
+	onOpenChange,
+	goal,
+	mode,
+	onSave,
+	isSaving = false,
+}: TaskFormDialogProps) => {
+	const [goalTitle, setGoalTitle] = useState("");
+	const [goalCategory, setGoalCategory] = useState("");
+	const [goalDescription, setGoalDescription] = useState("");
+	const [goalBusinessArea, setGoalBusinessArea] = useState("");
+	const [goalBusinessType, setGoalBusinessType] = useState("");
+	const [tasks, setTasks] = useState<TaskDraft[]>([
+		{ title: "", description: "", stepOrder: 1, mapLinks: [] },
+	]);
 
-const businessTypes = [
-  "PLC (Private Limited Company)",
-  "Sole Proprietorship",
-  "Partnership",
-  "Franchise",
-  "LLC (Limited Liability Company)",
-  "Corporation",
-  "Non-Profit Organization",
-];
+	useEffect(() => {
+		if (!open) return;
+		if (mode === "edit" && goal) {
+			setGoalTitle(goal.title ?? "");
+			setGoalCategory(goal.category ?? "");
+			setGoalDescription(goal.description ?? "");
+			setGoalBusinessArea(goal.businessArea ?? "");
+			setGoalBusinessType(goal.businessType ?? "");
+			const orderedTasks = [...(goal.Tasks ?? [])].sort(
+				(a, b) => a.stepOrder - b.stepOrder,
+			);
+			setTasks(
+				orderedTasks.length
+					? orderedTasks.map((task) => ({
+							id: task.id,
+							title: task.title,
+							description: task.description ?? "",
+							stepOrder: task.stepOrder,
+							mapLinks: (task.mapLinks ?? []).map((link) => ({
+								city: link.city ?? "",
+								subCity: link.subCity ?? "",
+								url: link.url ?? "",
+							})),
+						}))
+					: [{ title: "", description: "", stepOrder: 1, mapLinks: [] }],
+			);
+			return;
+		}
 
-const businessAreas = [
-  "Sales",
-  "Services",
-  "Manufacturing",
-  "Retail",
-  "Technology",
-  "Healthcare",
-  "Education",
-  "Construction",
-  "Food & Beverage",
-  "Transportation",
-];
+		setGoalTitle("");
+		setGoalCategory("");
+		setGoalDescription("");
+		setGoalBusinessArea("");
+		setGoalBusinessType("");
+		setTasks([{ title: "", description: "", stepOrder: 1, mapLinks: [] }]);
+	}, [open, goal, mode]);
 
-const TaskFormDialog = ({ open, onOpenChange, task, onSave, mode }: TaskFormDialogProps) => {
-  const [name, setName] = useState("");
-  const [consultantType, setConsultantType] = useState("");
-  const [details, setDetails] = useState("");
-  const [selectedBusinessTypes, setSelectedBusinessTypes] = useState<string[]>([]);
-  const [selectedBusinessAreas, setSelectedBusinessAreas] = useState<string[]>([]);
-  const [governmentLinks, setGovernmentLinks] = useState<string[]>([""]);
-  const [mapLinks, setMapLinks] = useState<TaskMapLink[]>([
-    { url: "", city: "", subCity: "" },
-  ]);
-  const [order, setOrder] = useState(1);
+	const hasValidTask = useMemo(
+		() => tasks.some((task) => task.title.trim().length > 0),
+		[tasks],
+	);
+	const hasBusinessTarget =
+		goalBusinessArea.trim().length > 0 || goalBusinessType.trim().length > 0;
+	const canSave =
+		goalTitle.trim().length > 0 &&
+		goalCategory.trim().length > 0 &&
+		hasBusinessTarget &&
+		hasValidTask;
 
-  useEffect(() => {
-    if (task && mode === "edit") {
-      setName(task.name);
-      setConsultantType(task.consultantType);
-      setDetails(task.details);
-      setSelectedBusinessTypes(task.businessTypes);
-      setSelectedBusinessAreas(task.businessAreas);
-      setGovernmentLinks(task.governmentLinks.length > 0 ? task.governmentLinks : [""]);
-      setMapLinks(
-        task.mapLinks.length > 0 ? task.mapLinks : [{ url: "", city: "", subCity: "" }]
-      );
-      setOrder(task.order ?? 1);
-    } else {
-      setName("");
-      setConsultantType("");
-      setDetails("");
-      setSelectedBusinessTypes([]);
-      setSelectedBusinessAreas([]);
-      setGovernmentLinks([""]);
-      setMapLinks([{ url: "", city: "", subCity: "" }]);
-      setOrder(1);
-    }
-  }, [task, mode, open]);
+	const handleTaskChange = (
+		index: number,
+		field: keyof TaskDraft,
+		value: string,
+	) => {
+		setTasks((prev) =>
+			prev.map((task, i) =>
+				i === index
+					? {
+							...task,
+							[field]:
+								field === "stepOrder"
+									? Math.max(1, Number(value) || 1)
+									: value,
+						}
+					: task,
+			),
+		);
+	};
 
-  const handleBusinessTypeToggle = (type: string) => {
-    setSelectedBusinessTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-    );
-  };
+	const handleAddTask = () => {
+		setTasks((prev) => [
+			...prev,
+			{ title: "", description: "", stepOrder: prev.length + 1, mapLinks: [] },
+		]);
+	};
 
-  const handleBusinessAreaToggle = (area: string) => {
-    setSelectedBusinessAreas((prev) =>
-      prev.includes(area) ? prev.filter((a) => a !== area) : [...prev, area]
-    );
-  };
+	const handleRemoveTask = (index: number) => {
+		setTasks((prev) => prev.filter((_, i) => i !== index));
+	};
 
-  const handleAddLink = () => {
-    setGovernmentLinks((prev) => [...prev, ""]);
-  };
+	const handleMapLinkChange = (
+		taskIndex: number,
+		linkIndex: number,
+		field: keyof MapLinkDraft,
+		value: string,
+	) => {
+		setTasks((prev) =>
+			prev.map((task, idx) => {
+				if (idx !== taskIndex) return task;
+				const mapLinks = task.mapLinks.map((link, mapIndex) =>
+					mapIndex === linkIndex ? { ...link, [field]: value } : link,
+				);
+				return { ...task, mapLinks };
+			}),
+		);
+	};
 
-  const handleRemoveLink = (index: number) => {
-    setGovernmentLinks((prev) => prev.filter((_, i) => i !== index));
-  };
+	const handleAddMapLink = (taskIndex: number) => {
+		setTasks((prev) =>
+			prev.map((task, idx) =>
+				idx === taskIndex
+					? {
+							...task,
+							mapLinks: [...task.mapLinks, { city: "", subCity: "", url: "" }],
+						}
+					: task,
+				),
+		);
+	};
 
-  const handleLinkChange = (index: number, value: string) => {
-    setGovernmentLinks((prev) => prev.map((link, i) => (i === index ? value : link)));
-  };
+	const handleRemoveMapLink = (taskIndex: number, linkIndex: number) => {
+		setTasks((prev) =>
+			prev.map((task, idx) =>
+				idx === taskIndex
+					? {
+							...task,
+							mapLinks: task.mapLinks.filter((_, i) => i !== linkIndex),
+						}
+					: task,
+				),
+		);
+	};
 
-  const handleAddMapLink = () => {
-    setMapLinks((prev) => [...prev, { url: "", city: "", subCity: "" }]);
-  };
+	const handleSave = () => {
+		const normalizedTasks = tasks
+			.map((task, index) => ({
+				id: task.id,
+				title: task.title.trim(),
+				description: task.description.trim() || undefined,
+				stepOrder: Number.isFinite(task.stepOrder)
+					? task.stepOrder
+					: index + 1,
+				mapLinks: task.mapLinks
+					.map((link) => ({
+						city: link.city.trim() || undefined,
+						subCity: link.subCity.trim(),
+						url: link.url.trim(),
+					}))
+					.filter((link) => link.subCity && link.url),
+			}))
+			.filter((task) => task.title.length > 0);
 
-  const handleRemoveMapLink = (index: number) => {
-    setMapLinks((prev) => prev.filter((_, i) => i !== index));
-  };
+		const payload: CreateGoalPayload = {
+			title: goalTitle.trim(),
+			category: goalCategory.trim(),
+			businessArea: goalBusinessArea.trim() || undefined,
+			businessType: goalBusinessType.trim() || undefined,
+			description: goalDescription.trim() || undefined,
+			tasks: normalizedTasks,
+		};
 
-  const handleMapLinkChange = (
-    index: number,
-    field: keyof TaskMapLink,
-    value: string
-  ) => {
-    setMapLinks((prev) =>
-      prev.map((link, i) => (i === index ? { ...link, [field]: value } : link))
-    );
-  };
+		onSave(payload);
+	};
 
-  const handleSave = () => {
-    const filteredLinks = governmentLinks.filter((link) => link.trim() !== "");
-    const filteredMapLinks = mapLinks.filter(
-      (link) => link.url.trim() && link.city.trim() && link.subCity.trim()
-    );
-    
-    onSave({
-      id: task?.id,
-      name,
-      consultantType,
-      details,
-      businessTypes: selectedBusinessTypes,
-      businessAreas: selectedBusinessAreas,
-      governmentLinks: filteredLinks,
-      mapLinks: filteredMapLinks,
-      order,
-    });
-    onOpenChange(false);
-  };
+	return (
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+				<DialogHeader>
+					<DialogTitle>
+						{mode === "edit" ? "Edit Goal and Tasks" : "Create Goal and Tasks"}
+					</DialogTitle>
+				</DialogHeader>
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{mode === "add" ? "Add New Task" : "Edit Task"}</DialogTitle>
-        </DialogHeader>
+				<div className="space-y-6 py-4">
+					<div className="space-y-2">
+						<Label htmlFor="goal-title">Goal Title</Label>
+						<Input
+							id="goal-title"
+							placeholder="e.g., Business Registration"
+							value={goalTitle}
+							onChange={(event) => setGoalTitle(event.target.value)}
+						/>
+					</div>
 
-        <div className="space-y-6 py-4">
-          {/* Task Name */}
-          <div className="space-y-2">
-            <Label htmlFor="name">Task Name</Label>
-            <Input
-              id="name"
-              placeholder="e.g., Getting a TIN Number"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
+					<div className="space-y-2">
+						<Label htmlFor="goal-category">Goal Category</Label>
+						<Input
+							id="goal-category"
+							placeholder="e.g., Compliance"
+							value={goalCategory}
+							onChange={(event) => setGoalCategory(event.target.value)}
+						/>
+					</div>
 
-          {/* Consultant Type */}
-          <div className="space-y-2">
-            <Label>Consultant Type Needed</Label>
-            <Select value={consultantType} onValueChange={setConsultantType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select consultant type" />
-              </SelectTrigger>
-              <SelectContent>
-                {consultantTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+					<div className="grid gap-4 md:grid-cols-2">
+						<div className="space-y-2">
+							<Label htmlFor="goal-business-area">Business Area</Label>
+							<select
+								id="goal-business-area"
+								value={goalBusinessArea}
+								onChange={(event) => setGoalBusinessArea(event.target.value)}
+								className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+								aria-label="Goal business area"
+							>
+								<option value="">All areas</option>
+								{BUSINESS_AREAS.map((area) => (
+									<option key={area} value={area}>
+										{area}
+									</option>
+								))}
+							</select>
+						</div>
+						<div className="space-y-2">
+							<Label htmlFor="goal-business-type">Business Type</Label>
+							<select
+								id="goal-business-type"
+								value={goalBusinessType}
+								onChange={(event) => setGoalBusinessType(event.target.value)}
+								className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+								aria-label="Goal business type"
+							>
+								<option value="">All types</option>
+								{BUSINESS_TYPES.map((type) => (
+									<option key={type} value={type}>
+										{type}
+									</option>
+								))}
+							</select>
+						</div>
+						<p className="text-xs text-muted-foreground md:col-span-2">
+							Provide at least one: business area or business type.
+						</p>
+					</div>
 
-          {/* Task Details */}
-          <div className="space-y-2">
-            <Label htmlFor="details">Task Details</Label>
-            <Textarea
-              id="details"
-              placeholder="Describe the task requirements, steps, and any important information..."
-              className="min-h-[120px]"
-              value={details}
-              onChange={(e) => setDetails(e.target.value)}
-            />
-          </div>
+					<div className="space-y-2">
+						<Label htmlFor="goal-description">Goal Description</Label>
+						<Textarea
+							id="goal-description"
+							placeholder="Optional goal overview"
+							value={goalDescription}
+							onChange={(event) => setGoalDescription(event.target.value)}
+						/>
+					</div>
 
-          {/* Completion Order */}
-          <div className="space-y-2">
-            <Label htmlFor="order">Completion Order</Label>
-            <Input
-              id="order"
-              type="number"
-              min={1}
-              value={order}
-              onChange={(e) => setOrder(Math.max(1, Number(e.target.value) || 1))}
-            />
-          </div>
+					<div className="space-y-3">
+						<div className="flex items-center justify-between">
+							<Label>Tasks</Label>
+							<Button type="button" variant="outline" size="sm" onClick={handleAddTask}>
+								<Plus className="w-4 h-4 mr-2" />
+								Add Task
+							</Button>
+						</div>
 
-          {/* Business Types */}
-          <div className="space-y-3">
-            <Label>Business Types (Select all that apply)</Label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {businessTypes.map((type) => (
-                <div key={type} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`type-${type}`}
-                    checked={selectedBusinessTypes.includes(type)}
-                    onCheckedChange={() => handleBusinessTypeToggle(type)}
-                  />
-                  <Label htmlFor={`type-${type}`} className="text-sm font-normal cursor-pointer">
-                    {type}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
+						<div className="space-y-4">
+							{tasks.map((task, index) => (
+								<div
+									key={`task-${index}`}
+									className="rounded-md border border-border p-4 space-y-4"
+								>
+									<div className="flex items-center justify-between">
+										<span className="text-sm font-medium text-foreground">
+											Task {index + 1}
+										</span>
+										{tasks.length > 1 && (
+											<Button
+												type="button"
+												variant="ghost"
+												size="sm"
+												onClick={() => handleRemoveTask(index)}
+											>
+												<Trash2 className="w-4 h-4 mr-1 text-destructive" />
+												Remove
+											</Button>
+										)}
+									</div>
 
-          {/* Business Areas */}
-          <div className="space-y-3">
-            <Label>Business Areas (Select all that apply)</Label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {businessAreas.map((area) => (
-                <div key={area} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`area-${area}`}
-                    checked={selectedBusinessAreas.includes(area)}
-                    onCheckedChange={() => handleBusinessAreaToggle(area)}
-                  />
-                  <Label htmlFor={`area-${area}`} className="text-sm font-normal cursor-pointer">
-                    {area}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
+									<div className="grid gap-4">
+										<div className="space-y-2">
+											<Label htmlFor={`task-title-${index}`}>Task Title</Label>
+											<Input
+												id={`task-title-${index}`}
+												placeholder="e.g., Submit application"
+												value={task.title}
+												onChange={(event) =>
+													handleTaskChange(index, "title", event.target.value)
+												}
+											/>
+										</div>
 
-          {/* Government Links */}
-          <div className="space-y-3">
-            <Label>Government Website Links</Label>
-            <div className="space-y-2">
-              {governmentLinks.map((link, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <Input
-                    placeholder="https://example.gov/..."
-                    value={link}
-                    onChange={(e) => handleLinkChange(index, e.target.value)}
-                    className="flex-1"
-                  />
-                  {governmentLinks.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => handleRemoveLink(index)}
-                      className="shrink-0"
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddLink}
-                className="mt-2"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Another Link
-              </Button>
-            </div>
-          </div>
+										<div className="space-y-2">
+											<Label htmlFor={`task-step-${index}`}>Step Order</Label>
+											<Input
+												id={`task-step-${index}`}
+												type="number"
+												min={1}
+												value={task.stepOrder}
+												onChange={(event) =>
+													handleTaskChange(index, "stepOrder", event.target.value)
+												}
+											/>
+										</div>
 
-          {/* Map Links */}
-          <div className="space-y-3">
-            <Label>Map Links (City and Sub-City)</Label>
-            <div className="space-y-2">
-              {mapLinks.map((link, index) => (
-                <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                  <Input
-                    placeholder="https://maps.google.com/..."
-                    value={link.url}
-                    onChange={(e) => handleMapLinkChange(index, "url", e.target.value)}
-                  />
-                  <Input
-                    placeholder="City"
-                    value={link.city}
-                    onChange={(e) => handleMapLinkChange(index, "city", e.target.value)}
-                  />
-                  <div className="flex items-center gap-2">
-                    <Input
-                      placeholder="Sub-city"
-                      value={link.subCity}
-                      onChange={(e) => handleMapLinkChange(index, "subCity", e.target.value)}
-                      className="flex-1"
-                    />
-                    {mapLinks.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleRemoveMapLink(index)}
-                        className="shrink-0"
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddMapLink}
-                className="mt-2"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Another Location
-              </Button>
-            </div>
-          </div>
-        </div>
+										<div className="space-y-2">
+											<Label htmlFor={`task-description-${index}`}>Task Description</Label>
+											<Textarea
+												id={`task-description-${index}`}
+												placeholder="Optional task details"
+												value={task.description}
+												onChange={(event) =>
+													handleTaskChange(index, "description", event.target.value)
+												}
+											/>
+										</div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSave}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-            disabled={!name.trim()}
-          >
-            {mode === "add" ? "Add Task" : "Save Changes"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
+										<div className="space-y-3">
+											<div className="flex items-center justify-between">
+												<Label>Map Links</Label>
+												<Button
+													type="button"
+													variant="outline"
+													size="sm"
+													onClick={() => handleAddMapLink(index)}
+												>
+													<Plus className="w-4 h-4 mr-2" />
+													Add Location
+												</Button>
+											</div>
+
+											{task.mapLinks.length === 0 ? (
+												<p className="text-xs text-muted-foreground">
+													No locations added yet.
+												</p>
+											) : (
+												<div className="space-y-3">
+													{task.mapLinks.map((link, linkIndex) => (
+														<div
+															key={`map-link-${index}-${linkIndex}`}
+															className="rounded-md border border-border p-3 space-y-3"
+														>
+															<div className="flex items-center justify-between">
+																<span className="text-xs font-semibold text-muted-foreground">
+																	Location {linkIndex + 1}
+																</span>
+																<Button
+																	type="button"
+																	variant="ghost"
+																	size="sm"
+																	onClick={() => handleRemoveMapLink(index, linkIndex)}
+																>
+																	<Trash2 className="w-4 h-4 mr-1 text-destructive" />
+																	Remove
+																</Button>
+															</div>
+															<div className="grid gap-3 md:grid-cols-3">
+																<div className="space-y-2">
+																	<Label htmlFor={`map-city-${index}-${linkIndex}`}>City</Label>
+																	<Input
+																		id={`map-city-${index}-${linkIndex}`}
+																		placeholder="e.g., Addis Ababa"
+																		value={link.city}
+																		onChange={(event) =>
+																			handleMapLinkChange(index, linkIndex, "city", event.target.value)
+																		}
+																	/>
+																</div>
+																<div className="space-y-2">
+																	<Label htmlFor={`map-subcity-${index}-${linkIndex}`}>Sub-city</Label>
+																	<Input
+																		id={`map-subcity-${index}-${linkIndex}`}
+																		placeholder="e.g., Bole"
+																		value={link.subCity}
+																		onChange={(event) =>
+																			handleMapLinkChange(index, linkIndex, "subCity", event.target.value)
+																		}
+																	/>
+																</div>
+																<div className="space-y-2">
+																	<Label htmlFor={`map-url-${index}-${linkIndex}`}>Google Maps Link</Label>
+																	<Input
+																		id={`map-url-${index}-${linkIndex}`}
+																		placeholder="https://maps.google.com/..."
+																		value={link.url}
+																		onChange={(event) =>
+																			handleMapLinkChange(index, linkIndex, "url", event.target.value)
+																		}
+																	/>
+																</div>
+															</div>
+														</div>
+													))}
+												</div>
+											)}
+										</div>
+									</div>
+								</div>
+							))}
+						</div>
+					</div>
+				</div>
+
+				<div className="flex justify-end gap-3 pt-4 border-t">
+					<Button variant="outline" onClick={() => onOpenChange(false)}>
+						Cancel
+					</Button>
+					<Button
+						onClick={handleSave}
+						className="bg-blue-600 hover:bg-blue-700 text-white"
+						disabled={!canSave || isSaving}
+					>
+						{isSaving
+							? "Saving..."
+							: mode === "edit"
+								? "Save Changes"
+								: "Create Goal"}
+					</Button>
+				</div>
+			</DialogContent>
+		</Dialog>
+	);
 };
 
 export default TaskFormDialog;

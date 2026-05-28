@@ -6,8 +6,8 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, User, FileText, Building2, Briefcase, Link as LinkIcon, MapPin } from "lucide-react";
-import type { Task } from "./TaskFormDialog";
+import { Briefcase, ExternalLink, FileText, Flag, Layers, MapPin } from "lucide-react";
+import type { Task } from "./TaskFormDialog.tsx";
 
 interface TaskViewDialogProps {
   open: boolean;
@@ -22,19 +22,41 @@ const TaskViewDialog = ({ open, onOpenChange, task }: TaskViewDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl">{task.name}</DialogTitle>
+          <DialogTitle className="text-xl">{task.title}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Consultant Type */}
+          {/* Goal Info */}
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <User className="w-4 h-4" />
-              <span>Consultant Type Required</span>
+              <Flag className="w-4 h-4" />
+              <span>Goal</span>
             </div>
-            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">
-              {task.consultantType || "Not specified"}
-            </Badge>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">
+                {task.goalTitle}
+              </Badge>
+              <Badge variant="outline">{task.goalCategory}</Badge>
+            </div>
+            {task.goalDescription ? (
+              <p className="text-sm text-muted-foreground">{task.goalDescription}</p>
+            ) : null}
+          </div>
+
+          {/* Business Target */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Briefcase className="w-4 h-4" />
+              <span>Business target</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline">
+                {task.goalBusinessArea || "All areas"}
+              </Badge>
+              <Badge variant="outline">
+                {task.goalBusinessType || "All types"}
+              </Badge>
+            </div>
           </div>
 
           {/* Task Details */}
@@ -44,103 +66,45 @@ const TaskViewDialog = ({ open, onOpenChange, task }: TaskViewDialogProps) => {
               <span>Task Details</span>
             </div>
             <p className="text-foreground bg-muted/50 p-4 rounded-lg whitespace-pre-wrap">
-              {task.details || "No details provided."}
+              {task.description || "No details provided."}
             </p>
           </div>
 
-          {/* Business Types */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Building2 className="w-4 h-4" />
-              <span>Applicable Business Types</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {task.businessTypes.length > 0 ? (
-                task.businessTypes.map((type) => (
-                  <Badge key={type} variant="outline">
-                    {type}
-                  </Badge>
-                ))
-              ) : (
-                <span className="text-sm text-muted-foreground">None selected</span>
-              )}
-            </div>
-          </div>
-
-          {/* Business Areas */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Briefcase className="w-4 h-4" />
-              <span>Applicable Business Areas</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {task.businessAreas.length > 0 ? (
-                task.businessAreas.map((area) => (
-                  <Badge key={area} variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                    {area}
-                  </Badge>
-                ))
-              ) : (
-                <span className="text-sm text-muted-foreground">None selected</span>
-              )}
-            </div>
-          </div>
-
-          {/* Government Links */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <LinkIcon className="w-4 h-4" />
-              <span>Government Website Links</span>
-            </div>
+          {task.mapLinks && task.mapLinks.length > 0 ? (
             <div className="space-y-2">
-              {task.governmentLinks.length > 0 ? (
-                task.governmentLinks.map((link, index) => (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin className="w-4 h-4" />
+                <span>Map Links</span>
+              </div>
+              <div className="space-y-2">
+                {task.mapLinks.map((link, index) => (
                   <a
-                    key={index}
-                    href={link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:underline"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    {link}
-                  </a>
-                ))
-              ) : (
-                <span className="text-sm text-muted-foreground">No links provided</span>
-              )}
-            </div>
-          </div>
-
-          {/* Map Links */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin className="w-4 h-4" />
-              <span>Map Links by Location</span>
-            </div>
-            <div className="space-y-2">
-              {task.mapLinks.length > 0 ? (
-                task.mapLinks.map((link, index) => (
-                  <a
-                    key={index}
+                    key={`${link.url}-${index}`}
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/30 px-3 py-2 text-sm"
+                    className="flex items-center justify-between gap-3 rounded-md border border-border bg-background px-3 py-2 text-sm"
                   >
                     <span className="flex items-center gap-2 text-blue-600 hover:text-blue-700">
                       <ExternalLink className="w-4 h-4" />
                       {link.url}
                     </span>
                     <span className="text-muted-foreground">
-                      {link.city} · {link.subCity}
+                      {link.city || ""}{link.city && link.subCity ? " · " : ""}{link.subCity}
                     </span>
                   </a>
-                ))
-              ) : (
-                <span className="text-sm text-muted-foreground">No map links provided</span>
-              )}
+                ))}
+              </div>
             </div>
+          ) : null}
+
+          {/* Step Order */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Layers className="w-4 h-4" />
+              <span>Step Order</span>
+            </div>
+            <p className="text-sm text-foreground">{task.stepOrder}</p>
           </div>
         </div>
 

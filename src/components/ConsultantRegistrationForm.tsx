@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/authContext";
 import { Link, useNavigate } from "react-router-dom";
+import { BUSINESS_AREAS, BUSINESS_TYPES } from "@/constants/businessOptions";
 
 interface RegistrationFormProps {
   onSubmit?: (data: RegistrationData) => void;
@@ -199,26 +200,30 @@ const RegistrationForm = ({
               className="h-12 text-center text-sm text-muted-foreground border-border rounded-lg bg-transparent"
               value={formData.BusinessType}
               onChange={handleInputChange("BusinessType")}
+              aria-label="Business type"
               disabled={loading}
             >
               <option value="" disabled>Select Business Type</option>
-              <option value="Sole Proprietorship">Sole Proprietorship</option>
-              <option value="Partnership">Partnership</option>
-              <option value="Corporation">Corporation</option>
-              <option value="LLC">LLC</option>
+              {BUSINESS_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
             </select>
 
             <select
               className="h-12 text-center text-sm text-muted-foreground border-border rounded-lg bg-transparent"
               value={formData.Business}
               onChange={handleInputChange("Business")}
+              aria-label="Business area"
               disabled={loading}
             >
               <option value="" disabled>Select Business Area</option>
-              <option value="Sales">Sales</option>
-              <option value="Legal Work">Legal Work</option>
-              <option value="Services">Services</option>
-              <option value="Technologies">Technologies</option>
+              {BUSINESS_AREAS.map((area) => (
+                <option key={area} value={area}>
+                  {area}
+                </option>
+              ))}
             </select>
 
           </div>

@@ -1,40 +1,74 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import KPICards from "./KPICards";
 import ProgressWheel from "./ProgressWheel";
 import TasksTable, { Task } from "./TasksTable";
 import { useAuth } from "@/context/authContext";
 import { Sparkles } from "lucide-react";
-
-const initialTasks: Task[] = [
-  {
-    id: "1",
-    name: "Getting your Trade ID ",
-    status: "Active",
-    role: "Law Consultant",
-    email: "olivia@untitledui.com",
-    mapLinks: [],
-  },
-  {
-    id: "2",
-    name: "Registering For VAT Certificate",
-    status: "Active",
-    role: "Finance Consultant",
-    email: "phoenix@untitledui.com",
-    mapLinks: [],
-  },
-  {
-    id: "3",
-    name: "Registering Buisness Sectors",
-    status: "Active",
-    role: "Business consultant",
-    email: "lana@untitledui.com",
-    mapLinks: [],
-  },
-];
+import { completeTask, listMyGoals, type UserGoal } from "@/services/goals";
 
 const DashboardContent = () => {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { user } = useAuth();
+
+  const buildTasksFromGoals = useCallback((goals: UserGoal[]): Task[] => {
+    const mapped = goals.flatMap((userGoal) => {
+      const goal = userGoal.Goal;
+      const progressRows =
+        userGoal.UserTaskProgresses ?? userGoal.UserTaskProgress ?? [];
+
+      return progressRows
+        .map((progress) => {
+          const task = progress.Task;
+          if (!task) return null;
+
+          return {
+            id: task.id,
+            taskId: task.id,
+            userGoalId: userGoal.id,
+            name: task.title,
+            status: progress.isCompleted ? "Completed" : "Active",
+            goalTitle: goal?.title ?? "Goal",
+            goalCategory: goal?.category ?? "General",
+            goalBusinessArea: goal?.businessArea ?? null,
+            goalBusinessType: goal?.businessType ?? null,
+            taskDescription: task.description ?? null,
+            goalDescription: goal?.description ?? null,
+            stepOrder: task.stepOrder,
+            mapLinks: task.mapLinks ?? [],
+          } as Task;
+        })
+        .filter((task): task is Task => Boolean(task));
+    });
+
+    return mapped.sort((a, b) => {
+      if (a.goalTitle !== b.goalTitle) {
+        return a.goalTitle.localeCompare(b.goalTitle);
+      }
+      return a.stepOrder - b.stepOrder;
+    });
+  }, []);
+
+  const fetchGoals = useCallback(async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const response = await listMyGoals();
+      setTasks(buildTasksFromGoals(response));
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to load your tasks.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [buildTasksFromGoals]);
+
+  useEffect(() => {
+    void fetchGoals();
+  }, [fetchGoals]);
 
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter((t) => t.status === "Completed").length;
@@ -42,12 +76,24 @@ const DashboardContent = () => {
   const currentProgress = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
   const progressLeft = 100 - currentProgress;
 
-  const handleCompleteTask = (taskId: string) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId ? { ...task, status: "Completed" as const } : task,
-      ),
-    );
+  const handleCompleteTask = async (task: Task) => {
+    setIsSaving(true);
+    setErrorMessage(null);
+    try {
+      await completeTask({
+        userGoalId: task.userGoalId,
+        taskId: task.taskId,
+      });
+      await fetchGoals();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Failed to complete the task.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const firstName = user?.name?.split(" ")[0] ?? "there";
@@ -90,6 +136,11 @@ const DashboardContent = () => {
       </section>
 
       <div className="space-y-6">
+        {errorMessage ? (
+          <div className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            {errorMessage}
+          </div>
+        ) : null}
         <KPICards
           totalTasks={totalTasks}
           completedTasks={completedTasks}
@@ -107,9 +158,12 @@ const DashboardContent = () => {
               <p className="text-sm text-muted-foreground">Track and manage your business setup tasks</p>
             </div>
           </div>
+          {isLoading ? (
+            <p className="text-sm text-muted-foreground px-1">Loading tasks...</p>
+          ) : null}
           <TasksTable
             tasks={tasks}
-            onCompleteTask={handleCompleteTask}
+            onCompleteTask={isSaving ? undefined : handleCompleteTask}
             userCity={user?.businessCity ?? ""}
             userSubCity={user?.businessSubCity ?? ""}
           />
