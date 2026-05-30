@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/authContext";
 import { changePassword, getProfile, updateProfile } from "@/services/users";
+import ConsultantTestimonialsTab from "@/components/consultantSide/consultantManagement/TestimonialsTab";
 import {
   Briefcase,
   Camera,
@@ -20,6 +21,7 @@ import {
   Phone,
   RotateCcw,
   Save,
+  Star,
   User,
 } from "lucide-react";
 
@@ -283,6 +285,12 @@ const ProfileContent = () => {
               <User className="h-4 w-4" /> Profile
             </TabsTrigger>
             <TabsTrigger
+              value="testimonials"
+              className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <Star className="h-4 w-4" /> Testimonials
+            </TabsTrigger>
+            <TabsTrigger
               value="security"
               className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
             >
@@ -387,6 +395,10 @@ const ProfileContent = () => {
               </Card>
             </TabsContent>
           </form>
+
+          <TabsContent value="testimonials" className="mt-4">
+            <ConsultantTestimonialsTab />
+          </TabsContent>
 
           <TabsContent value="security" className="mt-4">
             <Card className="p-6 md:p-8 shadow-sm border-border/50">

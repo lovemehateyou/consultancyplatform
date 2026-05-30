@@ -46,7 +46,7 @@ const Whychooseus = () => {
   const navigate = useNavigate()
 
    const handleTrialClick = () => {
-    navigate("/accountselection");
+    navigate("/userregistration");
   }
 
 

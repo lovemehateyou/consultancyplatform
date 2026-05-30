@@ -41,7 +41,7 @@ const FeaturesSection = () => {
   const navigate = useNavigate()
 
    const handleTrialClick = () => {
-    navigate("/accountselection");
+    navigate("/userregistration");
   }
 
 
@@ -77,7 +77,7 @@ const FeaturesSection = () => {
         <div className="text-center mt-16">
           <div className="bg-blue-600 p-8 rounded-2xl shadow-glow">
             <h3 className="text-2xl font-bold text-primary-foreground mb-4">
-              Ready to Transform Your Restaurant?
+              Ready to Transform Your Business?
             </h3>
             <p className="text-primary-foreground/90 mb-6 max-w-2xl mx-auto">
             Join hundreds of Ethiopian Businesses already using Us to have better  

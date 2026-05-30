@@ -37,7 +37,7 @@ const HeroSection = () => {
               launching fast and growing with clarity.
             </p>
             <Link
-              to="/accountselection"
+              to="/userregistration"
               className="inline-flex items-center justify-center bg-[#5651FF] hover:bg-[#433AE6] text-white font-semibold rounded-2xl px-8 py-4 text-lg shadow-lg shadow-indigo-200 transition-colors"
             >
               Get Started Free
