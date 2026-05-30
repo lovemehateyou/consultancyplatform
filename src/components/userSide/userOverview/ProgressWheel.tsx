@@ -15,7 +15,7 @@ const ProgressWheel = ({ completed, remaining }: ProgressWheelProps) => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-lg font-semibold text-foreground tracking-tight">Progress Wheel</h3>
-          <p className="text-sm text-muted-foreground">Visual overview of your task completion</p>
+          <p className="text-sm text-muted-foreground">Visual overview of your average goal completion</p>
         </div>
       </div>
 
@@ -46,7 +46,7 @@ const ProgressWheel = ({ completed, remaining }: ProgressWheelProps) => {
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-3xl font-bold text-foreground tracking-tight">{completed}%</span>
             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mt-1">
-              Completed
+              Goals Complete
             </span>
           </div>
         </div>
@@ -55,14 +55,14 @@ const ProgressWheel = ({ completed, remaining }: ProgressWheelProps) => {
           <div className="flex items-center justify-between gap-6 rounded-xl border border-border/60 bg-muted/30 px-4 py-3 min-w-[260px]">
             <div className="flex items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-full bg-[hsl(142,71%,45%)]" />
-              <span className="text-sm text-foreground font-medium">Tasks Completed</span>
+              <span className="text-sm text-foreground font-medium">Average Goal Completion</span>
             </div>
             <span className="text-sm font-semibold text-foreground">{completed}%</span>
           </div>
           <div className="flex items-center justify-between gap-6 rounded-xl border border-border/60 bg-muted/30 px-4 py-3 min-w-[260px]">
             <div className="flex items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-full bg-[hsl(217,91%,60%)]" />
-              <span className="text-sm text-foreground font-medium">Tasks Left</span>
+              <span className="text-sm text-foreground font-medium">Goal Completion Left</span>
             </div>
             <span className="text-sm font-semibold text-foreground">{remaining}%</span>
           </div>

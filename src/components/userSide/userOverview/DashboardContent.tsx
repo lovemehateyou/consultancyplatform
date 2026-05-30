@@ -1,54 +1,65 @@
 import { useCallback, useEffect, useState } from "react";
 import KPICards from "./KPICards";
 import ProgressWheel from "./ProgressWheel";
-import TasksTable, { Task } from "./TasksTable";
+import TasksTable, { GoalTaskGroup, Task } from "./TasksTable";
 import { useAuth } from "@/context/authContext";
 import { Sparkles } from "lucide-react";
 import { completeTask, listMyGoals, type UserGoal } from "@/services/goals";
 
 const DashboardContent = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [goals, setGoals] = useState<GoalTaskGroup[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { user } = useAuth();
 
-  const buildTasksFromGoals = useCallback((goals: UserGoal[]): Task[] => {
-    const mapped = goals.flatMap((userGoal) => {
-      const goal = userGoal.Goal;
-      const progressRows =
-        userGoal.UserTaskProgresses ?? userGoal.UserTaskProgress ?? [];
+  const buildGoalsFromGoals = useCallback((userGoals: UserGoal[]): GoalTaskGroup[] => {
+    return userGoals
+      .map((userGoal) => {
+        const goal = userGoal.Goal;
+        const progressRows = userGoal.UserTaskProgresses ?? userGoal.UserTaskProgress ?? [];
+        const tasks = progressRows
+          .map((progress) => {
+            const task = progress.Task;
+            if (!task) return null;
 
-      return progressRows
-        .map((progress) => {
-          const task = progress.Task;
-          if (!task) return null;
+            return {
+              id: task.id,
+              taskId: task.id,
+              userGoalId: userGoal.id,
+              name: task.title,
+              status: progress.isCompleted ? "Completed" : "Active",
+              goalTitle: goal?.title ?? "Goal",
+              goalCategory: goal?.category ?? "General",
+              goalBusinessArea: goal?.businessArea ?? null,
+              goalBusinessType: goal?.businessType ?? null,
+              taskDescription: task.description ?? null,
+              goalDescription: goal?.description ?? null,
+              stepOrder: task.stepOrder,
+              mapLinks: task.mapLinks ?? [],
+            } as Task;
+          })
+          .filter((task): task is Task => Boolean(task))
+          .sort((a, b) => a.stepOrder - b.stepOrder);
 
-          return {
-            id: task.id,
-            taskId: task.id,
-            userGoalId: userGoal.id,
-            name: task.title,
-            status: progress.isCompleted ? "Completed" : "Active",
-            goalTitle: goal?.title ?? "Goal",
-            goalCategory: goal?.category ?? "General",
-            goalBusinessArea: goal?.businessArea ?? null,
-            goalBusinessType: goal?.businessType ?? null,
-            taskDescription: task.description ?? null,
-            goalDescription: goal?.description ?? null,
-            stepOrder: task.stepOrder,
-            mapLinks: task.mapLinks ?? [],
-          } as Task;
-        })
-        .filter((task): task is Task => Boolean(task));
-    });
+        const totalTasks = tasks.length;
+        const completedTasks = tasks.filter((task) => task.status === "Completed").length;
+        const progress = totalTasks ? (completedTasks / totalTasks) * 100 : 0;
 
-    return mapped.sort((a, b) => {
-      if (a.goalTitle !== b.goalTitle) {
-        return a.goalTitle.localeCompare(b.goalTitle);
-      }
-      return a.stepOrder - b.stepOrder;
-    });
+        return {
+          userGoalId: userGoal.id,
+          goalTitle: goal?.title ?? "Goal",
+          goalCategory: goal?.category ?? "General",
+          goalBusinessArea: goal?.businessArea ?? null,
+          goalBusinessType: goal?.businessType ?? null,
+          goalDescription: goal?.description ?? null,
+          progress,
+          completedTasks,
+          totalTasks,
+          tasks,
+        };
+      })
+      .sort((a, b) => a.goalTitle.localeCompare(b.goalTitle));
   }, []);
 
   const fetchGoals = useCallback(async () => {
@@ -56,24 +67,26 @@ const DashboardContent = () => {
     setErrorMessage(null);
     try {
       const response = await listMyGoals();
-      setTasks(buildTasksFromGoals(response));
+      setGoals(buildGoalsFromGoals(response));
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "Failed to load your tasks.",
+        error instanceof Error ? error.message : "Failed to load your goals.",
       );
     } finally {
       setIsLoading(false);
     }
-  }, [buildTasksFromGoals]);
+  }, [buildGoalsFromGoals]);
 
   useEffect(() => {
     void fetchGoals();
   }, [fetchGoals]);
 
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter((t) => t.status === "Completed").length;
+  const totalTasks = goals.reduce((sum, goal) => sum + goal.totalTasks, 0);
+  const completedTasks = goals.reduce((sum, goal) => sum + goal.completedTasks, 0);
   const tasksLeft = totalTasks - completedTasks;
-  const currentProgress = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const currentProgress = goals.length
+    ? Math.round(goals.reduce((sum, goal) => sum + goal.progress, 0) / goals.length)
+    : 0;
   const progressLeft = 100 - currentProgress;
 
   const handleCompleteTask = async (task: Task) => {
@@ -159,10 +172,10 @@ const DashboardContent = () => {
             </div>
           </div>
           {isLoading ? (
-            <p className="text-sm text-muted-foreground px-1">Loading tasks...</p>
+            <p className="text-sm text-muted-foreground px-1">Loading goals...</p>
           ) : null}
           <TasksTable
-            tasks={tasks}
+            goals={goals}
             onCompleteTask={isSaving ? undefined : handleCompleteTask}
             userCity={user?.businessCity ?? ""}
             userSubCity={user?.businessSubCity ?? ""}
