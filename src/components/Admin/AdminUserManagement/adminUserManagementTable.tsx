@@ -10,6 +10,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useNavigate } from "react-router-dom";
 import { ArrowDown, ChevronDown, ChevronUp, HelpCircle, Mail, Phone, Shield } from "lucide-react";
 import {
   Tooltip,
@@ -46,6 +47,7 @@ const ConsultantsTable = ({
 }: ConsultantsTableProps) => {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [roleDrafts, setRoleDrafts] = useState<Record<string, AdminUser["role"]>>({});
+  const navigate = useNavigate();
 
   const toggleRow = (id: string) => {
     setExpandedRows((prev) => {
@@ -126,7 +128,15 @@ const ConsultantsTable = ({
                           <Checkbox />
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+                          <button
+                            type="button"
+                            className={`flex items-center gap-3 text-left transition-opacity ${user.role === "consultant" ? "cursor-pointer hover:opacity-80" : "cursor-default"}`}
+                            onClick={() => {
+                              if (user.role === "consultant") {
+                                navigate(`/admin/usermanagement/consultants/${user.id}/reviews`);
+                              }
+                            }}
+                          >
                             <Avatar className="w-10 h-10">
                               <AvatarImage src={user.profileImage ?? undefined} />
                               <AvatarFallback className="bg-primary/10 text-primary text-sm">
@@ -134,10 +144,12 @@ const ConsultantsTable = ({
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <p className="font-medium text-foreground hover:text-primary">{displayName}</p>
+                              <p className={`font-medium ${user.role === "consultant" ? "text-primary" : "text-foreground"}`}>
+                                {displayName}
+                              </p>
                               <p className="text-sm text-muted-foreground">{user.email}</p>
                             </div>
-                          </div>
+                          </button>
                         </TableCell>
                         <TableCell>
                           <span className="flex items-center gap-1.5">

@@ -35,6 +35,7 @@ import UserManagement from "./pages/Admin/userManagement";
 import UploadLibrary from "./pages/Admin/adminUploadLibrary";
 import TaskManagement from "./pages/Admin/taskManagement";
 import AdminConsultancyManagement from "./pages/Admin/adminConsultancyManagement";
+import ConsultantReviewsPage from "./pages/Admin/consultantReviews";
 import TransactionManagement from "./pages/Admin/TransactionManagement";
 import AiFilesPage from "./pages/Admin/aiFiles";
 import BookingPaymentReturn from "./pages/bookingPaymentReturn";
@@ -73,6 +74,7 @@ const App = () => (
           {/* Admin routes */}
           <Route path="/admin/overview" element={<AdminOverview />} />
           <Route path="/admin/usermanagement" element={<UserManagement />} />
+          <Route path="/admin/usermanagement/consultants/:consultantId/reviews" element={<ConsultantReviewsPage />} />
           <Route path="/admin/uploadlibrary" element={<UploadLibrary />} />
           <Route path="/admin/taskmanagement" element={<TaskManagement />} />
           <Route path="/admin/consultancy" element={<AdminConsultancyManagement />} />

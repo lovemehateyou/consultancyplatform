@@ -1,34 +1,42 @@
 import TestimonialCard from "./TestimonialCard";
 
-const testimonials = [
-  {
-    name: "Jenny Wilson",
-    company: "Grower.io",
-    initials: "JW",
-    rating: 5,
-    testimonial: "We love Landingfolio! Our designers were using it for their projects, so we already knew what kind of design they want.",
-  },
-  {
-    name: "Devon Lane",
-    company: "DLDesign.co",
-    initials: "DL",
-    rating: 5,
-    testimonial: "We love Landingfolio! Our designers were using it for their projects, so we already knew what kind of design they want.",
-  },
-];
+export type TestimonialItem = {
+  id: string;
+  name: string;
+  company: string;
+  initials: string;
+  rating: number;
+  testimonial: string;
+  avatarUrl?: string | null;
+};
 
-const TestimonialsSection = () => {
+interface TestimonialsSectionProps {
+  testimonials: TestimonialItem[];
+  isLoading?: boolean;
+}
+
+const TestimonialsSection = ({ testimonials, isLoading = false }: TestimonialsSectionProps) => {
   return (
     <div className="mt-12">
       <h2 className="text-2xl font-bold text-foreground text-center mb-8">
         Consultants Testimonials
       </h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {testimonials.map((testimonial, index) => (
-          <TestimonialCard key={index} {...testimonial} />
-        ))}
-      </div>
+
+      {isLoading ? (
+        <div className="bg-card border border-border rounded-lg p-6 text-muted-foreground">
+          Loading testimonials...
+        </div>
+      ) : testimonials.length ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {testimonials.map((testimonial) => (
+            <TestimonialCard key={testimonial.id} {...testimonial} />
+          ))}
+        </div>
+      ) : (
+        <div className="bg-card border border-border rounded-lg p-6 text-muted-foreground">
+          No reviews yet.
+        </div>
+      )}
     </div>
   );
 };

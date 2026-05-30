@@ -4,10 +4,10 @@ import ConsultantHeader from "./ConsultantHeader";
 import AboutMeCard from "./AboutMeCard";
 import AvailabilitySchedule from "./AvailabilitySchedule";
 import TestimonialsSection from "./TestimonialsSection";
-import ConsultantReview from "./ConsultantReview";
 import AvailabilityDialog from "../liveConsultancy/AvailabilityDialog";
 import { listAvailability, type AvailabilitySlot } from "@/services/availability";
 import { getConsultant, type ConsultantSummary } from "@/services/users";
+import { listConsultantReviews, type ReviewRecord } from "@/services/reviews";
 import { useToast } from "@/hooks/use-toast";
 
 const ConsultantProfileContent = () => {
@@ -16,6 +16,8 @@ const ConsultantProfileContent = () => {
   const [consultant, setConsultant] = useState<ConsultantSummary | null>(null);
   const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [reviews, setReviews] = useState<ReviewRecord[]>([]);
+  const [isReviewsLoading, setIsReviewsLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -45,6 +47,26 @@ const ConsultantProfileContent = () => {
     };
 
     fetchData();
+    const fetchReviews = async () => {
+      setIsReviewsLoading(true);
+      try {
+        const response = await listConsultantReviews(id, { limit: 10 });
+        if (!isMounted) return;
+        setReviews(response.data ?? []);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Unable to load reviews.";
+        toast({
+          title: "Unable to load reviews",
+          description: message,
+          variant: "destructive",
+        });
+      } finally {
+        if (isMounted) setIsReviewsLoading(false);
+      }
+    };
+
+    fetchReviews();
     return () => {
       isMounted = false;
     };
@@ -82,6 +104,32 @@ const ConsultantProfileContent = () => {
     .filter(Boolean)
     .join(", ");
 
+  const testimonials = useMemo(() => {
+    return reviews.map((review) => {
+      const reviewerName = review.reviewer?.name || "Anonymous";
+      const initials = reviewerName
+        .split(" ")
+        .map((part) => part[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+      const company =
+        review.reviewer?.businessName ||
+        review.reviewer?.businessArea ||
+        review.reviewer?.businessType ||
+        "Client";
+      return {
+        id: review.id,
+        name: reviewerName,
+        company,
+        initials,
+        rating: review.rating,
+        testimonial: review.review,
+        avatarUrl: review.reviewer?.profileImage ?? null,
+      };
+    });
+  }, [reviews]);
+
   return (
     <div className="flex-1 p-6 bg-background overflow-auto">
       <ConsultantHeader
@@ -112,9 +160,7 @@ const ConsultantProfileContent = () => {
         )}
       </div>
       
-      <TestimonialsSection />
-      
-      <ConsultantReview />
+      <TestimonialsSection testimonials={testimonials} isLoading={isReviewsLoading} />
 
       {consultant ? (
         <AvailabilityDialog

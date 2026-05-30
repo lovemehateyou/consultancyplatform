@@ -8,9 +8,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { ReviewRecord } from "@/services/reviews";
 
 export interface HistoryEntry {
   id: string;
+  consultantId: string;
   name: string;
   username: string;
   avatar?: string;
@@ -23,11 +25,71 @@ export interface HistoryEntry {
 interface HistoryTableProps {
   entries: HistoryEntry[];
   oncancel: (id: string) => void;
+  onWriteReview: (entry: HistoryEntry) => void;
+  onDeleteReview: (reviewId: string, consultantId: string) => void;
+  reviewsByConsultantId: Record<string, ReviewRecord>;
   isLoading?: boolean;
   emptyMessage?: string;
 }
 
-const HistoryTable = ({ entries, oncancel, isLoading = false, emptyMessage }: HistoryTableProps) => {
+const HistoryTable = ({
+  entries,
+  oncancel,
+  onWriteReview,
+  onDeleteReview,
+  reviewsByConsultantId,
+  isLoading = false,
+  emptyMessage,
+}: HistoryTableProps) => {
+  const renderAction = (entry: HistoryEntry) => {
+    if (!entry.consultantId) {
+      return <span className="text-sm text-muted-foreground">-</span>;
+    }
+
+    const isPast = entry.status === "Passed";
+    const isReviewEligible =
+      isPast &&
+      (entry.bookingStatus === "accepted" || entry.bookingStatus === "completed");
+    const existingReview = reviewsByConsultantId[entry.consultantId];
+    const canCancel = entry.status === "Upcoming" &&
+      (entry.bookingStatus === "pending" || entry.bookingStatus === "accepted");
+
+    if (isReviewEligible) {
+      if (existingReview) {
+        return (
+          <button
+            className="text-sm text-rose-500 hover:underline"
+            onClick={() => onDeleteReview(existingReview.id, entry.consultantId)}
+          >
+            Delete Review
+          </button>
+        );
+      }
+
+      return (
+        <button
+          className="text-sm text-primary hover:underline"
+          onClick={() => onWriteReview(entry)}
+        >
+          Write Review
+        </button>
+      );
+    }
+
+    if (canCancel) {
+      return (
+        <button
+          className="text-sm text-primary hover:underline"
+          onClick={() => oncancel(entry.id)}
+        >
+          Cancel
+        </button>
+      );
+    }
+
+    return <span className="text-sm text-muted-foreground">-</span>;
+  };
+
   return (
     <div className="bg-card rounded-lg border border-border">
       <Table>
@@ -46,7 +108,7 @@ const HistoryTable = ({ entries, oncancel, isLoading = false, emptyMessage }: Hi
         <TableBody>
           {isLoading ? (
             <TableRow className="hover:bg-muted/50">
-              <TableCell colSpan={5} className="text-muted-foreground py-6">
+              <TableCell colSpan={6} className="text-muted-foreground py-6">
                 Loading booking history...
               </TableCell>
             </TableRow>
@@ -86,16 +148,13 @@ const HistoryTable = ({ entries, oncancel, isLoading = false, emptyMessage }: Hi
                   <span className="text-emerald-500 font-medium">{entry.stage}</span>
                 </TableCell>
                 <TableCell>
-                  <button 
-                  className="text-sm text-primary hover:underline"
-                  onClick={()=>oncancel(entry.id)}
-                  >Cancel</button>
+                  {renderAction(entry)}
                 </TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow className="hover:bg-muted/50">
-              <TableCell colSpan={5} className="text-muted-foreground py-6">
+              <TableCell colSpan={6} className="text-muted-foreground py-6">
                 {emptyMessage || "No bookings found yet."}
               </TableCell>
             </TableRow>

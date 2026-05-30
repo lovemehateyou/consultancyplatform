@@ -22,6 +22,8 @@ export type BookingStatus =
 
 export type BookingRecord = {
 	id: string;
+	userId?: string;
+	consultantId?: string;
 	status: BookingStatus;
 	appointmentDate: string;
 	slotStart: string;

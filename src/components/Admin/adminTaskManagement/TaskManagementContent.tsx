@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
-import TasksTable from "./TasksTable";
+import TasksTable, { type GoalTaskGroup } from "./TasksTable";
 import TaskFormDialog, { type Task } from "./TaskFormDialog.tsx";
 import TaskViewDialog from "./TaskViewDialog";
 import {
@@ -56,28 +56,37 @@ const TaskManagementContent = () => {
 		void fetchGoals();
 	}, [fetchGoals]);
 
-	const tasks = useMemo<Task[]>(() => {
-		const flattened = goals.flatMap((goal) =>
-			(goal.Tasks ?? []).map((task) => ({
-				id: task.id,
-				goalId: task.goalId,
-				title: task.title,
-				description: task.description ?? "",
-				stepOrder: task.stepOrder,
-				mapLinks: task.mapLinks ?? [],
-				goalTitle: goal.title,
-				goalCategory: goal.category,
-				goalBusinessArea: goal.businessArea ?? "",
-				goalBusinessType: goal.businessType ?? "",
-				goalDescription: goal.description ?? "",
-			})),
-		);
+	const goalGroups = useMemo<GoalTaskGroup[]>(() => {
+		return goals.map((goal) => {
+			const tasks: Task[] = (goal.Tasks ?? [])
+				.map((task) => ({
+					id: task.id,
+					goalId: task.goalId,
+					title: task.title,
+					description: task.description ?? "",
+					stepOrder: task.stepOrder,
+					mapLinks: (task.mapLinks ?? []).map((link) => ({
+						city: link.city ?? "",
+						subCity: link.subCity,
+						url: link.url,
+					})),
+					goalTitle: goal.title,
+					goalCategory: goal.category,
+					goalBusinessArea: goal.businessArea ?? "",
+					goalBusinessType: goal.businessType ?? "",
+					goalDescription: goal.description ?? "",
+				}))
+				.sort((a, b) => a.stepOrder - b.stepOrder);
 
-		return flattened.sort((a, b) => {
-			if (a.goalTitle !== b.goalTitle) {
-				return a.goalTitle.localeCompare(b.goalTitle);
-			}
-			return a.stepOrder - b.stepOrder;
+			return {
+				goalId: goal.id,
+				title: goal.title,
+				category: goal.category,
+				businessArea: goal.businessArea ?? "",
+				businessType: goal.businessType ?? "",
+				description: goal.description ?? "",
+				tasks,
+			};
 		});
 	}, [goals]);
 
@@ -86,22 +95,28 @@ const TaskManagementContent = () => {
 		return Array.from(categories);
 	}, [goals]);
 
-	const filteredTasks = useMemo(() => {
+	const filteredGoals = useMemo(() => {
 		const query = searchQuery.trim().toLowerCase();
-		return tasks.filter((task) => {
-			const matchesSearch =
-				query.length === 0 ||
-				task.title.toLowerCase().includes(query) ||
-				task.goalTitle.toLowerCase().includes(query) ||
-				task.goalCategory.toLowerCase().includes(query) ||
-				task.goalBusinessArea?.toLowerCase().includes(query) ||
-				task.goalBusinessType?.toLowerCase().includes(query);
+		return goalGroups.filter((goal) => {
 			const matchesCategory =
-				categoryFilter === "all" || task.goalCategory === categoryFilter;
+				categoryFilter === "all" || goal.category === categoryFilter;
+			if (!matchesCategory) return false;
 
-			return matchesSearch && matchesCategory;
+			if (!query) return true;
+			const goalMatches =
+				goal.title.toLowerCase().includes(query) ||
+				goal.category.toLowerCase().includes(query) ||
+				goal.businessArea?.toLowerCase().includes(query) ||
+				goal.businessType?.toLowerCase().includes(query);
+
+			const taskMatches = goal.tasks.some((task) =>
+				task.title.toLowerCase().includes(query) ||
+				task.description?.toLowerCase().includes(query),
+			);
+
+			return goalMatches || taskMatches;
 		});
-	}, [tasks, searchQuery, categoryFilter]);
+	}, [goalGroups, searchQuery, categoryFilter]);
 
 	const handleAddGoal = () => {
 		setErrorMessage(null);
@@ -262,8 +277,8 @@ const TaskManagementContent = () => {
 				<h2 className="text-xl font-semibold text-foreground mb-4">All Tasks</h2>
 				<div className="overflow-x-auto rounded-lg border border-border bg-card">
 					<TasksTable
-						tasks={filteredTasks}
-						onView={handleViewTask}
+						goals={filteredGoals}
+						onViewTask={handleViewTask}
 						onEditGoal={handleEditGoal}
 						onDeleteGoal={handleDeleteGoal}
 					/>

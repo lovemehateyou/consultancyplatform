@@ -1,7 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 /* import HistoryKPICards from "./HistoryKPICards"; */
 import HistoryTable, { type HistoryEntry } from "./HistoryTable";
-import { listUserBookings,updateBookingStatus } from "@/services/bookings";
+import ReviewDialog from "./ReviewDialog";
+import { listUserBookings, updateBookingStatus } from "@/services/bookings";
+import {
+  createReview,
+  deleteReview,
+  listMyReviews,
+  type ReviewRecord,
+} from "@/services/reviews";
 import { useAuth } from "@/context/authContext";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -17,6 +24,14 @@ const HistoryContent = () => {
   const { toast } = useToast();
   const [entries, setEntries] = useState<HistoryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [reviewsByConsultantId, setReviewsByConsultantId] = useState<
+    Record<string, ReviewRecord>
+  >({});
+  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
+  const [activeConsultant, setActiveConsultant] = useState<
+    { id: string; name: string } | null
+  >(null);
+  const [isReviewSubmitting, setIsReviewSubmitting] = useState(false);
   const [statusFilter, setStatusFilter] = useState<
     "all" | HistoryEntry["bookingStatus"]
   >("all");
@@ -77,6 +92,7 @@ const HistoryContent = () => {
           };
           return {
             id: booking.id,
+            consultantId: booking.consultant?.id || booking.consultantId || "",
             name: consultantName,
             username: `@${consultantName
               .toLowerCase()
@@ -103,7 +119,31 @@ const HistoryContent = () => {
       }
     };
 
+    const fetchReviews = async () => {
+      try {
+        const response = await listMyReviews();
+        if (!isMounted) return;
+        const map = (response.data || []).reduce<Record<string, ReviewRecord>>(
+          (acc, review) => {
+            acc[review.consultantId] = review;
+            return acc;
+          },
+          {},
+        );
+        setReviewsByConsultantId(map);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Unable to load reviews.";
+        toast({
+          title: "Unable to load reviews",
+          description: message,
+          variant: "destructive",
+        });
+      }
+    };
+
     fetchHistory();
+    fetchReviews();
     return () => {
       isMounted = false;
     };
@@ -118,6 +158,67 @@ const HistoryContent = () => {
     if (statusFilter === "all") return entries;
     return entries.filter((entry) => entry.bookingStatus === statusFilter);
   }, [entries, statusFilter]);
+
+  const handleWriteReview = (entry: HistoryEntry) => {
+    if (!entry.consultantId) return;
+    setActiveConsultant({ id: entry.consultantId, name: entry.name });
+    setIsReviewDialogOpen(true);
+  };
+
+  const handleSubmitReview = async (payload: { rating: number; review: string }) => {
+    if (!activeConsultant) return;
+    setIsReviewSubmitting(true);
+    try {
+      const response = await createReview({
+        consultantId: activeConsultant.id,
+        rating: payload.rating,
+        review: payload.review,
+      });
+      const created = response.data;
+      setReviewsByConsultantId((prev) => ({
+        ...prev,
+        [activeConsultant.id]: created,
+      }));
+      toast({
+        title: "Review submitted",
+        description: `Thanks for reviewing ${activeConsultant.name}.`,
+      });
+      setIsReviewDialogOpen(false);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unable to submit review.";
+      toast({
+        title: "Unable to submit review",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsReviewSubmitting(false);
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: string, consultantId: string) => {
+    try {
+      await deleteReview(reviewId);
+      setReviewsByConsultantId((prev) => {
+        const next = { ...prev };
+        delete next[consultantId];
+        return next;
+      });
+      toast({
+        title: "Review removed",
+        description: "Your review has been deleted.",
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unable to delete review.";
+      toast({
+        title: "Unable to delete review",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <main className="flex-1 p-6 bg-background overflow-auto">
@@ -151,10 +252,24 @@ const HistoryContent = () => {
         <HistoryTable
           entries={filteredEntries}
           oncancel={oncancel}
+          onWriteReview={handleWriteReview}
+          onDeleteReview={handleDeleteReview}
+          reviewsByConsultantId={reviewsByConsultantId}
           isLoading={isLoading}
           emptyMessage={emptyMessage}
         />
       </div>
+
+      <ReviewDialog
+        open={isReviewDialogOpen}
+        onOpenChange={(open) => {
+          setIsReviewDialogOpen(open);
+          if (!open) setActiveConsultant(null);
+        }}
+        consultantName={activeConsultant?.name ?? ""}
+        isSubmitting={isReviewSubmitting}
+        onSubmit={handleSubmitReview}
+      />
     </main>
   );
 };

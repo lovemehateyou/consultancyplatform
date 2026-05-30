@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star } from "lucide-react";
 
 interface TestimonialCardProps {
@@ -7,12 +7,14 @@ interface TestimonialCardProps {
   initials: string;
   rating: number;
   testimonial: string;
+  avatarUrl?: string | null;
 }
 
-const TestimonialCard = ({ name, company, initials, rating, testimonial }: TestimonialCardProps) => {
+const TestimonialCard = ({ name, company, initials, rating, testimonial, avatarUrl }: TestimonialCardProps) => {
   return (
     <div className="flex gap-4">
       <Avatar className="w-24 h-24 rounded-lg">
+        {avatarUrl ? <AvatarImage src={avatarUrl} alt={name} /> : null}
         <AvatarFallback className="bg-primary/10 text-primary text-xl font-semibold rounded-lg">
           {initials}
         </AvatarFallback>
@@ -30,9 +32,9 @@ const TestimonialCard = ({ name, company, initials, rating, testimonial }: Testi
         
         <p className="text-sm text-muted-foreground mb-3">"{testimonial}"</p>
         
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-foreground">{name}</span>
-          <span className="text-sm text-primary">{company}</span>
+        <div className="items-center gap-2">
+          <div className="text-sm font-medium text-foreground">{name}</div>
+          <div className="text-sm text-primary">{company}</div>
         </div>
       </div>
     </div>
