@@ -52,6 +52,7 @@ const LoginForm = ({
 
       const resolvedRole = loggedInUser?.role;
       const destination = (resolvedRole && ROLE_REDIRECTS[resolvedRole]) || "/";
+      console.log("Login successful, redirecting to:", destination);
 
       toast({ title: "Welcome back", description: "You have been logged in successfully." });
       navigate(destination, { replace: true });
