@@ -69,7 +69,7 @@ const LoginForm = ({
     };
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto md:w-1/2 space-y-8 px-4 py-28 sm:px-10">
       <div className="space-y-2">
         <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">{title}</h1>
         <p className="text-sm text-muted-foreground">{subtitle}</p>
