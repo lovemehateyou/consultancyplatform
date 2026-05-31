@@ -96,9 +96,6 @@ const LoginForm = ({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="password" className="text-foreground">Password</Label>
-            <Link to="#" className="text-xs font-medium text-primary hover:underline">
-              Forgot password?
-            </Link>
           </div>
           <div className="relative">
             <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
