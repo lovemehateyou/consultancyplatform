@@ -70,6 +70,7 @@ export const getUserInfoFromCookie = (): AuthUser | null => {
 	if (typeof window === "undefined") return null;
 
 	let value = Cookies.get("userInfo");
+	console.log("Retrieved userInfo cookie:", value);
 	if (!value) return null;
 
 	try {
