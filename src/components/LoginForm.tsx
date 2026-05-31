@@ -47,10 +47,10 @@ const LoginForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(formData);
+      const loggedInUser = await login(formData);
       onSubmit?.(formData);
 
-      const resolvedRole = user?.role ?? extractRoleFromCookie();
+      const resolvedRole = loggedInUser?.role;
       const destination = (resolvedRole && ROLE_REDIRECTS[resolvedRole]) || "/";
 
       toast({ title: "Welcome back", description: "You have been logged in successfully." });

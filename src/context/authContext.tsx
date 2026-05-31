@@ -20,14 +20,14 @@ import {
 } from "../services/auth.ts";
 
 interface AuthContextValue {
-	user: AuthUser | null;
-	loading: boolean;
-	error: string | null;
-	signup: (payload: SignupPayload) => Promise<SignupResponse>;
-	login: (payload: LoginPayload) => Promise<void>;
-	logout: () => Promise<void>;
-	setUser: (user: AuthUser | null) => void;
-	clearError: () => void;
+  user: AuthUser | null;
+  loading: boolean;
+  error: string | null;
+  signup: (payload: SignupPayload) => Promise<SignupResponse>;
+  login: (payload: LoginPayload) => Promise<AuthUser | null>;
+  logout: () => Promise<void>;
+  setUser: (user: AuthUser | null) => void;
+  clearError: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -98,15 +98,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 		[withAsyncState],
 	);
 
-	const handleLogin = useCallback(
-		(payload: LoginPayload) =>
-			withAsyncState(async () => {
-				await loginRequest(payload);
-				const nextUser = getUserInfoFromCookie();
-				setUser(nextUser);
-			}),
-		[withAsyncState],
-	);
+	// authContext.tsx
+const handleLogin = useCallback(
+  (payload: LoginPayload) =>
+    withAsyncState(async () => {
+      const result = await loginRequest(payload);
+      const nextUser = result.user ?? null;
+      setUser(nextUser);
+      return nextUser;
+    }),
+  [withAsyncState],
+);
 
 	const handleLogout = useCallback(
 		() =>
