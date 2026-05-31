@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { listConsultantBookings } from '@/services/bookings';
 
 interface ProfileCardProps {
   name: string;
@@ -18,6 +20,20 @@ interface ProfileCardProps {
   cvFileName?: string;
   cvFileUrl: string | null;
 }
+
+
+type StatItem = {
+  label: string;
+  value: number;
+  color: string;
+};
+
+const DEFAULT_STATS: StatItem[] = [
+  { label: 'Approved', value: 0, color: '#10B981' },
+  { label: 'Requests', value: 0, color: '#3B82F6' },
+  { label: 'Completed', value: 0, color: '#6B7280' },
+];
+
 
 const withFallback = (value: string, fallback: string) =>
   value?.trim().length ? value : fallback;
@@ -47,6 +63,55 @@ const ProfileCard = ({
   cvFileName,
   cvFileUrl,
 }: ProfileCardProps) => {
+
+  const [stats, setStats] = useState<StatItem[]>(DEFAULT_STATS);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+   useEffect(() => {
+    let isActive = true;
+
+    const loadProfile = async () => {
+      setIsLoading(true);
+      setErrorMessage(null);
+
+      try {
+        const [{ data: bookings }] = await Promise.all([listConsultantBookings()]);
+        if (!isActive) {
+          return;
+        }
+
+        const approvedCount = bookings.filter((booking) =>
+          booking.status === 'accepted' || booking.status === 'completed',
+        ).length;
+        const requestCount = bookings.filter((booking) => booking.status === 'pending' || booking.status === 'declined' || booking.status === 'accepted' ).length;
+        const completedCount = bookings.filter((booking) => booking.status === 'completed').length;
+
+        setStats([
+          { label: 'Approved', value: approvedCount, color: '#10B981' },
+          { label: 'Requests', value: requestCount, color: '#3B82F6' },
+          { label: 'Completed', value: completedCount, color: '#6B7280' },  
+        ]);
+      } catch (err) {
+        if (isActive) {
+          setErrorMessage(err instanceof Error ? err.message : 'Failed to load profile.');
+          setStats(DEFAULT_STATS);
+        }
+      } finally {
+        if (isActive) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadProfile();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+
   return (
     <div className="flex flex-col items-center w-full max-w-sm">
       <Avatar className="w-32 h-32 border-4 border-primary/20">
@@ -61,16 +126,16 @@ const ProfileCard = ({
       
       <div className="flex items-center gap-8 mt-6">
         <div className="text-center">
-          <div className="text-lg font-semibold text-foreground">4</div>
+          <div className="text-lg font-semibold text-foreground">{stats[0]?.value ?? 0}</div>
           <div className="text-xs text-muted-foreground">Approved<br />meeting</div>
         </div>
         <div className="text-center">
-          <div className="text-lg font-semibold text-foreground">9</div>
+          <div className="text-lg font-semibold text-foreground">{stats[1]?.value ?? 0}</div>
           <div className="text-xs text-muted-foreground">Requested<br />meetings</div>
         </div>
         <div className="text-center">
-          <div className="text-lg font-semibold text-foreground">3</div>
-          <div className="text-xs text-muted-foreground">Tasks left</div>
+          <div className="text-lg font-semibold text-foreground">{stats[2]?.value ?? 0}</div>
+          <div className="text-xs text-muted-foreground">Completed<br />meetings</div>
         </div>
       </div>
       

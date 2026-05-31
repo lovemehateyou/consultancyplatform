@@ -12,6 +12,8 @@ import { useAuth } from "@/context/authContext";
 import { changePassword, getProfile, updateProfile } from "@/services/users";
 import { BUSINESS_AREAS, BUSINESS_TYPES } from "@/constants/businessOptions";
 
+import { listConsultantBookings } from '@/services/bookings';
+
 interface ProfileState {
   name: string;
   phone: string;
@@ -40,6 +42,17 @@ const initialProfile: ProfileState = {
   businessArea: "",
   tin: "",
 };
+type StatItem = {
+  label: string;
+  value: number;
+  color: string;
+};
+
+const DEFAULT_STATS: StatItem[] = [
+  { label: 'Approved', value: 0, color: '#10B981' },
+  { label: 'Requests', value: 0, color: '#3B82F6' },
+  { label: 'Completed', value: 0, color: '#6B7280' },
+];
 
 const ProfileContent = () => {
   const [profile, setProfile] = useState<ProfileState>(initialProfile);
@@ -51,6 +64,53 @@ const ProfileContent = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user, setUser } = useAuth();
   const { toast } = useToast();
+  const [stats, setStats] = useState<StatItem[]>(DEFAULT_STATS);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+   useEffect(() => {
+        let isActive = true;
+    
+        const loadProfile = async () => {
+          setIsLoading(true);
+          setErrorMessage(null);
+    
+          try {
+            const [{ data: bookings }] = await Promise.all([listConsultantBookings()]);
+            if (!isActive) {
+              return;
+            }
+    
+            const approvedCount = bookings.filter((booking) =>
+              booking.status === 'accepted' || booking.status === 'completed',
+            ).length;
+            const requestCount = bookings.filter((booking) => booking.status === 'pending' || booking.status === 'declined' || booking.status === 'accepted' ).length;
+            const completedCount = bookings.filter((booking) => booking.status === 'completed').length;
+    
+            setStats([
+              { label: 'Approved', value: approvedCount, color: '#10B981' },
+              { label: 'Requests', value: requestCount, color: '#3B82F6' },
+              { label: 'Completed', value: completedCount, color: '#6B7280' },  
+            ]);
+          } catch (err) {
+            if (isActive) {
+              setErrorMessage(err instanceof Error ? err.message : 'Failed to load profile.');
+              setStats(DEFAULT_STATS);
+            }
+          } finally {
+            if (isActive) {
+              setIsLoading(false);
+            }
+          }
+        };
+    
+        loadProfile();
+    
+        return () => {
+          isActive = false;
+        };
+      }, []);
+  
 
   useEffect(() => {
     if (!user) return;
@@ -215,9 +275,9 @@ const ProfileContent = () => {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-3 md:gap-4 w-full md:w-auto">
               {[
-                { label: "Approved", value: 4, color: "tag-green" },
-                { label: "Requests", value: 9, color: "tag-blue" },
-                { label: "Tasks", value: 3, color: "tag-orange" },
+                { label: "Approved", value: stats[0]?.value ?? 0, color: "tag-green" },
+                { label: "Requests", value: stats[1]?.value ?? 0, color: "tag-blue" },
+                { label: "Tasks", value: stats[2]?.value ?? 0, color: "tag-orange" },
               ].map((s) => (
                 <div key={s.label} className="text-center px-3 py-2 rounded-lg bg-muted/50">
                   <div className={`text-xl font-bold text-[hsl(var(--${s.color}))]`}>{s.value}</div>
