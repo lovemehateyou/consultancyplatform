@@ -1,17 +1,19 @@
-import Navbar from "@/components/Navbar";
+import AuthLayout from "@/components/auth/AuthLayout";
 import RegistrationForm from "../components/ConsultantRegistrationForm";
 
 const Registration = () => {
-  const handleRegistration = (data: any) => {
-    console.log("Registration data:", data);
-  };
-
   return (
-    <div className="min-h-screen bg-background">
-      <div className="flex items-center justify-center p-4 py-8">
-        <RegistrationForm onSubmit={handleRegistration} />
-      </div>
-    </div>
+    <AuthLayout
+      brandHeadline="Grow your consultancy with Meri."
+      brandSubcopy="Reach new clients, manage your practice, and showcase your expertise on one platform."
+      highlights={[
+        "Get matched with motivated clients",
+        "Manage availability and bookings",
+        "Build a verified consultant profile",
+      ]}
+    >
+      <RegistrationForm />
+    </AuthLayout>
   );
 };
 
