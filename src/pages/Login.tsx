@@ -1,19 +1,16 @@
-import Navbar from "@/components/Navbar";
+import AuthLayout from "@/components/auth/AuthLayout";
 import LoginForm from "../components/LoginForm";
 
-const Registration = () => {
-  const handleRegistration = (data: any) => {
-    console.log("Registration data:", data);
-  };
-
+const Login = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="flex items-center justify-center p-4 py-8">
-        <LoginForm onSubmit={handleRegistration} />
-      </div>
-    </div>
+    <AuthLayout
+      brandHeadline="Welcome back to Meri."
+      brandSubcopy="Pick up right where you left off — your business workspace is ready."
+      contentMaxWidth="max-w-md"
+    >
+      <LoginForm />
+    </AuthLayout>
   );
 };
 
-export default Registration;
+export default Login;

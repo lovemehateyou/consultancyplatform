@@ -1,20 +1,21 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/authContext";
 import { getUserInfoFromCookie } from "@/services/auth";
 
-interface RegistrationFormProps {
-  onSubmit?: (data: RegistrationData) => void;
+interface LoginFormProps {
+  onSubmit?: (data: LoginData) => void;
   title?: string;
   subtitle?: string;
 }
 
-interface RegistrationData {
+interface LoginData {
   email: string;
   password: string;
 }
@@ -32,15 +33,13 @@ const extractRoleFromCookie = (): UserRole | null => {
   return (cookieUser?.role as UserRole) ?? null;
 };
 
-const LoginForm = ({ 
-  onSubmit, 
-  title = "Log in to your Account",
-  subtitle = "Meri gives you the blocks and components you need to create a truly professional Business."
-}: RegistrationFormProps) => {
-  const [formData, setFormData] = useState<RegistrationData>({
-    email: "",
-    password: "",
-  });
+const LoginForm = ({
+  onSubmit,
+  title = "Welcome back",
+  subtitle = "Log in to your Meri account to continue.",
+}: LoginFormProps) => {
+  const [formData, setFormData] = useState<LoginData>({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const { login, user, loading, error, clearError } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -54,89 +53,97 @@ const LoginForm = ({
       const resolvedRole = user?.role ?? extractRoleFromCookie();
       const destination = (resolvedRole && ROLE_REDIRECTS[resolvedRole]) || "/";
 
-      toast({
-        title: "Welcome back",
-        description: "You have been logged in successfully.",
-      });
-
+      toast({ title: "Welcome back", description: "You have been logged in successfully." });
       navigate(destination, { replace: true });
     } catch (submissionError) {
       const message =
-        submissionError instanceof Error
-          ? submissionError.message
-          : "Unable to log you in. Please try again.";
-      toast({
-        title: "Login failed",
-        description: message,
-        variant: "destructive",
-      });
+        submissionError instanceof Error ? submissionError.message : "Unable to log you in. Please try again.";
+      toast({ title: "Login failed", description: message, variant: "destructive" });
     }
   };
 
-  const handleInputChange = (field: keyof RegistrationData) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (error) {
-        clearError();
-      }
+  const handleInputChange =
+    (field: keyof LoginData) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (error) clearError();
       setFormData((prev) => ({ ...prev, [field]: event.target.value }));
     };
+
   return (
-    <div className=" flex flex-col w-full h-[100vh] justify-center my-auto max-w-3xl mx-auto ">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-          {title}
-        </h1>
-        <p className="text-muted-foreground max-w-lg mx-auto">
-          {subtitle}
-        </p>
+    <div className="space-y-8">
+      <div className="space-y-2">
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">{title}</h1>
+        <p className="text-sm text-muted-foreground">{subtitle}</p>
       </div>
 
-      <Card className="p-6 md:p-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Text Inputs Grid */}
-          <div className="grid grid-cols-1 gap-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-foreground">Email address</Label>
+          <div className="relative">
+            <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Email Address"
+              id="email"
               type="email"
+              placeholder="you@company.com"
               value={formData.email}
               onChange={handleInputChange("email")}
-              className="h-12 text-center border-border"
               disabled={loading}
-            />
-            <Input
-              placeholder="Password"
-              type="password"
-              value={formData.password}
-              onChange={handleInputChange("password")}
-              className="h-12 text-center border-border"
-              disabled={loading}
+              className="h-12 pl-10 bg-card"
+              autoComplete="email"
             />
           </div>
+        </div>
 
-          {error && (
-            <p className="text-center text-sm text-red-600" role="alert">
-              {error}
-            </p>
-          )}
-
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
-            disabled={loading}
-          >
-            {loading ? "Signing you in..." : "Log In"}
-          </Button>
-
-          {/* Login Link */}
-          <p className="text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
-            <Link to="/userregistration" className="text-blue-500 hover:underline">
-              Sign up
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password" className="text-foreground">Password</Label>
+            <Link to="#" className="text-xs font-medium text-primary hover:underline">
+              Forgot password?
             </Link>
+          </div>
+          <div className="relative">
+            <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleInputChange("password")}
+              disabled={loading}
+              className="h-12 pl-10 pr-10 bg-card"
+              autoComplete="current-password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
+        </div>
+
+        {error && (
+          <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
+            {error}
           </p>
-        </form>
-      </Card>
+        )}
+
+        <Button
+          type="submit"
+          className="w-full h-12 text-base font-medium shadow-sm shadow-primary/20 transition-all hover:shadow-md hover:shadow-primary/30"
+          disabled={loading}
+        >
+          {loading ? "Signing you in..." : "Log in"}
+        </Button>
+
+        <p className="text-center text-sm text-muted-foreground">
+          Don't have an account?{" "}
+          <Link to="/userregistration" className="font-medium text-primary hover:underline">
+            Create one
+          </Link>
+        </p>
+      </form>
     </div>
   );
 };

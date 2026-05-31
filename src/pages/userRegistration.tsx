@@ -1,17 +1,14 @@
-import Navbar from "@/components/Navbar";
+import AuthLayout from "@/components/auth/AuthLayout";
 import RegistrationForm from "../components/UserRegistrationForm";
 
 const Registration = () => {
-  const handleRegistration = (data: any) => {
-    console.log("Registration data:", data);
-  };
-
   return (
-    <div className="min-h-screen bg-background">
-      <div className="flex items-center justify-center p-4 py-8">
-        <RegistrationForm onSubmit={handleRegistration} />
-      </div>
-    </div>
+    <AuthLayout
+      brandHeadline="Start your business journey with Meri."
+      brandSubcopy="Create your account to access mentors, tools and resources tailored to you."
+    >
+      <RegistrationForm />
+    </AuthLayout>
   );
 };
 
