@@ -101,7 +101,11 @@ const ConsultantsTable = () => {
       username: buildUsername(consultant.name || "consultant"),
       avatar: consultant.profileImage ?? undefined,
       status: "Active",
-      role: consultant.businessArea || consultant.businessType || "Consultant",
+      role:
+        consultant.title ||
+        consultant.businessArea ||
+        consultant.businessType ||
+        "Consultant",
       email: consultant.email,
     }));
   }, [consultants]);

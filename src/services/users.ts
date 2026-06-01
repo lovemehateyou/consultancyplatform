@@ -40,6 +40,8 @@ export type ConsultantSummary = {
 	id: string;
 	name: string;
 	email: string;
+	title?: string | null;
+	cv?: string | null;
 	profileImage?: string | null;
 	phone?: string | null;
 	businessName?: string | null;
