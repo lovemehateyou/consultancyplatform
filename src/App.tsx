@@ -38,6 +38,7 @@ import AdminConsultancyManagement from "./pages/Admin/adminConsultancyManagement
 import ConsultantReviewsPage from "./pages/Admin/consultantReviews";
 import TransactionManagement from "./pages/Admin/TransactionManagement";
 import AiFilesPage from "./pages/Admin/aiFiles";
+import AdminNotifications from "./pages/Admin/adminNotifications";
 import BookingPaymentReturn from "./pages/bookingPaymentReturn";
 import ChatWidget from "./components/shared/ChatWidget";
 
@@ -80,6 +81,7 @@ const App = () => (
           <Route path="/admin/consultancy" element={<AdminConsultancyManagement />} />
           <Route path="/admin/transactions" element={<TransactionManagement />} />
           <Route path="/admin/ai-files" element={<AiFilesPage />} />
+          <Route path="/admin/notifications" element={<AdminNotifications />} />
           <Route path="/booking-payment/return" element={<BookingPaymentReturn />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

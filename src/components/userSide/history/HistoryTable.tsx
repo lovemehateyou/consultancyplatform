@@ -17,6 +17,7 @@ export interface HistoryEntry {
   username: string;
   avatar?: string;
   date: string;
+  slotStart?: string;
   status: "Upcoming" | "Passed";
   stage: "Approved" | "Pending" | "Rejected";
   bookingStatus: "pending" | "accepted" | "declined" | "cancelled" | "completed";
@@ -51,8 +52,13 @@ const HistoryTable = ({
       isPast &&
       (entry.bookingStatus === "accepted" || entry.bookingStatus === "completed");
     const existingReview = reviewsByConsultantId[entry.consultantId];
+    const bookingStart = entry.slotStart ? new Date(entry.slotStart) : null;
+    const isCancelableWindow = bookingStart
+      ? bookingStart.getTime() - Date.now() >= 24 * 60 * 60 * 1000
+      : false;
     const canCancel = entry.status === "Upcoming" &&
-      (entry.bookingStatus === "pending" || entry.bookingStatus === "accepted");
+      (entry.bookingStatus === "pending" || entry.bookingStatus === "accepted") &&
+      isCancelableWindow;
 
     if (isReviewEligible) {
       if (existingReview) {

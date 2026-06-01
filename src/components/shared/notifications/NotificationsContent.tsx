@@ -33,9 +33,19 @@ const NotificationsContent = () => {
         const response = await listNotifications({ recipientId: cookieUser.id });
         const mapped = response.data.map((item) => ({
           id: item.id,
-          title: typeTitleMap[item.type] ?? "Notification",
+          title:
+            item.metadata?.status === "cancelled"
+              ? "Booking cancelled"
+              : typeTitleMap[item.type] ?? "Notification",
           message: item.message,
-          type: item.type === "booking_request" ? "task" : item.type === "booking_update" ? "appointment" : "info",
+          type:
+            item.metadata?.status === "cancelled"
+              ? "warning"
+              : item.type === "booking_request"
+                ? "task"
+                : item.type === "booking_update"
+                  ? "appointment"
+                  : "info",
           timestamp: new Date(item.createdAt).toLocaleString(),
           isRead: item.read,
         })) as Notification[];

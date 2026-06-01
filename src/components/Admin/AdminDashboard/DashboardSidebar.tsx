@@ -7,6 +7,7 @@ import {
   Users, 
   MessageSquare, 
   CreditCard,
+  Bell,
   LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

@@ -5,6 +5,11 @@ export type NotificationRecord = {
 	recipientId: string;
 	type: "booking_request" | "booking_update" | "system";
 	message: string;
+	metadata?: {
+		status?: string;
+		audience?: string;
+		[key: string]: unknown;
+	} | null;
 	read: boolean;
 	createdAt: string;
 	updatedAt: string;

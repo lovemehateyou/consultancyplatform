@@ -1,4 +1,5 @@
 import { Search, Bell, PanelLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,6 +13,7 @@ interface DashboardHeaderProps {
 const AdminDashboardHeader = ({ onToggleSidebar, avatarUrl, avatarFallback = "AD" }: DashboardHeaderProps) => {
   const mockAvatarUrl = avatarUrl ?? null;
   const fallbackInitials = avatarFallback.slice(0, 2).toUpperCase();
+  const navigate = useNavigate();
 
   return (
     <header className="w-full h-16 bg-card border-b border-border flex items-center justify-between px-6">
@@ -28,6 +30,15 @@ const AdminDashboardHeader = ({ onToggleSidebar, avatarUrl, avatarFallback = "AD
           />
         </div>
         
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="relative"
+          onClick={() => navigate("/admin/notifications")}
+        >
+          <Bell className="w-5 h-5 text-muted-foreground" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
+        </Button>
         
         <Avatar className="w-9 h-9 border border-border">
           {mockAvatarUrl ? (

@@ -100,6 +100,7 @@ const HistoryContent = () => {
               .replace(/[^a-z0-9_]/g, "")}`,
             avatar: undefined,
             date: parsedDate ? parsedDate.toLocaleDateString() : "-",
+            slotStart: slotDate || "",
             status,
             stage: stageMap[bookingStatus] || "Pending",
             bookingStatus,

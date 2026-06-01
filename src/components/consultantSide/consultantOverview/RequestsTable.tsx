@@ -44,7 +44,7 @@ const RequestsTable = ({ requests, onApprove, onReject, busyId }: RequestsTableP
               <Checkbox />
             </TableHead>
             <TableHead className="text-muted-foreground font-medium">Name</TableHead>
-            <TableHead className="text-muted-foreground font-medium">Date</TableHead>
+            <TableHead className="text-muted-foreground font-medium">Date & Time</TableHead>
             <TableHead className="text-muted-foreground font-medium">Status</TableHead>
             <TableHead className="text-muted-foreground font-medium">Stage</TableHead>
             <TableHead className="text-muted-foreground font-medium text-center">Action</TableHead>
