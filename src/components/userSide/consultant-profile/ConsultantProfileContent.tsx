@@ -4,6 +4,7 @@ import ConsultantHeader from "./ConsultantHeader";
 import AboutMeCard from "./AboutMeCard";
 import AvailabilitySchedule from "./AvailabilitySchedule";
 import TestimonialsSection from "./TestimonialsSection";
+import ConsultantReview from "./ConsultantReview";
 import AvailabilityDialog from "../liveConsultancy/AvailabilityDialog";
 import { listAvailability, type AvailabilitySlot } from "@/services/availability";
 import { getConsultant, type ConsultantSummary } from "@/services/users";
@@ -93,7 +94,7 @@ const ConsultantProfileContent = () => {
     .toUpperCase()
     .slice(0, 2);
   const consultantTitle =
-    consultant?.businessArea || consultant?.businessType || "Consultant";
+    consultant?.title || consultant?.businessArea || consultant?.businessType || "Consultant";
   const consultantLocation = [
     consultant?.businessCity,
     consultant?.businessSubCity,
@@ -150,6 +151,7 @@ const ConsultantProfileContent = () => {
           email={consultant?.email || "Email not provided"}
           phone={consultant?.phone || "Phone not provided"}
           location={consultantLocation || "Location not provided"}
+          cvUrl={consultant?.cv ?? "no cv available"}
         />
         {isLoading ? (
           <div className="bg-card border border-border rounded-lg p-6 text-muted-foreground">
@@ -161,6 +163,8 @@ const ConsultantProfileContent = () => {
       </div>
       
       <TestimonialsSection testimonials={testimonials} isLoading={isReviewsLoading} />
+      <ConsultantReview />
+
 
       {consultant ? (
         <AvailabilityDialog

@@ -1,13 +1,14 @@
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, FileText } from "lucide-react";
 
 interface AboutMeCardProps {
   description: string;
   email: string;
   phone: string;
   location: string;
+  cvUrl?: string | null;
 }
 
-const AboutMeCard = ({ description, email, phone, location }: AboutMeCardProps) => {
+const AboutMeCard = ({ description, email, phone, location, cvUrl }: AboutMeCardProps) => {
   return (
     <div className="bg-card border border-border rounded-lg p-6">
       <h2 className="text-lg font-semibold text-foreground mb-4">About Me</h2>
@@ -26,6 +27,19 @@ const AboutMeCard = ({ description, email, phone, location }: AboutMeCardProps) 
           <MapPin className="w-4 h-4 text-muted-foreground" />
           <span className="text-foreground">{location}</span>
         </div>
+        {cvUrl ? (
+          <div className="flex items-center gap-3 text-sm">
+            <FileText className="w-4 h-4 text-muted-foreground" />
+            <a
+              href={cvUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary hover:underline"
+            >
+              View CV
+            </a>
+          </div>
+        ) : null}
       </div>
     </div>
   );

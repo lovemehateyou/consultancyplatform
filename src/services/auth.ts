@@ -60,6 +60,7 @@ export interface LoginPayload {
 
 export interface LoginResponse {
 	message: string;
+	user: AuthUser;
 }
 
 export interface LogoutResponse {
