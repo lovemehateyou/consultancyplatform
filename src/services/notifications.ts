@@ -36,6 +36,7 @@ export const listNotifications = async (params: {
 		offset: String(params.offset ?? 0),
 		unreadOnly: String(params.unreadOnly ?? false),
 	});
+	console.log("Fetching notifications");
 
 	const response = await fetch(`${API_BASE_URL}/notifications?${query.toString()}`, {
 		method: "GET",
