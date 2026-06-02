@@ -62,14 +62,14 @@ const NotificationCard = ({ notification, onMarkAsRead }: NotificationCardProps)
         <div className="flex flex-wrap items-center justify-between gap-2 mt-3">
           <span className="text-xs text-muted-foreground">{notification.timestamp}</span>
           <div className="flex items-center gap-2">
-            {notification.actionUrl && (
+            {/* {notification.actionUrl && (
               <Button variant="default" size="sm" className="text-xs h-7" asChild>
                 <Link to={notification.actionUrl}>
                   <Video className="w-3.5 h-3.5 mr-1" />
                   Join meeting
                 </Link>
               </Button>
-            )}
+            )} */}
             {!notification.isRead && (
               <Button
                 variant="ghost"
