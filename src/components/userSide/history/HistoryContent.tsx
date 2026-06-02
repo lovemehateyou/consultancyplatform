@@ -101,6 +101,8 @@ const HistoryContent = () => {
             avatar: undefined,
             date: parsedDate ? parsedDate.toLocaleDateString() : "-",
             slotStart: slotDate || "",
+            slotEnd: booking.slotEnd || "",
+            meetingLink: booking.meetingLink,
             status,
             stage: stageMap[bookingStatus] || "Pending",
             bookingStatus,

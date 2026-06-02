@@ -11,6 +11,7 @@ import { getUserInfoFromCookie } from "@/services/auth";
 const typeTitleMap: Record<string, string> = {
   booking_request: "New booking request",
   booking_update: "Booking update",
+  meeting_ready: "Meeting ready",
   system: "System notification",
 };
 
@@ -31,28 +32,53 @@ const NotificationsContent = () => {
       setIsLoading(true);
       try {
         const response = await listNotifications({ recipientId: cookieUser.id });
-        const mapped = response.data.map((item) => ({
-          id: item.id,
-          title:
-            item.metadata?.status === "cancelled"
-              ? "Booking cancelled"
-              : item.metadata?.status === "rescheduled"
-                ? "Booking rescheduled"
-              : typeTitleMap[item.type] ?? "Notification",
-          message: item.message,
-          type:
-            item.metadata?.status === "cancelled"
-              ? "warning"
-              : item.metadata?.status === "rescheduled"
-                ? "appointment"
-              : item.type === "booking_request"
-                ? "task"
-                : item.type === "booking_update"
+        const mapped = response.data.map((item) => {
+          const meetingPath =
+            item.metadata?.bookingId != null
+              ? `/meeting/${item.metadata.bookingId}`
+              : undefined;
+          const resolveMeetingPath = () => {
+            if (typeof item.metadata?.meetingLink !== "string") {
+              return meetingPath;
+            }
+            if (item.metadata.meetingLink.startsWith("/")) {
+              return item.metadata.meetingLink;
+            }
+            try {
+              return new URL(item.metadata.meetingLink).pathname;
+            } catch {
+              return meetingPath;
+            }
+          };
+          const actionUrl = resolveMeetingPath();
+
+          return {
+            id: item.id,
+            title:
+              item.metadata?.status === "cancelled"
+                ? "Booking cancelled"
+                : item.metadata?.status === "rescheduled"
+                  ? "Booking rescheduled"
+                  : typeTitleMap[item.type] ?? "Notification",
+            message: item.message,
+            type:
+              item.metadata?.status === "cancelled"
+                ? "warning"
+                : item.metadata?.status === "rescheduled"
                   ? "appointment"
-                  : "info",
-          timestamp: new Date(item.createdAt).toLocaleString(),
-          isRead: item.read,
-        })) as Notification[];
+                  : item.type === "booking_request"
+                    ? "task"
+                    : item.type === "booking_update" || item.type === "meeting_ready"
+                      ? "appointment"
+                      : "info",
+            timestamp: new Date(item.createdAt).toLocaleString(),
+            isRead: item.read,
+            actionUrl:
+              item.type === "meeting_ready" || item.metadata?.meetingLink
+                ? actionUrl
+                : undefined,
+          };
+        }) as Notification[];
         setNotifications(mapped);
       } catch (error) {
         const message =

@@ -1,4 +1,6 @@
+import { Link } from "react-router-dom";
 import { Checkbox } from "@/components/ui/checkbox";
+import { isWithinMeetingJoinWindow, getMeetingJoinPath } from "@/lib/meetingWindow";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +18,8 @@ export interface HistoryEntry {
   username: string;
   avatar?: string;
   date: string;
+  slotStart?: string;
+  slotEnd?: string;
   status: "Upcoming" | "Passed";
   stage: "Approved" | "Pending" | "Rejected";
   bookingStatus: "pending" | "accepted" | "declined" | "cancelled" | "completed";
@@ -87,13 +91,31 @@ const HistoryTable = ({ entries, isLoading = false, emptyMessage, onReschedule }
                   <span className="text-emerald-500 font-medium">{entry.stage}</span>
                 </TableCell>
                 <TableCell className="text-right">
-                  {entry.status === "Upcoming" && entry.bookingStatus === "accepted" && onReschedule ? (
-                    <Button variant="outline" size="sm" onClick={() => onReschedule(entry)}>
-                      Reschedule
-                    </Button>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">-</span>
-                  )}
+                  <div className="flex items-center justify-end gap-2">
+                    {entry.status === "Upcoming" &&
+                    entry.bookingStatus === "accepted" &&
+                    isWithinMeetingJoinWindow(entry.slotStart, entry.slotEnd) ? (
+                      <Link
+                        to={getMeetingJoinPath(entry.id)}
+                        className="text-sm text-primary hover:underline font-medium"
+                      >
+                        Join session
+                      </Link>
+                    ) : null}
+                    {entry.status === "Upcoming" && entry.bookingStatus === "accepted" && onReschedule ? (
+                      <Button variant="outline" size="sm" onClick={() => onReschedule(entry)}>
+                        Reschedule
+                      </Button>
+                    ) : null}
+                    {!(
+                      (entry.status === "Upcoming" &&
+                        entry.bookingStatus === "accepted" &&
+                        isWithinMeetingJoinWindow(entry.slotStart, entry.slotEnd)) ||
+                      (entry.status === "Upcoming" && entry.bookingStatus === "accepted" && onReschedule)
+                    ) ? (
+                      <span className="text-sm text-muted-foreground">-</span>
+                    ) : null}
+                  </div>
                 </TableCell>
               </TableRow>
             ))

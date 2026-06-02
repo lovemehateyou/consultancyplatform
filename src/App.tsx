@@ -40,6 +40,7 @@ import TransactionManagement from "./pages/Admin/TransactionManagement";
 import AiFilesPage from "./pages/Admin/aiFiles";
 import AdminNotifications from "./pages/Admin/adminNotifications";
 import BookingPaymentReturn from "./pages/bookingPaymentReturn";
+import MeetingRoom from "./pages/MeetingRoom";
 import ChatWidget from "./components/shared/ChatWidget";
 
 const queryClient = new QueryClient();
@@ -83,6 +84,7 @@ const App = () => (
           <Route path="/admin/ai-files" element={<AiFilesPage />} />
           <Route path="/admin/notifications" element={<AdminNotifications />} />
           <Route path="/booking-payment/return" element={<BookingPaymentReturn />} />
+          <Route path="/meeting/:bookingId" element={<MeetingRoom />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

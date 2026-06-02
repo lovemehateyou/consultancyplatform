@@ -3,11 +3,16 @@ import { API_BASE_URL, parseResponse } from "./api";
 export type NotificationRecord = {
 	id: string;
 	recipientId: string;
-	type: "booking_request" | "booking_update" | "system";
+	type: "booking_request" | "booking_update" | "meeting_ready" | "system";
 	message: string;
 	metadata?: {
 		status?: string;
 		audience?: string;
+		meetingLink?: string;
+		roomId?: string;
+		bookingId?: string;
+		slotStart?: string;
+		slotEnd?: string;
 		[key: string]: unknown;
 	} | null;
 	read: boolean;

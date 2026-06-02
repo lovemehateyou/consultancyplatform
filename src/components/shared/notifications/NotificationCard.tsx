@@ -1,4 +1,5 @@
-import { Bell, CheckCircle, AlertCircle, Info, Calendar, FileText } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Bell, CheckCircle, AlertCircle, Info, Calendar, FileText, Video } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ export interface Notification {
   type: NotificationType;
   timestamp: string;
   isRead: boolean;
+  actionUrl?: string;
 }
 
 interface NotificationCardProps {
@@ -57,18 +59,28 @@ const NotificationCard = ({ notification, onMarkAsRead }: NotificationCardProps)
           )}
         </div>
         <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
-        <div className="flex items-center justify-between mt-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 mt-3">
           <span className="text-xs text-muted-foreground">{notification.timestamp}</span>
-          {!notification.isRead && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs h-7"
-              onClick={() => onMarkAsRead(notification.id)}
-            >
-              Mark as read
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {notification.actionUrl && (
+              <Button variant="default" size="sm" className="text-xs h-7" asChild>
+                <Link to={notification.actionUrl}>
+                  <Video className="w-3.5 h-3.5 mr-1" />
+                  Join meeting
+                </Link>
+              </Button>
+            )}
+            {!notification.isRead && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs h-7"
+                onClick={() => onMarkAsRead(notification.id)}
+              >
+                Mark as read
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </Card>

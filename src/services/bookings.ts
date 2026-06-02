@@ -30,6 +30,8 @@ export type BookingRecord = {
 	slotEnd: string;
 	timezone: string;
 	transactionId?: string | null;
+	meetingLink?: string | null;
+	RoomId?: string | null;
 	createdAt?: string;
 	updatedAt?: string;
 	metadata?: {
@@ -181,4 +183,28 @@ export const updateBookingStatus = async (
 	});
 
 	return parseResponse<{ data: BookingRecord }>(response);
+};
+
+export type MeetingTokenCredentials = {
+	appId: number;
+	roomId: string;
+	token: string;
+	tokenTtlSeconds: number;
+	userId: string;
+	userName: string;
+	slotStart: string | null;
+	slotEnd: string | null;
+	meetingLink: string;
+};
+
+export const getMeetingToken = async (bookingId: string) => {
+	const response = await fetch(
+		`${API_BASE_URL}/bookings/${bookingId}/meeting-token`,
+		{
+			method: "GET",
+			credentials: "include",
+		},
+	);
+
+	return parseResponse<{ data: MeetingTokenCredentials }>(response);
 };

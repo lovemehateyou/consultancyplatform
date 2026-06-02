@@ -1,4 +1,6 @@
+import { Link } from "react-router-dom";
 import { Checkbox } from "@/components/ui/checkbox";
+import { getMeetingJoinPath } from "@/lib/meetingWindow";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Table,
@@ -17,6 +19,7 @@ interface Request {
   date: string;
   status: "Upcoming" | "Passed";
   stage: "Approved" | "Pending" | "Rejected";
+  canJoinMeeting?: boolean;
 }
 
 interface RequestsTableProps {
@@ -108,6 +111,13 @@ const RequestsTable = ({ requests, onApprove, onReject, busyId }: RequestsTableP
                       Reject
                     </button>
                   </div>
+                ) : request.stage === "Approved" && request.canJoinMeeting ? (
+                  <Link
+                    to={getMeetingJoinPath(request.id)}
+                    className="text-sm text-primary hover:underline font-medium"
+                  >
+                    Join session
+                  </Link>
                 ) : (
                   <span className="text-xs text-muted-foreground">—</span>
                 )}

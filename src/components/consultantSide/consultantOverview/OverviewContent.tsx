@@ -6,6 +6,7 @@ import {
   updateBookingStatus,
   type BookingRecord,
 } from "@/services/bookings";
+import { isWithinMeetingJoinWindow } from "@/lib/meetingWindow";
 
 const OverviewContent = () => {
   const [bookings, setBookings] = useState<BookingRecord[]>([]);
@@ -69,6 +70,9 @@ const OverviewContent = () => {
           date: formatRequestDate(slotDate),
           status: "Upcoming",
           stage,
+          canJoinMeeting:
+            stage === "Approved" &&
+            isWithinMeetingJoinWindow(booking.slotStart, booking.slotEnd),
         });
 
         return acc;
@@ -80,6 +84,7 @@ const OverviewContent = () => {
         date: string;
         status: "Upcoming";
         stage: "Approved" | "Pending" | "Rejected";
+        canJoinMeeting?: boolean;
       }>,
     );
   }, [bookings]);

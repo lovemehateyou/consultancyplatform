@@ -1,4 +1,6 @@
+import { Link } from "react-router-dom";
 import { Checkbox } from "@/components/ui/checkbox";
+import { isWithinMeetingJoinWindow, getMeetingJoinPath } from "@/lib/meetingWindow";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Table,
@@ -18,6 +20,8 @@ export interface HistoryEntry {
   avatar?: string;
   date: string;
   slotStart?: string;
+  slotEnd?: string;
+  meetingLink?: string | null;
   status: "Upcoming" | "Passed";
   stage: "Approved" | "Pending" | "Rejected";
   bookingStatus: "pending" | "accepted" | "declined" | "cancelled" | "completed";
@@ -59,6 +63,23 @@ const HistoryTable = ({
     const canCancel = entry.status === "Upcoming" &&
       (entry.bookingStatus === "pending" || entry.bookingStatus === "accepted") &&
       isCancelableWindow;
+
+    const canJoinMeeting =
+      entry.status === "Upcoming" &&
+      entry.bookingStatus === "accepted" &&
+      isWithinMeetingJoinWindow(entry.slotStart, entry.slotEnd);
+
+    if (canJoinMeeting) {
+      const joinPath = getMeetingJoinPath(entry.id);
+      return (
+        <Link
+          to={joinPath}
+          className="text-sm text-primary hover:underline font-medium"
+        >
+          Join session
+        </Link>
+      );
+    }
 
     if (isReviewEligible) {
       if (existingReview) {
