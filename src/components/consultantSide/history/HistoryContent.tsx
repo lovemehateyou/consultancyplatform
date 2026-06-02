@@ -22,6 +22,29 @@ const HistoryContent = () => {
   >("all");
   const isMountedRef = useRef(true);
 
+  const formatTimeRange = (startValue?: string | null, endValue?: string | null, timezone?: string | null) => {
+    if (!startValue || !endValue) return "-";
+
+    const start = new Date(startValue);
+    const end = new Date(endValue);
+
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return "-";
+    }
+
+    const format = (value: Date) =>
+      new Intl.DateTimeFormat("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+        timeZone: timezone || undefined,
+      })
+        .format(value)
+        .replace(/\s/g, "");
+
+    return `${format(start)} - ${format(end)}`;
+  };
+
   const fetchHistory = async () => {
     setIsLoading(true);
     try {
@@ -51,6 +74,7 @@ const HistoryContent = () => {
           declined: "Rejected",
           cancelled: "Rejected",
         };
+
         return {
           id: booking.id,
           name: clientName,
@@ -60,8 +84,7 @@ const HistoryContent = () => {
             .replace(/[^a-z0-9_]/g, "")}`,
           avatar: undefined,
           date: parsedDate ? parsedDate.toLocaleDateString() : "-",
-          slotStart: slotDate || "",
-          slotEnd: booking.slotEnd || "",
+          time: formatTimeRange(booking.slotStart, booking.slotEnd, booking.timezone),
           status,
           stage: stageMap[bookingStatus] || "Pending",
           bookingStatus,

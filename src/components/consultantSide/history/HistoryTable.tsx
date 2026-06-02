@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { isWithinMeetingJoinWindow, getMeetingJoinPath } from "@/lib/meetingWindow";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,8 +19,7 @@ export interface HistoryEntry {
   username: string;
   avatar?: string;
   date: string;
-  slotStart?: string;
-  slotEnd?: string;
+  time: string;
   status: "Upcoming" | "Passed";
   stage: "Approved" | "Pending" | "Rejected";
   bookingStatus: "pending" | "accepted" | "declined" | "cancelled" | "completed";
@@ -33,6 +33,11 @@ interface HistoryTableProps {
 }
 
 const HistoryTable = ({ entries, isLoading = false, emptyMessage, onReschedule }: HistoryTableProps) => {
+
+  useEffect(() => {
+    console.log("HistoryTable entries updated:", entries);
+  }, [entries]);
+
   return (
     <div className="bg-card rounded-lg border border-border">
       <Table>
@@ -43,6 +48,7 @@ const HistoryTable = ({ entries, isLoading = false, emptyMessage, onReschedule }
             </TableHead>
             <TableHead className="text-muted-foreground font-medium">Name</TableHead>
             <TableHead className="text-muted-foreground font-medium">Date</TableHead>
+            <TableHead className="text-muted-foreground font-medium">Time</TableHead>
             <TableHead className="text-muted-foreground font-medium">Status</TableHead>
             <TableHead className="text-muted-foreground font-medium">Stage</TableHead>
             <TableHead className="text-muted-foreground font-medium text-right">Action</TableHead>
@@ -76,6 +82,7 @@ const HistoryTable = ({ entries, isLoading = false, emptyMessage, onReschedule }
                   </div>
                 </TableCell>
                 <TableCell className="text-muted-foreground">{entry.date}</TableCell>
+                <TableCell className="text-muted-foreground">{entry.time}</TableCell>
                 <TableCell>
                   <span
                     className={
@@ -91,37 +98,19 @@ const HistoryTable = ({ entries, isLoading = false, emptyMessage, onReschedule }
                   <span className="text-emerald-500 font-medium">{entry.stage}</span>
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    {entry.status === "Upcoming" &&
-                    entry.bookingStatus === "accepted" &&
-                    isWithinMeetingJoinWindow(entry.slotStart, entry.slotEnd) ? (
-                      <Link
-                        to={getMeetingJoinPath(entry.id)}
-                        className="text-sm text-primary hover:underline font-medium"
-                      >
-                        Join session
-                      </Link>
-                    ) : null}
-                    {entry.status === "Upcoming" && entry.bookingStatus === "accepted" && onReschedule ? (
-                      <Button variant="outline" size="sm" onClick={() => onReschedule(entry)}>
-                        Reschedule
-                      </Button>
-                    ) : null}
-                    {!(
-                      (entry.status === "Upcoming" &&
-                        entry.bookingStatus === "accepted" &&
-                        isWithinMeetingJoinWindow(entry.slotStart, entry.slotEnd)) ||
-                      (entry.status === "Upcoming" && entry.bookingStatus === "accepted" && onReschedule)
-                    ) ? (
-                      <span className="text-sm text-muted-foreground">-</span>
-                    ) : null}
-                  </div>
+                  {entry.status === "Upcoming" && entry.bookingStatus === "accepted" && onReschedule ? (
+                    <Button variant="default" className="border-blue-500" size="sm" onClick={() => onReschedule(entry)}>
+                      Reschedule
+                    </Button>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">-</span>
+                  )}
                 </TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow className="hover:bg-muted/50">
-              <TableCell colSpan={6} className="text-muted-foreground py-6">
+              <TableCell colSpan={7} className="text-muted-foreground py-6">
                 {emptyMessage || "No bookings found yet."}
               </TableCell>
             </TableRow>
