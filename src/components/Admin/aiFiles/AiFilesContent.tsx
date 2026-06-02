@@ -146,7 +146,7 @@ const AiFilesContent = () => {
     <div className="flex-1 p-6 overflow-auto">
       <h1 className="text-2xl font-bold text-foreground mb-6">AI Context Files</h1>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="flex flex-col gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Stored Context Files</CardTitle>

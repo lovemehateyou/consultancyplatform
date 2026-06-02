@@ -13,7 +13,7 @@ interface KPICardProps {
 
 const KPICard = ({ title, value, tooltip, icon: Icon, accent }: KPICardProps) => {
   return (
-    <Card className="group relative overflow-hidden border-border/60 bg-card rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+    <Card className="group relative z-0 hover:z-10 border-border/60 bg-card rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
       <CardContent className="p-5">
         <div className="flex items-start justify-between mb-4">
           <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center", accent)}>
@@ -23,7 +23,7 @@ const KPICard = ({ title, value, tooltip, icon: Icon, accent }: KPICardProps) =>
             <TooltipTrigger>
               <HelpCircle className="w-3.5 h-3.5 text-muted-foreground/70" />
             </TooltipTrigger>
-            <TooltipContent>
+            <TooltipContent className="z-50 bg-card border border-border rounded-md p-2">
               <p>{tooltip || title}</p>
             </TooltipContent>
           </Tooltip>

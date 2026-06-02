@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ export interface HistoryEntry {
   username: string;
   avatar?: string;
   date: string;
+  time: string;
   status: "Upcoming" | "Passed";
   stage: "Approved" | "Pending" | "Rejected";
   bookingStatus: "pending" | "accepted" | "declined" | "cancelled" | "completed";
@@ -29,6 +31,11 @@ interface HistoryTableProps {
 }
 
 const HistoryTable = ({ entries, isLoading = false, emptyMessage, onReschedule }: HistoryTableProps) => {
+
+  useEffect(() => {
+    console.log("HistoryTable entries updated:", entries);
+  }, [entries]);
+
   return (
     <div className="bg-card rounded-lg border border-border">
       <Table>
@@ -39,6 +46,7 @@ const HistoryTable = ({ entries, isLoading = false, emptyMessage, onReschedule }
             </TableHead>
             <TableHead className="text-muted-foreground font-medium">Name</TableHead>
             <TableHead className="text-muted-foreground font-medium">Date</TableHead>
+            <TableHead className="text-muted-foreground font-medium">Time</TableHead>
             <TableHead className="text-muted-foreground font-medium">Status</TableHead>
             <TableHead className="text-muted-foreground font-medium">Stage</TableHead>
             <TableHead className="text-muted-foreground font-medium text-right">Action</TableHead>
@@ -72,6 +80,7 @@ const HistoryTable = ({ entries, isLoading = false, emptyMessage, onReschedule }
                   </div>
                 </TableCell>
                 <TableCell className="text-muted-foreground">{entry.date}</TableCell>
+                <TableCell className="text-muted-foreground">{entry.time}</TableCell>
                 <TableCell>
                   <span
                     className={
@@ -88,7 +97,7 @@ const HistoryTable = ({ entries, isLoading = false, emptyMessage, onReschedule }
                 </TableCell>
                 <TableCell className="text-right">
                   {entry.status === "Upcoming" && entry.bookingStatus === "accepted" && onReschedule ? (
-                    <Button variant="outline" size="sm" onClick={() => onReschedule(entry)}>
+                    <Button variant="default" className="border-blue-500" size="sm" onClick={() => onReschedule(entry)}>
                       Reschedule
                     </Button>
                   ) : (
@@ -99,7 +108,7 @@ const HistoryTable = ({ entries, isLoading = false, emptyMessage, onReschedule }
             ))
           ) : (
             <TableRow className="hover:bg-muted/50">
-              <TableCell colSpan={6} className="text-muted-foreground py-6">
+              <TableCell colSpan={7} className="text-muted-foreground py-6">
                 {emptyMessage || "No bookings found yet."}
               </TableCell>
             </TableRow>
