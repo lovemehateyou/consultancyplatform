@@ -7,10 +7,17 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 
-const ConsultancyFilters = () => {
+type Filters = { category?: string; date?: string };
+interface Props {
+  category?: string;
+  date?: string;
+  onChange: (f: Filters) => void;
+}
+
+const ConsultancyFilters = ({ category = "all", date = "", onChange }: Props) => {
   return (
     <div className="grid grid-cols-3 gap-4">
-      <Select>
+      <Select value={category} onValueChange={(v) => onChange({ category: v })}>
         <SelectTrigger className="bg-card border-border">
           <SelectValue placeholder="All Categories" />
         </SelectTrigger>
@@ -26,10 +33,11 @@ const ConsultancyFilters = () => {
         </SelectContent>
       </Select>
 
-      <Input 
-        type="date" 
-        className="bg-card border-border"
-        placeholder="mm/dd/yyyy"
+      <Input
+        type="date"
+        className="bg-card border-border col-span-2"
+        value={date}
+        onChange={(e) => onChange({ date: (e.target as HTMLInputElement).value })}
       />
     </div>
   );

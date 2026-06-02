@@ -4,7 +4,6 @@ import ConsultantHeader from "./ConsultantHeader";
 import AboutMeCard from "./AboutMeCard";
 import AvailabilitySchedule from "./AvailabilitySchedule";
 import TestimonialsSection from "./TestimonialsSection";
-import ConsultantReview from "./ConsultantReview";
 import AvailabilityDialog from "../liveConsultancy/AvailabilityDialog";
 import { listAvailability, type AvailabilitySlot } from "@/services/availability";
 import { getConsultant, type ConsultantSummary } from "@/services/users";
@@ -163,7 +162,7 @@ const ConsultantProfileContent = () => {
       </div>
       
       <TestimonialsSection testimonials={testimonials} isLoading={isReviewsLoading} />
-      <ConsultantReview />
+      
 
 
       {consultant ? (

@@ -10,6 +10,8 @@ import { useAuth } from "@/context/authContext";
 import { useToast } from "@/hooks/use-toast";
 import { BUSINESS_AREAS, BUSINESS_TYPES } from "@/constants/businessOptions";
 
+import {EthiopiaLocationSelects} from "@/components/cities_data/City_selectors";
+
 interface PersonalInfo {
   userName: string; phoneNumber: string; email: string; userAddress: string;
   password: string; ConformPassword: string;
@@ -175,14 +177,13 @@ const UserRegistrationBusiness = () => {
                 {BUSINESS_AREAS.map((a) => <option key={a} value={a}>{a}</option>)}
               </select>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="BusinessCity">City</Label>
-              <Input id="BusinessCity" className={inputClass} value={business.BusinessCity} onChange={handleInputChange("BusinessCity")} disabled={loading} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="BusinessSubCity">Sub-city</Label>
-              <Input id="BusinessSubCity" className={inputClass} value={business.BusinessSubCity} onChange={handleInputChange("BusinessSubCity")} disabled={loading} />
-            </div>
+            <EthiopiaLocationSelects
+              city={business.BusinessCity}
+              subCity={business.BusinessSubCity}
+              onCityChange={(city) => setBusiness((prev) => ({ ...prev, BusinessCity: city }))}
+              onSubCityChange={(subCity) => setBusiness((prev) => ({ ...prev, BusinessSubCity: subCity }))}
+              disabled={loading}
+            />
             <div className="space-y-1.5">
               <Label htmlFor="BusinessWereda">Wereda</Label>
               <Input id="BusinessWereda" className={inputClass} value={business.BusinessWereda} onChange={handleInputChange("BusinessWereda")} disabled={loading} />
