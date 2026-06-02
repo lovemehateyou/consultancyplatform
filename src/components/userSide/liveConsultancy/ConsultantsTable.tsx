@@ -32,6 +32,22 @@ interface ConsultantRow {
   email: string;
 }
 
+interface Props {
+  filters?: { category?: string; date?: string };
+}
+
+const categoryMap: Record<string, string> = {
+  all: "",
+  law: "law",
+  finance: "finance",
+  business: "business",
+  ux: "ux",
+  ui: "ui",
+  product: "product",
+  qa: "qa",
+};
+
+
 const buildUsername = (name: string) =>
   `@${name
     .trim()
@@ -39,7 +55,7 @@ const buildUsername = (name: string) =>
     .replace(/\s+/g, "")
     .replace(/[^a-z0-9_]/g, "")}`;
 
-const ConsultantsTable = () => {
+const ConsultantsTable = ({ filters }: Props) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -55,15 +71,17 @@ const ConsultantsTable = () => {
       setIsLoading(true);
       setLoadError(null);
       try {
-        const response = await listConsultants();
+        const category = filters?.category ?? "all";
+        const mapped = categoryMap[category] ?? "";
+        // Build search term only from category (backend filters name/email/businessArea/businessType)
+        const search = mapped || undefined;
+        const response = await listConsultants(search);
         if (!isMounted) return;
         setConsultants(response.data || []);
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Unable to load consultants.";
-        if (isMounted) {
-          setLoadError(message);
-        }
+        if (isMounted) setLoadError(message);
         toast({
           title: "Unable to load consultants",
           description: message,
@@ -78,7 +96,7 @@ const ConsultantsTable = () => {
     return () => {
       isMounted = false;
     };
-  }, [toast]);
+  }, [filters?.category, toast]);
 
   const handleBookClick = (consultant: ConsultantRow) => {
     setSelectedConsultant(consultant.name);
