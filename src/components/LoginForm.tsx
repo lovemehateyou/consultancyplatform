@@ -48,6 +48,7 @@ const LoginForm = ({
     e.preventDefault();
     try {
       const loggedInUser = await login(formData);
+      localStorage.setItem("user", JSON.stringify(loggedInUser));
       onSubmit?.(formData);
 
       const resolvedRole = loggedInUser?.role;

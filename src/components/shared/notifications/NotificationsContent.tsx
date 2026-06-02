@@ -23,7 +23,12 @@ const NotificationsContent = () => {
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      const cookieUser = getUserInfoFromCookie();
+      const cookieUser = JSON.parse(localStorage.getItem("user") || "null");
+      if (!cookieUser) {
+        setNotifications([]);
+        return;
+      }
+      
       if (!cookieUser?.id) {
         setNotifications([]);
         return;
