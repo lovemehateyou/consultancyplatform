@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 /* import HistoryKPICards from "./HistoryKPICards"; */
 import HistoryTable, { type HistoryEntry } from "./HistoryTable";
+import RescheduleBookingDialog from "./RescheduleBookingDialog";
 import { listConsultantBookings } from "@/services/bookings";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -15,73 +16,76 @@ const HistoryContent = () => {
   const { toast } = useToast();
   const [entries, setEntries] = useState<HistoryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [rescheduleTarget, setRescheduleTarget] = useState<HistoryEntry | null>(null);
   const [statusFilter, setStatusFilter] = useState<
     "all" | HistoryEntry["bookingStatus"]
   >("all");
+  const isMountedRef = useRef(true);
+
+  const fetchHistory = async () => {
+    setIsLoading(true);
+    try {
+      const response = await listConsultantBookings();
+      const mapped: HistoryEntry[] = (response.data || []).map((booking) => {
+        const clientName = booking.user?.name || "Client";
+        const slotDate = booking.slotStart || booking.appointmentDate;
+        const parsedDate = slotDate ? new Date(slotDate) : null;
+        const status =
+          parsedDate && parsedDate.getTime() > Date.now() ? "Upcoming" : "Passed";
+        const allowedStatuses: HistoryEntry["bookingStatus"][] = [
+          "pending",
+          "accepted",
+          "declined",
+          "cancelled",
+          "completed",
+        ];
+        const bookingStatus = allowedStatuses.includes(
+          booking.status as HistoryEntry["bookingStatus"],
+        )
+          ? (booking.status as HistoryEntry["bookingStatus"])
+          : "pending";
+        const stageMap: Record<string, HistoryEntry["stage"]> = {
+          accepted: "Approved",
+          completed: "Approved",
+          pending: "Pending",
+          declined: "Rejected",
+          cancelled: "Rejected",
+        };
+        return {
+          id: booking.id,
+          name: clientName,
+          username: `@${clientName
+            .toLowerCase()
+            .replace(/\s+/g, "")
+            .replace(/[^a-z0-9_]/g, "")}`,
+          avatar: undefined,
+          date: parsedDate ? parsedDate.toLocaleDateString() : "-",
+          status,
+          stage: stageMap[bookingStatus] || "Pending",
+          bookingStatus,
+        };
+      });
+      setEntries(mapped);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unable to load booking history.";
+      toast({
+        title: "Unable to load history",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
-    let isMounted = true;
-    const fetchHistory = async () => {
-      setIsLoading(true);
-      try {
-        const response = await listConsultantBookings();
-        if (!isMounted) return;
-        const mapped: HistoryEntry[] = (response.data || []).map((booking) => {
-          const clientName = booking.user?.name || "Client";
-          const slotDate = booking.slotStart || booking.appointmentDate;
-          const parsedDate = slotDate ? new Date(slotDate) : null;
-          const status =
-            parsedDate && parsedDate.getTime() > Date.now() ? "Upcoming" : "Passed";
-          const allowedStatuses: HistoryEntry["bookingStatus"][] = [
-            "pending",
-            "accepted",
-            "declined",
-            "cancelled",
-            "completed",
-          ];
-          const bookingStatus = allowedStatuses.includes(
-            booking.status as HistoryEntry["bookingStatus"],
-          )
-            ? (booking.status as HistoryEntry["bookingStatus"])
-            : "pending";
-          const stageMap: Record<string, HistoryEntry["stage"]> = {
-            accepted: "Approved",
-            completed: "Approved",
-            pending: "Pending",
-            declined: "Rejected",
-            cancelled: "Rejected",
-          };
-          return {
-            id: booking.id,
-            name: clientName,
-            username: `@${clientName
-              .toLowerCase()
-              .replace(/\s+/g, "")
-              .replace(/[^a-z0-9_]/g, "")}`,
-            avatar: undefined,
-            date: parsedDate ? parsedDate.toLocaleDateString() : "-",
-            status,
-            stage: stageMap[bookingStatus] || "Pending",
-            bookingStatus,
-          };
-        });
-        setEntries(mapped);
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Unable to load booking history.";
-        toast({
-          title: "Unable to load history",
-          description: message,
-          variant: "destructive",
-        });
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
-    };
-
+    isMountedRef.current = true;
     fetchHistory();
     return () => {
-      isMounted = false;
+      isMountedRef.current = false;
     };
   }, [toast]);
 
@@ -89,6 +93,11 @@ const HistoryContent = () => {
     if (statusFilter === "all") return entries;
     return entries.filter((entry) => entry.bookingStatus === statusFilter);
   }, [entries, statusFilter]);
+
+  const handleRescheduled = async () => {
+    setRescheduleTarget(null);
+    await fetchHistory();
+  };
 
   return (
     <main className="flex-1 p-6 bg-background overflow-auto">
@@ -119,8 +128,19 @@ const HistoryContent = () => {
           </div>
         </div>
 
-        <HistoryTable entries={filteredEntries} isLoading={isLoading} />
+        <HistoryTable
+          entries={filteredEntries}
+          isLoading={isLoading}
+          onReschedule={(entry) => setRescheduleTarget(entry)}
+        />
       </div>
+
+      <RescheduleBookingDialog
+        open={Boolean(rescheduleTarget)}
+        booking={rescheduleTarget}
+        onOpenChange={(open) => !open && setRescheduleTarget(null)}
+        onRescheduled={handleRescheduled}
+      />
     </main>
   );
 };

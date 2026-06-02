@@ -1,5 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -24,9 +25,10 @@ interface HistoryTableProps {
   entries: HistoryEntry[];
   isLoading?: boolean;
   emptyMessage?: string;
+  onReschedule?: (entry: HistoryEntry) => void;
 }
 
-const HistoryTable = ({ entries, isLoading = false, emptyMessage }: HistoryTableProps) => {
+const HistoryTable = ({ entries, isLoading = false, emptyMessage, onReschedule }: HistoryTableProps) => {
   return (
     <div className="bg-card rounded-lg border border-border">
       <Table>
@@ -39,12 +41,13 @@ const HistoryTable = ({ entries, isLoading = false, emptyMessage }: HistoryTable
             <TableHead className="text-muted-foreground font-medium">Date</TableHead>
             <TableHead className="text-muted-foreground font-medium">Status</TableHead>
             <TableHead className="text-muted-foreground font-medium">Stage</TableHead>
+            <TableHead className="text-muted-foreground font-medium text-right">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {isLoading ? (
             <TableRow className="hover:bg-muted/50">
-              <TableCell colSpan={5} className="text-muted-foreground py-6">
+              <TableCell colSpan={6} className="text-muted-foreground py-6">
                 Loading booking history...
               </TableCell>
             </TableRow>
@@ -83,11 +86,20 @@ const HistoryTable = ({ entries, isLoading = false, emptyMessage }: HistoryTable
                 <TableCell>
                   <span className="text-emerald-500 font-medium">{entry.stage}</span>
                 </TableCell>
+                <TableCell className="text-right">
+                  {entry.status === "Upcoming" && entry.bookingStatus === "accepted" && onReschedule ? (
+                    <Button variant="outline" size="sm" onClick={() => onReschedule(entry)}>
+                      Reschedule
+                    </Button>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">-</span>
+                  )}
+                </TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow className="hover:bg-muted/50">
-              <TableCell colSpan={5} className="text-muted-foreground py-6">
+              <TableCell colSpan={6} className="text-muted-foreground py-6">
                 {emptyMessage || "No bookings found yet."}
               </TableCell>
             </TableRow>

@@ -36,11 +36,15 @@ const NotificationsContent = () => {
           title:
             item.metadata?.status === "cancelled"
               ? "Booking cancelled"
+              : item.metadata?.status === "rescheduled"
+                ? "Booking rescheduled"
               : typeTitleMap[item.type] ?? "Notification",
           message: item.message,
           type:
             item.metadata?.status === "cancelled"
               ? "warning"
+              : item.metadata?.status === "rescheduled"
+                ? "appointment"
               : item.type === "booking_request"
                 ? "task"
                 : item.type === "booking_update"

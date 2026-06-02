@@ -51,6 +51,15 @@ export type BookingRecord = {
 	} | null;
 };
 
+export type AvailabilityRecord = {
+	id: string;
+	consultantId: string;
+	slotStart: string;
+	slotEnd: string;
+	timezone: string;
+	status: "open" | "pending" | "booked" | "archived";
+};
+
 export type CreateBookingResponse = {
 	data: {
 		booking: BookingRecord;
@@ -133,6 +142,30 @@ export const listConsultantBookings = async (status?: string) => {
 	});
 
 	return parseResponse<{ data: BookingRecord[] }>(response);
+};
+
+export const listConsultantAvailability = async (status?: "open" | "pending" | "booked" | "archived") => {
+	const query = status ? `?status=${encodeURIComponent(status)}` : "";
+	const response = await fetch(`${API_BASE_URL}/availability/me${query}`, {
+		method: "GET",
+		credentials: "include",
+	});
+
+	return parseResponse<{ data: AvailabilityRecord[] }>(response);
+};
+
+export const rescheduleConsultantBooking = async (
+	bookingId: string,
+	payload: { availabilityId: string; note?: string },
+) => {
+	const response = await fetch(`${API_BASE_URL}/bookings/${bookingId}/reschedule`, {
+		method: "POST",
+		credentials: "include",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(payload),
+	});
+
+	return parseResponse<{ data: BookingRecord }>(response);
 };
 
 export const updateBookingStatus = async (
